@@ -1,0 +1,65 @@
+#pragma once
+#ifndef _INITDIRECT3DAPP_H_
+#define _INITDIRECT3DAPP_H_
+
+#pragma once
+
+#include "D3DApp.h"
+#include <crtdbg.h>
+
+#include "ColorShaderClass.h"
+#include "TextureShaderClass.h"
+#include "ObjectClass.h"
+#include "CameraClass.h"
+
+#include "LightShaderClass.h"
+
+#include "LightObjectClass.h"
+
+#include "FogClass.h"
+
+#include "TerrainClass.h"
+#include "TerrainShaderClass.h"
+
+class InitDirect3DApp : public D3DApp
+{
+public:
+	InitDirect3DApp(HINSTANCE hInstance);
+	~InitDirect3DApp();
+
+	bool Init();
+
+	void OnResize();
+	void UpdateScene(float dt);
+	void DrawScene();
+
+	void OnMouseDown(WPARAM btnState, int x, int y);
+	void OnMouseUp(WPARAM btnState, int x, int y);
+	void OnMouseMove(WPARAM btnState, int x, int y);
+
+	
+
+
+private:
+	ShaderClass* mColorShader;
+	ShaderClass* mTexShader;
+	ShaderClass* mLightShader;
+	ShaderClass* mTerrainShader;
+
+	ModelClass* mModel;
+	ObjectClass* mObject;
+
+	LightObjectClass* mSun;
+
+	TerrainClass* mTerrainModel;
+	ObjectClass* mTerrain;
+
+	FogClass* mDrawDistFog;
+
+	CameraClass* mCamera;
+
+	POINT mLastMousePos;
+
+};
+
+#endif
