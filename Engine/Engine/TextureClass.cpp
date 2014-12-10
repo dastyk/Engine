@@ -4,6 +4,8 @@
 TextureClass::TextureClass()
 {
 	mSRV = 0;
+	mTextureCount = 0;
+	mUseBlendMap = false;
 }
 
 
@@ -23,14 +25,34 @@ TextureClass::~TextureClass()
 		delete[]mSRV;
 		mSRV = 0;
 	}
+	if (mBlendMapSRV)
+	{
+		mBlendMapSRV->Release();
+		mBlendMapSRV = 0;
+	}
 }
 
-bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName)
+bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* blendMapName)
 {
 
 	HRESULT hr;
 	mTextureCount = fileName.size();
 	
+	if (blendMapName)
+	{
+		mUseBlendMap = true;
+
+		hr = DirectX::CreateWICTextureFromFile(pDevice, blendMapName, 0, &mBlendMapSRV, NULL);
+		if (FAILED(hr))
+		{
+			MessageBox(0, L"Failed to load blendMap.", blendMapName, MB_OK);
+			return false;
+		}
+		
+	}		
+	else
+		mUseBlendMap = false;
+
 	mSRV = new ID3D11ShaderResourceView*[mTextureCount];
 	if (!mSRV)
 		return false;
@@ -103,4 +125,15 @@ ID3D11ShaderResourceView** TextureClass::GetShaderResourceView()const
 int TextureClass::GetTextureCount()const
 {
 	return mTextureCount;
+}
+
+ID3D11ShaderResourceView* TextureClass::GetBlendMapShaderResourceView()const
+{
+	return mBlendMapSRV;
+}
+
+
+bool TextureClass::blendEnabled()const
+{
+	return mUseBlendMap;
 }

@@ -5,6 +5,7 @@ TerrainShaderClass::TerrainShaderClass() : ShaderClass()
 {
 	mSampleState = 0;
 	mLightBuffer = 0;
+	mTextureInfoBuffer = 0;
 }
 
 
@@ -19,6 +20,11 @@ TerrainShaderClass::~TerrainShaderClass()
 	{
 		mLightBuffer->Release();
 		mLightBuffer = 0;
+	}
+	if (mTextureInfoBuffer)
+	{
+		mTextureInfoBuffer->Release();
+		mTextureInfoBuffer = 0;
 	}
 }
 
@@ -69,6 +75,11 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 		return false;
 	}
 
+	result = createConstantBuffer(pDevice, sizeof(TextureInfoBufferType), &mTextureInfoBuffer);
+	if (!result)
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -87,6 +98,9 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 	{
 		return false;
 	}
+
+
+
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 
@@ -95,17 +109,29 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 
 	TextureClass* pTexture = pObject->GetTexture();
 
-	result = SetConstantBufferParameters(pDeviceContext, pSunLightObject, pMaterial, pDrawDistFog,pTexture->GetTextureCount());
+	result = SetConstantBufferParameters(pDeviceContext, pSunLightObject, pMaterial, pDrawDistFog);
 	if (!result)
 	{
 		return false;
 	}
-
+	result = SetTextureConstantBufferParamters(pDeviceContext, pTexture);
+	if (!result)
+	{
+		return false;
+	}
 	
+
 	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
 
 	// Set shader texture resource in the pixel shader.
 	pDeviceContext->PSSetShaderResources(0, pTexture->GetTextureCount(), tex);
+
+	if (pTexture->blendEnabled())
+	{
+		ID3D11ShaderResourceView* tex2 = pTexture->GetBlendMapShaderResourceView();
+		pDeviceContext->PSSetShaderResources(3, 1, &tex2);
+	}
+
 
 	// Now render the prepared buffers with the shader.
 	RenderShader(pDeviceContext, pObject->GetIndexCount());
@@ -123,7 +149,7 @@ void TerrainShaderClass::RenderShader(ID3D11DeviceContext* pDeviceContext, int i
 	ShaderClass::RenderShader(pDeviceContext, indexCount);
 }
 
-bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog, int textureCount)
+bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -144,7 +170,6 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 
 	// Copy the matrices into the constant buffer.
 	dataPtr->ambientColor = pSunLightObject->GetAmbientLight()->GetLightColor();
-	dataPtr->textureCount = textureCount;
 	dataPtr->ambientReflection = pMaterial->GetAmbientReflection();
 
 	LightClass* temp = pSunLightObject->GetDiffuseLight();
@@ -171,6 +196,40 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mLightBuffer);
+
+	return true;
+}
+
+bool TerrainShaderClass::SetTextureConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, TextureClass* pTexture)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	TextureInfoBufferType* dataPtr;
+	unsigned int bufferNumber;
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mTextureInfoBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (TextureInfoBufferType*)mappedResource.pData;
+
+
+	dataPtr->textureCount = 20;
+	dataPtr->useBlendMap = pTexture->blendEnabled();
+
+
+	// Unlock the constant buffer.
+	pDeviceContext->Unmap(mTextureInfoBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 1;
+
+	// Set the constant buffer in the shader with the updated values.
+	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mTextureInfoBuffer);
 
 	return true;
 }

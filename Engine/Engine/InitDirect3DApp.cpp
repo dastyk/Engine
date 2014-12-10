@@ -13,6 +13,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	return app.Run();
 
+
 }
 
 
@@ -161,6 +162,12 @@ bool InitDirect3DApp::Init()
 	if (!mSun)
 		return false;
 
+	LightClass* light = mSun->GetAmbientLight();
+	light->SetLightColor(XMFLOAT3(0.5, 0.5, 0.5));
+	light = mSun->GetDiffuseLight();
+	light->SetLightColor(XMFLOAT3(0.7, 0.7, 0.7));
+
+
 	mTerrainModel = new TerrainClass();
 	if (!mTerrainModel)
 		return false;
@@ -188,7 +195,8 @@ void InitDirect3DApp::OnResize()
 {
 	D3DApp::OnResize();
 
-	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
+	if (mCamera)
+		mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 }
 
 void InitDirect3DApp::UpdateScene(float dt)
@@ -196,8 +204,8 @@ void InitDirect3DApp::UpdateScene(float dt)
 	TransformationClass* temp = mObject->GetTransformation();
 	XMFLOAT3 rot = temp->GetRotation();
 	XMFLOAT3 pos = temp->GetPosition();
-	pos.y = 2;
-	//rot.y -= dt * 25;
+	//pos.y = 2;
+	rot.y -= dt * 25;
 	//rot.x += dt * 25;
 	//rot.z += dt * 25;
 	temp->SetRotation(rot);

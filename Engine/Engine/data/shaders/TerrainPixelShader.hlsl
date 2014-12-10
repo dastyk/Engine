@@ -1,8 +1,7 @@
 
-cbuffer LightBuffer : register(cb0)
+cbuffer LightBuffer : register(b0)
 {
 	float3 ambientColor;
-	int textureCount;
 	float3 ambientReflection;
 
 	float3 diffDir;
@@ -18,7 +17,14 @@ cbuffer LightBuffer : register(cb0)
 	float fogRange;
 };
 
-Texture2D shaderTexture[2];
+cbuffer TextureInfoBuffer : register(b1)
+{
+	int textureCount;
+	bool useBlendMap;
+};
+
+Texture2D shaderTexture[3] : register(t0);
+Texture2D blendMap : register(t3);
 SamplerState SampleType;
 
 struct PS_IN
@@ -40,6 +46,7 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	float4 textureColor[2];
 	float  D = length(input.PosH);
 	int i = 0;
+
 	// Sample texture
 	for (i = 0; i < textureCount; i++)
 	{
@@ -73,12 +80,28 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	color = color*(1 - fogFactor);
 
 	// Multiply orig texture with final lighting and att fogColor*fogFactor
-	float4 finColor = float4(1, 1, 1, 1);
-	for (i = 0; i < textureCount; i++)
-	{
-		finColor = finColor * textureColor[i] * 2.0f;
-	}
+	float4 finColor = float4(0, 0, 0, 1);
 
+	if (true)
+	{
+		float4 blendMapColor = blendMap.Sample(SampleType, input.Tex);
+
+
+			float4 w1 = blendMapColor.x / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
+			float4 w2 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
+			float4 w3 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
+
+			finColor =  textureColor[0] * w1 + textureColor[1] * w2;// +textureColor[2] * w3;float4(1, 0, 0, 1);
+	}
+	else
+	{
+
+		finColor = float4(1, 1,1, 1);
+		for (int i = 0; i < 2; i++)
+		{
+			finColor *= textureColor[i];
+		}
+	}
 	finColor = saturate(finColor);
 
 	finColor = finColor * float4(color, 1) + float4(fogColor*fogFactor, 1);

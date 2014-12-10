@@ -27,7 +27,6 @@ namespace DX11HelpF
 	// Create swapchain
 	bool createSwapChain(IDXGIFactory* pFactory, ID3D11Device* pDevice, IDXGISwapChain** ppSwapChain, DXGI_SWAP_CHAIN_DESC* pSCD)
 	{
-		bool result;
 		HRESULT hr;
 
 		if (!pSCD)

@@ -22,6 +22,7 @@ public:
 	LightClass* GetDiffuseLight();
 	LightClass* GetSpecularLight();
 
+
 protected:
 	LightClass* mAmbient;
 	LightClass* mDiffuse;

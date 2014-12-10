@@ -16,16 +16,21 @@ public:
 	TextureClass();
 	~TextureClass();
 
-	bool Init(ID3D11Device* pDevice, vector<wstring> fileName);
+	bool Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* blendMapName);
 
 	ID3D11ShaderResourceView**	GetShaderResourceView()const;
 	int GetTextureCount()const;
 
+	ID3D11ShaderResourceView*	GetBlendMapShaderResourceView()const;
+	bool blendEnabled()const;
+
 private:
 	int mTextureCount;
+	bool mUseBlendMap;
 
 private:
 	ID3D11ShaderResourceView** mSRV;
+	ID3D11ShaderResourceView* mBlendMapSRV;
 };
 
 #endif

@@ -35,7 +35,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	filterTerrain();
 
-	result = fillVertexAndIndexData(pDevice, L"data/resources/Grass-Lawn-Texture-02.jpg", L"data/resources/flint_like_rock_4787.JPG");
+	result = fillVertexAndIndexData(pDevice, L"data/resources/Grass-Lawn-Texture-02.jpg", L"data/resources/flint_like_rock_4787.JPG",L"data/resources/blendmap.jpg");
 	if (!result)
 	{
 		return false;
@@ -73,7 +73,7 @@ bool TerrainClass::loadRAW(int width, int height, const char* filename, float he
 		for (int j = 0; j < mHeight; j++)
 		{
 			int index = j*mWidth + i;
-			mHeightMap[index] = (float)((vertexHeights[index] -128.0f));// *mHeightScale + mHeightOffset;
+			mHeightMap[index] = (float)((vertexHeights[index] - 128.0f));// *mHeightScale + mHeightOffset;
 			int hej = 123;
 		}
 	}
@@ -225,7 +225,7 @@ bool TerrainClass::inBoundsOfHeightMap(int m, int n)
 	return false;
 }
 
-bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileName, WCHAR* name2)
+bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileName, WCHAR* name2, WCHAR* blendmap)
 {
 	bool result;
 	Vertex* vertices = 0;
@@ -244,7 +244,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			int index = j*mWidth + i;
 			vertices[index].Pos = XMFLOAT3((i - ((mWidth-1) / 2.0f)), 0.0, (((mHeight-1) / 2.0f) - j));
 			vertices[index].Pos.y = mHeightMap[index];	
-			vertices[index].texCoord = XMFLOAT2((float)i / mWidth*4, (float)j / mHeight*4);
+			vertices[index].texCoord = XMFLOAT2((float)i / mWidth*32, (float)j / mHeight*32);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}
@@ -333,11 +333,13 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		return false;
 	}
 
+
 	vector<wstring> tex;
 	tex.push_back(texFileName);
 	tex.push_back(name2);
+	//tex.push_back(blendmap);
 
-	result = mTexture->Init(pDevice, tex);
+	result = mTexture->Init(pDevice, tex, blendmap);
 	if (!result)
 	{
 		return false;

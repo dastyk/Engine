@@ -23,7 +23,7 @@ private:
 	bool loadRAW(int width, int height, const char* filename, float heightScale, float heightOffset);
 	bool loadBitmap(char* fileName);
 
-	bool fillVertexAndIndexData(ID3D11Device*, WCHAR* texFileName, WCHAR* name2);
+	bool fillVertexAndIndexData(ID3D11Device*, WCHAR* texFileName, WCHAR* name2, WCHAR* blendmap);
 
 	float sampleHeight3x3(int i, int j);
 	bool inBoundsOfHeightMap(int m, int n);

@@ -276,7 +276,7 @@ bool result;
 	vector<wstring> tex;
 	tex.push_back(texFileName);
 
-	result = mTexture->Init(pDevice,tex);
+	result = mTexture->Init(pDevice,tex,NULL);
 	if (!result)
 	{
 		return false;
