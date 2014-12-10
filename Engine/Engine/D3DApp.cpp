@@ -22,7 +22,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mClientHeight = 640;
 
 	mNearPlane = 0.1;
-	mFarPlane = 1000;
+	mFarPlane = 500;
 	mFoV = XMConvertToRadians(90);
 
 	mMainWndCaption = L"Engine";

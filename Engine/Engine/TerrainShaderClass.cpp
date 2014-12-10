@@ -5,7 +5,7 @@ TerrainShaderClass::TerrainShaderClass() : ShaderClass()
 {
 	mSampleState = 0;
 	mLightBuffer = 0;
-	mTextureInfoBuffer = 0;
+	/*mTextureInfoBuffer = 0;*/
 }
 
 
@@ -21,11 +21,11 @@ TerrainShaderClass::~TerrainShaderClass()
 		mLightBuffer->Release();
 		mLightBuffer = 0;
 	}
-	if (mTextureInfoBuffer)
-	{
-		mTextureInfoBuffer->Release();
-		mTextureInfoBuffer = 0;
-	}
+	//if (mTextureInfoBuffer)
+	//{
+	//	mTextureInfoBuffer->Release();
+	//	mTextureInfoBuffer = 0;
+	//}
 
 
 }
@@ -77,11 +77,11 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, sizeof(TextureInfoBufferType), &mTextureInfoBuffer);
-	if (!result)
-	{
-		return false;
-	}
+	//result = createConstantBuffer(pDevice, sizeof(TextureInfoBufferType), &mTextureInfoBuffer);
+	//if (!result)
+	//{
+	//	return false;
+	//}
 
 	return true;
 }
@@ -116,11 +116,11 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 	{
 		return false;
 	}
-	result = SetTextureConstantBufferParamters(pDeviceContext, pTexture);
-	if (!result)
-	{
-		return false;
-	}
+	//result = SetTextureConstantBufferParamters(pDeviceContext, pTexture);
+	//if (!result)
+	//{
+	//	return false;
+	//}
 	
 
 	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
@@ -172,7 +172,9 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 
 	// Copy the matrices into the constant buffer.
 	dataPtr->ambientColor = pSunLightObject->GetAmbientLight()->GetLightColor();
+	
 	dataPtr->ambientReflection = pMaterial->GetAmbientReflection();
+
 
 	LightClass* temp = pSunLightObject->GetDiffuseLight();
 
@@ -185,10 +187,13 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 	dataPtr->specDir = temp->GetLightDir();
 	dataPtr->specColor = temp->GetLightColor();
 	dataPtr->specReflection = pMaterial->GetSpecularReflection();
-	dataPtr->specShinyPower = pMaterial->GetSpecularShinyPower();
+	//dataPtr->specShinyPower = pMaterial->GetSpecularShinyPower();
 
 	dataPtr->fogColor = pDrawDistFog->GetColor();
-	dataPtr->fogRange = pDrawDistFog->GetRange();
+	//dataPtr->fogRange = pDrawDistFog->GetRange();
+
+	XMFLOAT4 values = XMFLOAT4(2, 1.0f, pMaterial->GetSpecularShinyPower(), pDrawDistFog->GetRange());
+	dataPtr->TCBMSPFR = values;
 
 	// Unlock the constant buffer.
 	pDeviceContext->Unmap(mLightBuffer, 0);
@@ -202,36 +207,36 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 	return true;
 }
 
-bool TerrainShaderClass::SetTextureConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, TextureClass* pTexture)
-{
-	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	TextureInfoBufferType* dataPtr;
-	unsigned int bufferNumber;
-
-	// Lock the constant buffer so it can be written to.
-	result = pDeviceContext->Map(mTextureInfoBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Get a pointer to the data in the constant buffer.
-	dataPtr = (TextureInfoBufferType*)mappedResource.pData;
-
-
-	dataPtr->textureCount = 20;
-	dataPtr->useBlendMap = pTexture->blendEnabled();
-
-
-	// Unlock the constant buffer.
-	pDeviceContext->Unmap(mTextureInfoBuffer, 0);
-
-	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 1;
-
-	// Set the constant buffer in the shader with the updated values.
-	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mTextureInfoBuffer);
-
-	return true;
-}
+//bool TerrainShaderClass::SetTextureConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, TextureClass* pTexture)
+//{
+//	HRESULT result;
+//	D3D11_MAPPED_SUBRESOURCE mappedResource;
+//	TextureInfoBufferType* dataPtr;
+//	unsigned int bufferNumber;
+//
+//	// Lock the constant buffer so it can be written to.
+//	result = pDeviceContext->Map(mTextureInfoBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+//	if (FAILED(result))
+//	{
+//		return false;
+//	}
+//
+//	// Get a pointer to the data in the constant buffer.
+//	dataPtr = (TextureInfoBufferType*)mappedResource.pData;
+//
+//
+//	dataPtr->textureCount = pTexture->GetTextureCount();
+//	dataPtr->useBlendMap = pTexture->blendEnabled();
+//
+//
+//	// Unlock the constant buffer.
+//	pDeviceContext->Unmap(mTextureInfoBuffer, 0);
+//
+//	// Set the position of the constant buffer in the vertex shader.
+//	bufferNumber = 1;
+//
+//	// Set the constant buffer in the shader with the updated values.
+//	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mTextureInfoBuffer);
+//
+//	return true;
+//}

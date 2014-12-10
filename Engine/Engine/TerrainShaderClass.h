@@ -8,6 +8,7 @@
 
 struct TerrainCBufferType
 {
+	XMFLOAT4 TCBMSPFR;
 	XMFLOAT3 ambientColor;
 	float pad1;
 	XMFLOAT3 ambientReflection;
@@ -25,19 +26,19 @@ struct TerrainCBufferType
 	XMFLOAT3 specColor;
 	float pad7;
 	XMFLOAT3 specReflection;
-	float specShinyPower;
+	float pad8;
 
 	XMFLOAT3 fogColor;
-	float fogRange;
+	float pad9;
 };
 
-struct TextureInfoBufferType
-{
-	int textureCount;
-	XMFLOAT3 pad1;
-	bool useBlendMap;
-	XMFLOAT3 pad5;
-};
+//struct TextureInfoBufferType
+//{
+//	int textureCount;
+//	XMFLOAT3 pad1;
+//	int useBlendMap;
+//	XMFLOAT3 pad5;
+//};
 
 class TerrainShaderClass : public ShaderClass
 {
@@ -58,7 +59,7 @@ private:
 	ID3D11SamplerState* mSampleState;
 
 	ID3D11Buffer* mLightBuffer;
-	ID3D11Buffer* mTextureInfoBuffer;
+	/*ID3D11Buffer* mTextureInfoBuffer;*/
 };
 
 #endif
