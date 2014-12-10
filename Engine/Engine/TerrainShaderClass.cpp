@@ -27,6 +27,7 @@ TerrainShaderClass::~TerrainShaderClass()
 		mTextureInfoBuffer = 0;
 	}
 
+
 }
 
 bool TerrainShaderClass::Init(ID3D11Device* pDevice)
