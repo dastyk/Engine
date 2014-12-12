@@ -21,12 +21,6 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	bool result;
 
-	/*result = loadRAW(128, 128, "data/resources/heightmap.raw", 10, 0);
-	if (!result)
-	{
-		return false;
-	}*/
-
 	result = loadBitmap("data/resources/workin10.bmp");
 	if (!result)
 	{
@@ -35,7 +29,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	filterTerrain();
 
-	result = fillVertexAndIndexData(pDevice, L"data/resources/Grass-Lawn-Texture-02.jpg", L"data/resources/flint_like_rock_4787.JPG",L"data/resources/blendmap.jpg");
+	result = fillVertexAndIndexData(pDevice, L"data/resources/flint_like_rock_4787.JPG", L"data/resources/seamless_mountain_rock_by_hhh316-d31i6ci.jpg",L"data/resources/blendmap.jpg");
 	if (!result)
 	{
 		return false;
@@ -243,7 +237,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			int index = j*mWidth + i;
 			vertices[index].Pos = XMFLOAT3((i - ((mWidth-1) / 2.0f)), 0.0, (((mHeight-1) / 2.0f) - j));
 			vertices[index].Pos.y = mHeightMap[index];	
-			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth, (float)j / (float)mHeight);
+			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth*3, (float)j / (float)mHeight*3);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}

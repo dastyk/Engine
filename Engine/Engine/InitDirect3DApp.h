@@ -32,6 +32,7 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene();
+	void handleInput();
 
 	void OnMouseDown(WPARAM btnState, int x, int y);
 	void OnMouseUp(WPARAM btnState, int x, int y);

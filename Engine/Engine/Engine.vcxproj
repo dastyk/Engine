@@ -11,15 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AmbientLightClass.cpp" />
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DApp.cpp" />
-    <ClCompile Include="DiffuseLightClass.cpp" />
     <ClCompile Include="DX11HelperFuncs.cpp" />
     <ClCompile Include="FogClass.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="InitDirect3DApp.cpp" />
+    <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="LightClass.cpp" />
     <ClCompile Include="LightObjectClass.cpp" />
     <ClCompile Include="LightShaderClass.cpp" />
@@ -27,8 +26,8 @@
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="PositionClass.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
-    <ClCompile Include="SpecularLightClass.cpp" />
     <ClCompile Include="SunLightShaderClass.cpp" />
     <ClCompile Include="TerrainClass.cpp" />
     <ClCompile Include="TerrainShaderClass.cpp" />
@@ -38,17 +37,16 @@
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AmbientLightClass.h" />
     <ClInclude Include="bth_image.h" />
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="ColorShaderClass.h" />
     <ClInclude Include="D3DApp.h" />
-    <ClInclude Include="DiffuseLightClass.h" />
     <ClInclude Include="DirectXHelpers.h" />
     <ClInclude Include="DX11HelperFuncs.h" />
     <ClInclude Include="FogClass.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="InitDirect3DApp.h" />
+    <ClInclude Include="InputClass.h" />
     <ClInclude Include="LightClass.h" />
     <ClInclude Include="LightObjectClass.h" />
     <ClInclude Include="LightShaderClass.h" />
@@ -57,8 +55,8 @@
     <ClInclude Include="ObjectClass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlatformHelpers.h" />
+    <ClInclude Include="PositionClass.h" />
     <ClInclude Include="ShaderClass.h" />
-    <ClInclude Include="SpecularLightClass.h" />
     <ClInclude Include="SunLightShaderClass.h" />
     <ClInclude Include="TerrainClass.h" />
     <ClInclude Include="TerrainShaderClass.h" />

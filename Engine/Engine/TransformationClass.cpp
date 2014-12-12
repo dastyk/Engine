@@ -1,24 +1,18 @@
 #include "TransformationClass.h"
 
 
-TransformationClass::TransformationClass()
+TransformationClass::TransformationClass() : PositionClass()
 {
-	mPosition = XMFLOAT3(0.0, 0.0, 0.0);
-	mRotation = XMFLOAT3(0.0, 0.0, 0.0);
 	mScale = XMFLOAT3(1.0, 1.0, 1.0);
 }
 
-TransformationClass::TransformationClass(const TransformationClass* other)
+TransformationClass::TransformationClass(const TransformationClass* other) : PositionClass(other)
 {
-	this->mPosition = other->mPosition;
-	this->mRotation = other->mRotation;
 	this->mScale = other->mScale;
 }
 
-TransformationClass::TransformationClass(XMFLOAT3& Position, XMFLOAT3& Rotation, XMFLOAT3& Scale)
+TransformationClass::TransformationClass(XMFLOAT3& Position, XMFLOAT3& Rotation, XMFLOAT3& Scale) : PositionClass(Position,Rotation)
 {
-	mPosition = Position;
-	mRotation = Rotation;
 	mScale = Scale;
 }
 
@@ -44,41 +38,9 @@ XMFLOAT4X4 TransformationClass::GetWorldMatrix() const
 
 }
 
-XMFLOAT3 TransformationClass::GetPosition()const
-{
-	return mPosition;
-}
-
-XMFLOAT3 TransformationClass::GetRotation()const
-{
-	return mRotation;
-}
-
 XMFLOAT3 TransformationClass::GetScale()const
 {
 	return mScale;
-}
-
-void TransformationClass::SetPosition(XMFLOAT3& Position)
-{
-	mPosition = Position;
-}
-
-void TransformationClass::SetRotation(XMFLOAT3& Rotation)
-{
-	mRotation = Rotation;
-	if (mRotation.x > 360)
-		mRotation.x = 0;
-	if (mRotation.y > 360)
-		mRotation.y = 0;
-	if (mRotation.z > 360)
-		mRotation.z = 0;
-	if (mRotation.x < -360)
-		mRotation.x = 0;
-	if (mRotation.y < -360)
-		mRotation.y = 0;
-	if (mRotation.z < -360)
-		mRotation.z = 0;
 }
 
 void TransformationClass::SetScale(XMFLOAT3& Scale)

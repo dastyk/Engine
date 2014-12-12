@@ -18,6 +18,8 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mRenderTargetView = nullptr;
 	mDepthStencilView = nullptr;
 	
+	mInput = 0;
+
 	mClientWidth = 800;
 	mClientHeight = 640;
 
@@ -47,6 +49,13 @@ bool D3DApp::Init()
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Initiate directx", 0, 0);
+		return false;
+	}
+
+	mInput = new InputClass(mClientWidth, mClientHeight);
+	if (!mInput)
+	{
+		MessageBox(0, L"Failed create input class", 0, 0);
 		return false;
 	}
 
@@ -112,6 +121,11 @@ D3DApp::~D3DApp()
 		mDxgiFactory->Release();
 		mDxgiFactory = 0;
 	}
+	if (mInput)
+	{
+		delete mInput;
+		mDxgiFactory = 0;
+	}
 }
 
 HINSTANCE D3DApp::AppInst()const
@@ -149,6 +163,7 @@ int D3DApp::Run()
 			{
 				CalculateFrameState();
 				UpdateScene(mTimer.DeltaTime());
+				handleInput();
 				DrawScene();
 			}
 			else
@@ -224,9 +239,9 @@ bool D3DApp::InitMainWindow()
 	// Hide the mouse cursor.
 	ShowCursor(true);
 
-	mClientWM = GetSystemMetrics(SM_CXSCREEN)/2;
-	mClientHM = GetSystemMetrics(SM_CYSCREEN)/2;
-	SetCursorPos(mClientWM, mClientHM);
+	mScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+	mScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+	SetCursorPos(mScreenWidth/2, mScreenHeight/2);
 
 	return true;
 }
@@ -279,10 +294,15 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_SIZE: // If enter/exit fullscreen
-		if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
+		if (wParam == SIZE_MAXIMIZED)
 			OnResize();
 		return 0;
-
+	case WM_KEYDOWN:
+		mInput->keyDown((unsigned int)wParam);
+		return 0;
+	case WM_KEYUP:
+		mInput->keyUp((unsigned int)wParam);
+		return 0;
 
 		// Any other messages send to the default message handler as our application won't make use of them.
 	default:
@@ -292,6 +312,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 
 }
+
 
 
 bool D3DApp::InitDirect3D()

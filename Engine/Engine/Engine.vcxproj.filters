@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AmbientLightClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CameraClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -25,9 +22,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D3DApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DiffuseLightClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DX11HelperFuncs.cpp">
@@ -66,9 +60,6 @@
     <ClCompile Include="ShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpecularLightClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SunLightShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,11 +81,14 @@
     <ClCompile Include="WICTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InputClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PositionClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AmbientLightClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="bth_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,9 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D3DApp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DiffuseLightClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DirectXHelpers.h">
@@ -152,9 +143,6 @@
     <ClInclude Include="ShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpecularLightClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SunLightShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -174,6 +162,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WICTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PositionClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

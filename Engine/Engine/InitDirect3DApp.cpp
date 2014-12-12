@@ -205,7 +205,17 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);
 
-	mCamera->CalViewMatrix();
+	mCamera->SetUpdateTime(dt);
+
+	mCamera->CalcViewMatrix();
+}
+
+void InitDirect3DApp::handleInput()
+{
+	mCamera->MoveForward(mInput->isKeyDown(VK_W));
+	mCamera->MoveBackward(mInput->isKeyDown(VK_S));
+	mCamera->MoveRight(mInput->isKeyDown(VK_D));
+	mCamera->MoveLeft(mInput->isKeyDown(VK_A));
 }
 
 void InitDirect3DApp::DrawScene()
@@ -217,8 +227,6 @@ void InitDirect3DApp::DrawScene()
 	assert(mSwapChain);
 
 
-
-
 	// Clear back buffer blue.
 	float clearColor[] = { 0.4, 0.4, 0.9f, 1 };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
@@ -226,13 +234,6 @@ void InitDirect3DApp::DrawScene()
 
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-
-	//mTerrain->SetAsModelToBeDrawn(mDeviceContext);
-
-	//XMFLOAT4X4 I;
-	//XMStoreFloat4x4(&I, XMMatrixIdentity());
-
 
 	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 
@@ -259,14 +260,6 @@ void InitDirect3DApp::DrawScene()
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
 	}
-
-
-	/*result = mTexShader->Render(mDeviceContext, mObject->GetIndexCount(), mObject->GetWorldMatrix(), mCamera.GetViewMatrix(), mCamera.GetProjMatrix(),mObject->GetShaderResourceView());
-	if (!result)
-	{
-		MessageBox(0, L"Failed to Render Shaders", 0, 0);
-		return;
-	}*/
 	
 	// Present the back buffer to the screen
 	hr = mSwapChain->Present(0, 0);
@@ -282,14 +275,14 @@ void InitDirect3DApp::OnMouseDown(WPARAM btnState, int x, int y)
 	if ((btnState & MK_LBUTTON) != 0)
 	{
 
-		mCamera->moveForward();
+		//mCamera->MoveForward(true);
 		
 	}
 	else if ((btnState & MK_RBUTTON) != 0)
 	{
-		XMFLOAT3 pos = mCamera->GetPosition();
+		/*XMFLOAT3 pos = mCamera->GetPosition();
 		pos.z -= 1;
-		mCamera->SetPosition(pos);
+		mCamera->SetPosition(pos);*/
 
 	}
 

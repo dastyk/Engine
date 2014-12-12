@@ -12,6 +12,7 @@
 #include <string>
 #include <sstream>
 #include "GameTimer.h"
+#include "InputClass.h"
 
 using namespace DirectX;
 
@@ -32,6 +33,8 @@ public:
 
 	virtual bool Init();
 	virtual void OnResize();
+
+	virtual void handleInput() = 0;
 	virtual void UpdateScene(float dt) = 0;
 	virtual void DrawScene() = 0;
 	virtual LRESULT MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -39,7 +42,7 @@ public:
 	virtual void OnMouseDown(WPARAM btnState, int x, int y){}
 	virtual void OnMouseUp(WPARAM btnState, int x, int y){}
 	virtual void OnMouseMove(WPARAM btnState, int x, int y){}
-
+	
 
 protected:
 	bool InitMainWindow();
@@ -55,6 +58,10 @@ protected:
 	bool createRenderTargetView(D3D11_RENDER_TARGET_VIEW_DESC* pRTVDesc);
 
 	void setViewPort(float width,float height);
+
+
+protected:
+	
 
 protected:
 	IDXGIDevice* mDxgiDevice;
@@ -89,15 +96,19 @@ protected:
 	D3D_DRIVER_TYPE mDriverType;
 
 protected:
+
+	InputClass* mInput;
+
+
+
 	int mClientWidth;
 	int mClientHeight;
 
-	int mClientWM;
-	int mClientHM;
+	int mScreenWidth;
+	int mScreenHeight;
 
 	bool mEnable4xMsaa; 
 
-protected:
 	float mNearPlane, mFarPlane, mFoV;
 
 #if defined(DEBUG) || defined(_DEBUG)
