@@ -154,19 +154,13 @@ bool InitDirect3DApp::Init()
 	if (!mObject)
 		return false;
 
-	mDrawDistFog = new FogClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.4, 0.4, 0.9f), 50);
+	mDrawDistFog = new FogClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.4, 0.4, 0.9f), 10);
 	if (!mDrawDistFog)
 		return false;
 
 	mSun = new LightObjectClass();
 	if (!mSun)
 		return false;
-
-	LightClass* light = mSun->GetAmbientLight();
-	light->SetLightColor(XMFLOAT3(0.5, 0.5, 0.5));
-	light = mSun->GetDiffuseLight();
-	light->SetLightColor(XMFLOAT3(0.7, 0.7, 0.7));
-
 
 	mTerrainModel = new TerrainClass();
 	if (!mTerrainModel)

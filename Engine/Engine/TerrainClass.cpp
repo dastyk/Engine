@@ -240,11 +240,10 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	{
 		for (int i = 0; i < mWidth; i++)
 		{
-
 			int index = j*mWidth + i;
 			vertices[index].Pos = XMFLOAT3((i - ((mWidth-1) / 2.0f)), 0.0, (((mHeight-1) / 2.0f) - j));
 			vertices[index].Pos.y = mHeightMap[index];	
-			vertices[index].texCoord = XMFLOAT2((float)i / mWidth*32, (float)j / mHeight*32);
+			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth, (float)j / (float)mHeight);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}
@@ -335,8 +334,9 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 
 	vector<wstring> tex;
-	tex.push_back(texFileName);
 	tex.push_back(name2);
+	tex.push_back(texFileName);
+	
 	//tex.push_back(blendmap);
 
 	result = mTexture->Init(pDevice, tex, blendmap);
