@@ -32,13 +32,6 @@ struct TerrainCBufferType
 	float pad9;
 };
 
-//struct TextureInfoBufferType
-//{
-//	int textureCount;
-//	XMFLOAT3 pad1;
-//	int useBlendMap;
-//	XMFLOAT3 pad5;
-//};
 
 class TerrainShaderClass : public ShaderClass
 {
@@ -59,7 +52,6 @@ private:
 	ID3D11SamplerState* mSampleState;
 
 	ID3D11Buffer* mLightBuffer;
-	/*ID3D11Buffer* mTextureInfoBuffer;*/
 };
 
 #endif
