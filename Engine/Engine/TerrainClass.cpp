@@ -159,7 +159,7 @@ bool TerrainClass::loadBitmap(char* fileName)
 
 			index = (mWidth * j) + i;
 
-			mHeightMap[index] = (float)(height-128.0f)/4.0f;
+			mHeightMap[index] = (float)(height-128.0f)/3.0f;
 
 			k += 3;
 		}
@@ -237,7 +237,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			int index = j*mWidth + i;
 			vertices[index].Pos = XMFLOAT3((i - ((mWidth-1) / 2.0f)), 0.0, (((mHeight-1) / 2.0f) - j));
 			vertices[index].Pos.y = mHeightMap[index];	
-			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth*3, (float)j / (float)mHeight*3);
+			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth*4, (float)j / (float)mHeight*4);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}

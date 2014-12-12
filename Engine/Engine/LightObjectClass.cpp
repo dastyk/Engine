@@ -4,8 +4,8 @@
 LightObjectClass::LightObjectClass()
 {
 	mAmbient = new LightClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.3, 0.3, 0.3), XMFLOAT3(0, 0, 0));
-	mDiffuse = new LightClass(XMFLOAT3(0, 0, 1), XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0));
-	mSpecular = new LightClass(XMFLOAT3(0, 0, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(0, 0, -1));
+	mDiffuse = new LightClass(XMFLOAT3(0, 0, 1), XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(0, 0, 0));
+	mSpecular = new LightClass(XMFLOAT3(0, 0, 1), XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, -1));
 }
 
 LightObjectClass::LightObjectClass(LightClass* pAmbient, LightClass* pDiffuse, LightClass* pSpecular)
