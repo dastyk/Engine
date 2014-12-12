@@ -243,7 +243,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			int index = j*mWidth + i;
 			vertices[index].Pos = XMFLOAT3((i - ((mWidth-1) / 2.0f)), 0.0, (((mHeight-1) / 2.0f) - j));
 			vertices[index].Pos.y = mHeightMap[index];	
-			vertices[index].texCoord = XMFLOAT2((vertices[index].Pos.x + (0.5f*mWidth)) / mWidth, (vertices[index].Pos.z - (0.5f*mHeight)) / -mHeight);
+			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth, (float)j / (float)mHeight);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}
