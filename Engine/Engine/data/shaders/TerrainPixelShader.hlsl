@@ -19,12 +19,6 @@ cbuffer LightBuffer : register(b0)
 
 };
 
-//cbuffer TextureInfoBuffer : register(b1)
-//{
-//	int textureCount;
-//	bool useBlendMap;
-//};
-
 Texture2D shaderTexture[3] : register(t0);
 Texture2D blendMap : register(t3);
 SamplerState SampleType;
