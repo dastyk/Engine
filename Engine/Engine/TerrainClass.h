@@ -28,7 +28,6 @@ private:
 	float sampleHeight3x3(int i, int j);
 	bool inBoundsOfHeightMap(int m, int n);
 
-
 	void filterTerrain();
 
 private:

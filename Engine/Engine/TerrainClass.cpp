@@ -264,7 +264,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 			XMVECTOR vec1 = pos2 - pos1;
 			XMVECTOR vec2 = pos3 - pos1;
-
+			
 			XMVECTOR norm = XMVector3Cross(vec1, vec2);
 
 			for (int k = 0; k < 3; k++)
@@ -341,4 +341,3 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	return true;
 }
-
