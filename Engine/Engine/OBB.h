@@ -3,12 +3,7 @@
 
 #pragma once
 
-#define EPSILON 0.000001
-
-
-#include "Ray.h"
-
-#include <DirectXMath.h>
+#include <DirectXCollision.h>
 
 using namespace DirectX;
 
@@ -18,12 +13,14 @@ public:
 	OBB();
 	virtual ~OBB();
 
-	bool IntersectRay(Ray*, float&;
+	void createFromPoints(int pointCount, const XMFLOAT3* pPoints);
+
+	bool Intersect(XMVECTOR origin, XMVECTOR direction, float& dist)const;
+	bool InterSect(const BoundingOrientedBox&)const;
 
 protected:
-	XMFLOAT3 mPos;
-	XMFLOAT3 mBaseVector[3];
-	float mHalfLenght[3];
+
+	BoundingOrientedBox mBox;
 };
 
 #endif
