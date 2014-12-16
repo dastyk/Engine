@@ -24,9 +24,11 @@
     <ClCompile Include="LightShaderClass.cpp" />
     <ClCompile Include="MaterialClass.cpp" />
     <ClCompile Include="ModelClass.cpp" />
+    <ClCompile Include="OBB.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PositionClass.cpp" />
+    <ClCompile Include="Ray.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
     <ClCompile Include="SunLightShaderClass.cpp" />
     <ClCompile Include="TerrainClass.cpp" />
@@ -52,10 +54,12 @@
     <ClInclude Include="LightShaderClass.h" />
     <ClInclude Include="MaterialClass.h" />
     <ClInclude Include="ModelClass.h" />
+    <ClInclude Include="OBB.h" />
     <ClInclude Include="ObjectClass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlatformHelpers.h" />
     <ClInclude Include="PositionClass.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="ShaderClass.h" />
     <ClInclude Include="SunLightShaderClass.h" />
     <ClInclude Include="TerrainClass.h" />

@@ -87,6 +87,12 @@
     <ClCompile Include="PositionClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OBB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bth_image.h">
@@ -168,6 +174,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PositionClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OBB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
