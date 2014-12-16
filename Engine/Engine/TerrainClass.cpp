@@ -29,7 +29,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	filterTerrain();
 
-	result = fillVertexAndIndexData(pDevice, L"data/resources/flint_like_rock_4787.JPG", L"data/resources/seamless_mountain_rock_by_hhh316-d31i6ci.jpg",L"data/resources/blendmap.jpg");
+	result = fillVertexAndIndexData(pDevice, L"data/resources/seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"data/resources/seemless_4.jpg",L"data/resources/blendmap1.jpg");
 	if (!result)
 	{
 		return false;
@@ -222,13 +222,13 @@ bool TerrainClass::inBoundsOfHeightMap(int m, int n)
 bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileName, WCHAR* name2, WCHAR* blendmap)
 {
 	bool result;
-	Vertex* vertices = 0;
+	TerrainVertex* vertices = 0;
 
-	mStride = sizeof(Vertex);
+	mStride = sizeof(TerrainVertex);
 	mVertexCount = mWidth*mHeight;
 
 	
-	vertices = new Vertex[mVertexCount]; 
+	vertices = new TerrainVertex[mVertexCount];
 
 	for (int j = 0; j < mHeight; j++)
 	{
@@ -237,7 +237,8 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			int index = j*mWidth + i;
 			vertices[index].Pos = XMFLOAT3((i - ((mWidth-1) / 2.0f)), 0.0, (((mHeight-1) / 2.0f) - j));
 			vertices[index].Pos.y = mHeightMap[index];	
-			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth*4, (float)j / (float)mHeight*4);
+			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth*10, (float)j / (float)mHeight*10);
+			vertices[index].TexCoord2 = XMFLOAT2(j / (float)mWidth, (float)-i / (float)mHeight);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}

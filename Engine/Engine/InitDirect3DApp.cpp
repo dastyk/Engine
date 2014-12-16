@@ -216,6 +216,8 @@ void InitDirect3DApp::handleInput()
 	mCamera->MoveBackward(mInput->isKeyDown(VK_S));
 	mCamera->MoveRight(mInput->isKeyDown(VK_D));
 	mCamera->MoveLeft(mInput->isKeyDown(VK_A));
+	mCamera->MoveUpward(mInput->isKeyDown(VK_SPACE));
+	mCamera->MoveDownward(mInput->isKeyDown(VK_SHIFT));
 }
 
 void InitDirect3DApp::DrawScene()

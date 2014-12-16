@@ -11,6 +11,14 @@ using namespace std;
 
 #include "ModelClass.h"
 
+struct TerrainVertex
+{
+	XMFLOAT3 Pos;
+	XMFLOAT2 texCoord;
+	XMFLOAT3 Normal;
+	XMFLOAT2 TexCoord2;
+};
+
 class TerrainClass : public ModelClass
 {
 public:

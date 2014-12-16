@@ -164,11 +164,8 @@ void PositionClass::CalcForwardUpRightVector()
 	// Create the rotation matrix from the yaw, pitch, and roll values.
 	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
 
-
-
 	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
 	mForward = XMVector3TransformCoord(mForward, rotationMatrix);
 	mUpVector = XMVector3TransformCoord(mUpVector, rotationMatrix);
-	mRightVector = XMVector3Cross(mUpVector, mForward);
-	
+	mRightVector = XMVector3Cross(mUpVector, mForward);	
 }
