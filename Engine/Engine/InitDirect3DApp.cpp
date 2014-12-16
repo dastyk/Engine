@@ -206,7 +206,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetPosition(pos);
 
 	pos = mCamera->GetPosition();
-	pos.y = mTerrainModel->getHeightAtPoint(pos.x, pos.z) + 2.0f;
+	pos.y = mTerrainModel->getHeightAtPoint(pos) + 2.0f;
 	mCamera->SetPosition(pos);
 
 	mCamera->SetUpdateTime(dt);

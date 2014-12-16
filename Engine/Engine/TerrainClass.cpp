@@ -332,8 +332,6 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	tex.push_back(name2);
 	tex.push_back(texFileName);
 	
-	//tex.push_back(blendmap);
-
 	result = mTexture->Init(pDevice, tex, blendmap);
 	if (!result)
 	{
@@ -344,9 +342,45 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 }
 
 
-float TerrainClass::getHeightAtPoint(float x, float z)const
+float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 {
-	int minX = (int)x;
+	int x = pos.x;
+	int z = pos.z;
+
+	int i = x + mWidth / 2;
+	int j = mHeight / 2 - z;
+
+	int index = j*mWidth + i;
+	float fTri0 = mHeightMap[index];
+
+	index = j*mWidth + (i + 1);
+	float fTri1 = mHeightMap[index];
+
+	index = (j + 1)*mWidth + i;
+	float fTri2 = mHeightMap[index];
+
+	index = (j + 1)*mWidth + (i + 1);
+	float fTri3 = mHeightMap[index];
+
+	float Height = 0;
+	float sqX = pos.x - x;
+	float sqZ = pos.z - z;
+
+	if ((sqX + sqZ) < 1)
+	{
+		Height = fTri0;
+		Height += (fTri1 - fTri0)*sqX;
+		Height += (fTri2 - fTri0)*sqZ;
+	}
+	else
+	{
+		Height = fTri3;
+		Height += (fTri1 - fTri3)*(1.0f - sqX);
+		Height += (fTri2 - fTri3)*(1.0f - sqZ);
+	}
+
+	return Height;
+	/*int minX = (int)x;
 	int minZ = (int)z;
 
 	float X = (x + mWidth / 2.0f);
@@ -382,5 +416,5 @@ float TerrainClass::getHeightAtPoint(float x, float z)const
 	float dist = 0;
 	DirectX::TriangleTests::Intersects(rayO, rayD, p1, p2, p3, dist);
 
-	return 256 - dist;
+	return 256 - dist;*/
 }
