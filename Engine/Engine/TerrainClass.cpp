@@ -342,3 +342,45 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	return true;
 }
+
+
+float TerrainClass::getHeightAtPoint(float x, float z)const
+{
+	int minX = (int)x;
+	int minZ = (int)z;
+
+	float X = (x + mWidth / 2.0f);
+	float Z = (mHeight / 2.0f - z);
+
+	int i = (int)(x + mWidth / 2.0f);
+	int j = (int)(mHeight / 2.0f - z);
+
+	XMVECTOR p1, p2, p3;
+
+	int index = 0;
+	float diff = X - i + Z - j;
+
+	if (diff > 1.0f)
+	{
+		index = (j + 1)*mWidth + (i + 1);
+		p1 = XMVectorSet(minX + 1, mHeightMap[index], minZ + 1, 1);
+	}
+	else
+	{
+		index = j*mWidth + i;
+		p1 = XMVectorSet(minX, mHeightMap[index], minZ, 1);
+	}
+
+	index = j*mWidth + (i + 1);
+	p2 = XMVectorSet(minX + 1, mHeightMap[index], minZ, 1);
+	index = (j + 1)*mWidth + i;
+	p3 = XMVectorSet(minX, mHeightMap[index], minZ - 1, 1);
+
+	XMVECTOR rayO = XMVectorSet(x, 256, z, 0);
+	XMVECTOR rayD = XMVectorSet(0, -1, 0, 0);
+
+	float dist = 0;
+	DirectX::TriangleTests::Intersects(rayO, rayD, p1, p2, p3, dist);
+
+	return 256 - dist;
+}

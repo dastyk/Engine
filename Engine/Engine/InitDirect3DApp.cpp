@@ -205,9 +205,15 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);
 
+	pos = mCamera->GetPosition();
+	pos.y = mTerrainModel->getHeightAtPoint(pos.x, pos.z) + 2.0f;
+	mCamera->SetPosition(pos);
+
 	mCamera->SetUpdateTime(dt);
 
 	mCamera->CalcViewMatrix();
+
+	pos = mCamera->GetPosition();
 }
 
 void InitDirect3DApp::handleInput()
