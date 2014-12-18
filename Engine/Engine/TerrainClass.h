@@ -33,7 +33,7 @@ public:
 
 private:
 	bool loadRAW(int width, int height, const char* filename, float heightScale, float heightOffset);
-	bool loadBitmap(char* fileName);
+	bool loadBitmap(char* fileName, float heightScale, float heightOffset);
 
 	bool fillVertexAndIndexData(ID3D11Device*, WCHAR* texFileName, WCHAR* name2, WCHAR* blendmap);
 

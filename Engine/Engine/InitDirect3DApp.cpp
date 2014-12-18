@@ -210,10 +210,10 @@ void InitDirect3DApp::UpdateScene(float dt)
 	//pos.y = (mCamera->GetAvgPosY());
 	mCamera->SetPosition(pos);
 
-	std::wostringstream outs;
+	/*std::wostringstream outs;
 	outs.precision(6);
 	outs << mMainWndCaption << pos.y;
-	SetWindowText(mhMainWnd, outs.str().c_str());
+	SetWindowText(mhMainWnd, outs.str().c_str());*/
 
 	mCamera->SetUpdateTime(dt);
 

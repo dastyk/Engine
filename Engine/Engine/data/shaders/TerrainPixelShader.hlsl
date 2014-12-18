@@ -84,16 +84,16 @@ float4 PSMain(PS_IN input) : SV_TARGET
 		float4 blendMapColor = blendMap.Sample(SampleType, input.Tex2);
 
 
-			/*float4 w1 = blendMapColor.x / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
+			float4 w1 = blendMapColor.x / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
 			float4 w2 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
-			float4 w3 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);*/
+			float4 w3 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
 
 			float3 norm = float3(0, 1, 0);
 			float3 ref = reflect(N, norm);
 			float intens = saturate(dot(ref, N));
 
-			//finColor = textureColor[0] * w1  + textureColor[1] * w2;// +textureColor[2] * w3; float4(1, 0, 0, 1);
-		finColor = textureColor[1] * intens  + textureColor[0] * (1 - intens);
+			finColor = textureColor[0] * w1  + textureColor[1] * w2;// +textureColor[2] * w3; float4(1, 0, 0, 1);
+		//finColor = textureColor[1] * intens  + textureColor[0] * (1 - intens);
 	}
 	else
 	{

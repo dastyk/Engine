@@ -8,7 +8,7 @@ PositionClass::PositionClass()
 	mUpVector = XMVectorSet(0, 1, 0, 0);
 	mForward = XMVectorSet(0.0, 0.0, 1.0, 0.0);
 	mRightVector = XMVectorSet(1.0, 0.0, 0.0, 0.0);
-	mMoveSpeed = 10;
+	mMoveSpeed = 50;
 	mLookSpeed = 5;
 	mLastPosIndex = 0;
 	for (int i = 0; i < SAMPLES_POSITION; i++)
@@ -83,11 +83,11 @@ void PositionClass::MoveForward(bool state)
 {
 	if (state)
 	{
-		/*XMVECTOR pos = XMLoadFloat3(&mPosition);
+		XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos += mForward*mUpdateTime*mMoveSpeed;
-		SetPosition(pos);*/
-		mPosition.x += 0.05;
-		mPosition.z -= 0.05;
+		SetPosition(pos);
+		//mPosition.x += 0.05;
+		//mPosition.z -= 0.05;
 	}
 }
 

@@ -24,13 +24,13 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	bool result;
 
-	loadRAW(257,257 , "data/resources/Heightmap.raw", 0.5, 0);
+	//loadRAW(257,257 , "data/resources/Heightmap.raw", 0.7, 0);
 
-	/*result = loadBitmap("data/resources/workin10.bmp");
+	result = loadBitmap("data/resources/workin10.bmp",0.3,0);
 	if (!result)
 	{
 		return false;
-	}*/
+	}
 
 	filterTerrain();
 
@@ -85,7 +85,7 @@ bool TerrainClass::loadRAW(int width, int height, const char* filename, float he
 	return true;
 }
 
-bool TerrainClass::loadBitmap(char* fileName)
+bool TerrainClass::loadBitmap(char* fileName, float heightScale, float heightOffset)
 {
 	FILE* filePtr;
 	int error;
@@ -94,7 +94,9 @@ bool TerrainClass::loadBitmap(char* fileName)
 	BITMAPINFOHEADER bitmapInfoHeader;
 	int imageSize, i, j, k, index;
 	unsigned char* bitmapImage;
-	unsigned char height;
+
+	mHeightScale = heightScale;
+	mHeightOffset = heightOffset;
 
 	// Open the height map file in binary.
 	error = fopen_s(&filePtr, fileName, "rb");
@@ -149,9 +151,9 @@ bool TerrainClass::loadBitmap(char* fileName)
 	}
 
 	// Create the structure to hold the height map data.
-	mHeightMap = new float*[mHeight];
-	for (int i = 0; i < mHeight; i++)
-		mHeightMap[i] = new float[mWidth];
+	mHeightMap = new float*[mWidth];
+	for (int i = 0; i < mWidth; i++)
+		mHeightMap[i] = new float[mHeight];
 
 	if (!mHeightMap)
 	{
@@ -166,9 +168,9 @@ bool TerrainClass::loadBitmap(char* fileName)
 	{
 		for (j = 0; j<mHeight; j++)
 		{
-			height = bitmapImage[k];
+			float height = bitmapImage[k];
 
-			mHeightMap[i][j] = (float)(height-128.0f);
+			mHeightMap[i][j] = (float)(height * mHeightScale + mHeightOffset);
 
 			k += 3;
 		}
@@ -187,9 +189,9 @@ void TerrainClass::filterTerrain()
 	for (int i = 0; i < mHeight; i++)
 		FilteredHeightMap[i] = new float[mWidth];
 
-	for (int i = 0; i < mWidth; i++)
+	for (int j = 0; j < mHeight; j++)
 	{
-		for (int j = 0; j < mHeight; j++)
+		for (int i = 0; i < mWidth; i++)
 		{
 			FilteredHeightMap[i][j] = sampleHeight3x3(i, j);
 		}
@@ -231,7 +233,7 @@ bool TerrainClass::inBoundsOfHeightMap(int m, int n)const
 {
 	if (m < 0 || n < 0)
 		return false;
-	if (m >= mWidth-1 || n >= mHeight-1)
+	if (m >= mWidth || n >= mHeight)
 		return false;
 
 	return true;
@@ -247,15 +249,21 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	
 	vertices = new TerrainVertex[mVertexCount];
+	float dx = 4.0f;
+	float dz = 4.0f;
+
+	float width = (mWidth - 1) / dx;
+	float depth = (mHeight - 1) / dz;
 
 	for (int j = 0; j < mHeight; j++)
 	{
 		for (int i = 0; i < mWidth; i++)
 		{
 			int index = j*mWidth + i;
-			vertices[index].Pos = XMFLOAT3(i , mHeightMap[i][j], -j);
-			vertices[index].texCoord = XMFLOAT2(i / (float)mWidth*10, (float)j / (float)mHeight*10);
-			vertices[index].TexCoord2 = XMFLOAT2(j / (float)mWidth, (float)-i / (float)mHeight);
+			//mHeightMap[i][j] = i;
+			vertices[index].Pos = XMFLOAT3(i - (mWidth - 1) / 2.0f, mHeightMap[i][j], j - (mHeight - 1) / 2.0f);
+			vertices[index].texCoord = XMFLOAT2(i / width, j / depth);
+			vertices[index].TexCoord2 = XMFLOAT2(-i / (float)mWidth, -j/(float)mHeight);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}
@@ -272,8 +280,8 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		{
 			int d = j*mWidth + i;
 			indices[index] = (unsigned long)d;
-			indices[index + 1] = indices[index + 4] = (unsigned long)d + 1;
-			indices[index + 2] = indices[index + 3] = (unsigned long)mWidth + d;
+			indices[index + 1] = indices[index + 4] = (unsigned long)mWidth + d;
+			indices[index + 2] = indices[index + 3] = (unsigned long)d + 1;
 			indices[index + 5] = (unsigned long)mWidth + d + 1;
 			
 			XMVECTOR pos1 = XMLoadFloat3(&(vertices[indices[index]].Pos));
@@ -362,38 +370,74 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 {
 
-	float x = pos.x;
-	float z = -pos.z;
+	//float x = pos.x;
+	//float z = -pos.z;
 
-	int i = truncf(x);
-	int j = truncf(z);
+	//int i = truncf(x);
+	//int j = truncf(z);
 
-	if (!inBoundsOfHeightMap(i, j))
+	//if (!inBoundsOfHeightMap(i, j))
+	//	return 0.0;
+	//if (!inBoundsOfHeightMap(i + 1, j + 1))
+	//	return 0.0;
+
+	//float fTri0 = mHeightMap[i][j];
+	//float fTri1 = mHeightMap[i + 1][j];
+	//float fTri2 = mHeightMap[i][j + 1];
+	//float fTri3 = mHeightMap[i + 1][j + 1];
+
+	//float Height = 0;
+	//float sqX = x - i;
+	//float sqZ = z - j;
+
+	//if (sqX <= (1 - sqZ))
+	//{
+	//	float xu = fTri1 - fTri0;
+	//	float zu = fTri2 - fTri0;
+	//	Height = fTri0 + sqX*xu * sqZ*zu;
+	//}
+	//else
+	//{
+	//	float xu = fTri2 - fTri3;
+	//	float zu = fTri1 - fTri3;
+	//	Height = fTri3 + sqX*xu * sqZ*zu;
+	//}
+
+	//return Height;//(fTri0 +fTri1 + fTri2+fTri3)/4.0f;
+
+	int x = (int)pos.x + (mWidth-1)/2.0f;
+	int z = (int)pos.z + (mHeight - 1) / 2.0f;
+
+	if (!inBoundsOfHeightMap(x, z))
+			return 0.0;
+	if (!inBoundsOfHeightMap(x + 1, z + 1))
 		return 0.0;
 
-	float fTri0 = mHeightMap[i][j];
-	float fTri1 = mHeightMap[i + 1][j];
-	float fTri2 = mHeightMap[i][j + 1];
-	float fTri3 = mHeightMap[i + 1][j + 1];
+	float fTriY0 = (mHeightMap[x][z]);
+	float fTriY1 = (mHeightMap[x + 1][z]);
+	float fTriY2 = (mHeightMap[x][z + 1]);
+	float fTriY3 = (mHeightMap[x + 1][z + 1]);
 
-	float Height = 0;
-	float sqX = x - i;
-	float sqZ = z - j;
-
-	if (sqX <= (1 - sqZ))
+	// find which of the 2 triangles the point is over (depends on how you render)
+	// then take the height at a triangle point
+	// and adjust by the slope down right-angle edges * distance along that edge.
+	float fHeight;
+	float fSqX = pos.x - truncf(pos.x);
+	float fSqZ = pos.z - truncf(pos.z);
+	if ((fSqX + fSqZ) < 1)
 	{
-		float yu = fTri1 - fTri0;
-		float zu = fTri2 - fTri0;
-		Height = fTri0 + sqX*yu + sqZ*zu;
+		fHeight = fTriY0;
+		fHeight += (fTriY1 - fTriY0) * fSqX;
+		fHeight += (fTriY2 - fTriY0) * fSqZ;
 	}
 	else
 	{
-		float yu = fTri1 - fTri3;
-		float zu = fTri2 - fTri3;
-		Height = fTri3 + sqX*yu + sqZ*zu;
+		fHeight = fTriY3;
+		fHeight += (fTriY1 - fTriY3) * (1.0f - fSqZ);
+		fHeight += (fTriY2 - fTriY3) * (1.0f - fSqX);
 	}
+	return fHeight;
 
-	return Height;//(fTri0 +fTri1 + fTri2+fTri3)/4.0f;
 
 	/*int minX = (int)pos.x;
 	int minZ = (int)pos.z;
