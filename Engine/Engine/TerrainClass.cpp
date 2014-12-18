@@ -344,7 +344,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 {
-	/*int x = pos.x;
+	int x = pos.x;
 	int z = pos.z;
 
 	int i = x + (mWidth-1) / 2;
@@ -379,8 +379,8 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 		Height += (fTri2 - fTri3)*(1.0f - sqZ);
 	}
 
-	return Height;*/
-	int minX = (int)pos.x;
+	return Height;
+	/*int minX = (int)pos.x;
 	int minZ = (int)pos.z;
 
 	int i = (int)(minX + mWidth / 2.0f);
@@ -417,5 +417,5 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 	float dist = 0;
 	DirectX::TriangleTests::Intersects(rayO, rayD, p1, p2, p3, dist);
 
-	return 256 - dist;
+	return 256 - dist;*/
 }
