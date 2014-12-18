@@ -39,15 +39,15 @@ private:
 
 	
 	float sampleHeight3x3(int i, int j);
-	bool inBoundsOfHeightMap(int m, int n);
+	bool inBoundsOfHeightMap(int m, int n)const;
 
 	void filterTerrain();
 
 private:
 	int mWidth, mHeight;
 	float mHeightScale, mHeightOffset;
-
-	float* mHeightMap;
+	
+	float** mHeightMap;
 };
 
 #endif

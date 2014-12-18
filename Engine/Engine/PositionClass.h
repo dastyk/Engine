@@ -2,6 +2,8 @@
 #define _POSIITONCLASS_H_
 
 #pragma once
+#define SAMPLES_POSITION 5
+
 #include <DirectXMath.h>
 
 using namespace DirectX;
@@ -16,10 +18,13 @@ public:
 
 public:
 	void SetPosition(XMFLOAT3& pos);
+	void SetPosition(XMVECTOR& pos);
 	virtual void SetRotation(XMFLOAT3& rot);
 	
 	XMFLOAT3 GetPosition()const;
 	XMFLOAT3 GetRotation()const;
+
+	float GetAvgPosY()const;
 
 	void SetUpdateTime(float dt);
 	void SetMoveSpeed(float speed);
@@ -43,6 +48,9 @@ protected:
 	XMVECTOR mForward;
 	XMVECTOR mUpVector;
 	XMVECTOR mRightVector;
+
+	XMFLOAT3 mLastPos[SAMPLES_POSITION];
+	int mLastPosIndex;
 
 
 	float mUpdateTime;

@@ -207,7 +207,13 @@ void InitDirect3DApp::UpdateScene(float dt)
 
 	pos = mCamera->GetPosition();
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
+	//pos.y = (mCamera->GetAvgPosY());
 	mCamera->SetPosition(pos);
+
+	std::wostringstream outs;
+	outs.precision(6);
+	outs << mMainWndCaption << pos.y;
+	SetWindowText(mhMainWnd, outs.str().c_str());
 
 	mCamera->SetUpdateTime(dt);
 

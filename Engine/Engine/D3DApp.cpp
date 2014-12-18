@@ -162,8 +162,9 @@ int D3DApp::Run()
 			if (!mAppPaused)
 			{
 				CalculateFrameState();
-				UpdateScene(mTimer.DeltaTime());
 				handleInput();
+				UpdateScene(mTimer.DeltaTime());
+				
 				DrawScene();
 			}
 			else

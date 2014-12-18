@@ -10,6 +10,11 @@ PositionClass::PositionClass()
 	mRightVector = XMVectorSet(1.0, 0.0, 0.0, 0.0);
 	mMoveSpeed = 10;
 	mLookSpeed = 5;
+	mLastPosIndex = 0;
+	for (int i = 0; i < SAMPLES_POSITION; i++)
+	{
+		mLastPos[i] = mPosition;
+	}
 }
 
 PositionClass::PositionClass(const PositionClass* other)
@@ -30,7 +35,16 @@ PositionClass::~PositionClass()
 
 void PositionClass::SetPosition(XMFLOAT3& pos)
 {
+	mLastPos[mLastPosIndex] = mPosition;
 	mPosition = pos;
+	mLastPosIndex = (mLastPosIndex + 1) % SAMPLES_POSITION;
+}
+
+void PositionClass::SetPosition(XMVECTOR& pos)
+{
+	mLastPos[mLastPosIndex] = mPosition;
+	XMStoreFloat3(&mPosition, pos);
+	mLastPosIndex = (mLastPosIndex + 1) % SAMPLES_POSITION;
 }
 
 void PositionClass::SetRotation(XMFLOAT3& rot)
@@ -69,9 +83,11 @@ void PositionClass::MoveForward(bool state)
 {
 	if (state)
 	{
-		XMVECTOR pos = XMLoadFloat3(&mPosition);
+		/*XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos += mForward*mUpdateTime*mMoveSpeed;
-		XMStoreFloat3(&mPosition, pos);
+		SetPosition(pos);*/
+		mPosition.x += 0.05;
+		mPosition.z -= 0.05;
 	}
 }
 
@@ -81,7 +97,7 @@ void PositionClass::MoveBackward(bool state)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos -= mForward*mUpdateTime*mMoveSpeed;
-		XMStoreFloat3(&mPosition, pos);
+		SetPosition(pos);
 	}
 }
 
@@ -91,7 +107,7 @@ void PositionClass::MoveUpward(bool state)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos += mUpVector*mUpdateTime*mMoveSpeed;
-		XMStoreFloat3(&mPosition, pos);
+		SetPosition(pos);
 	}
 }
 
@@ -101,7 +117,7 @@ void PositionClass::MoveDownward(bool state)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos -= mUpVector*mUpdateTime*mMoveSpeed;
-		XMStoreFloat3(&mPosition, pos);
+		SetPosition(pos);
 	}
 }
 
@@ -111,7 +127,7 @@ void PositionClass::MoveRight(bool state)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos += mRightVector*mUpdateTime*mMoveSpeed;
-		XMStoreFloat3(&mPosition, pos);
+		SetPosition(pos);
 	}
 }
 
@@ -121,7 +137,7 @@ void PositionClass::MoveLeft(bool state)
 	{
 		XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos -= mRightVector*mUpdateTime*mMoveSpeed;
-		XMStoreFloat3(&mPosition, pos);
+		SetPosition(pos);
 	}
 }
 
@@ -168,4 +184,16 @@ void PositionClass::CalcForwardUpRightVector()
 	mForward = XMVector3TransformCoord(mForward, rotationMatrix);
 	mUpVector = XMVector3TransformCoord(mUpVector, rotationMatrix);
 	mRightVector = XMVector3Cross(mUpVector, mForward);	
+}
+
+float PositionClass::GetAvgPosY()const
+{
+	float avg = 0;
+	int count = 0;
+	for (int i = 0; i < SAMPLES_POSITION; i++)
+	{
+		avg += mLastPos[i].y;
+	}
+	
+	return avg / SAMPLES_POSITION;
 }
