@@ -115,7 +115,7 @@ bool InitDirect3DApp::Init()
 		return false;
 
 	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
-	XMFLOAT3 pos(0.0, 0.0, 0.0);
+	XMFLOAT3 pos(128.0, 0.0, 128.0);
 	mCamera->SetPosition(pos);
 
 	mTexShader = new TextureShaderClass();

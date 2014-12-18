@@ -92,8 +92,8 @@ float4 PSMain(PS_IN input) : SV_TARGET
 			float3 ref = reflect(N, norm);
 			float intens = saturate(dot(ref, N));
 
-			finColor = textureColor[0] * w1  + textureColor[1] * w2;// +textureColor[2] * w3; float4(1, 0, 0, 1);
-		//finColor = textureColor[1] * intens  + textureColor[0] * (1 - intens);
+			//finColor = textureColor[0] * w1  + textureColor[1] * w2;// +textureColor[2] * w3; float4(1, 0, 0, 1);
+		finColor = textureColor[1] * intens  + textureColor[0] * (1 - intens);
 	}
 	else
 	{

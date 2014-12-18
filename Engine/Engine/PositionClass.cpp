@@ -8,7 +8,7 @@ PositionClass::PositionClass()
 	mUpVector = XMVectorSet(0, 1, 0, 0);
 	mForward = XMVectorSet(0.0, 0.0, 1.0, 0.0);
 	mRightVector = XMVectorSet(1.0, 0.0, 0.0, 0.0);
-	mMoveSpeed = 50;
+	mMoveSpeed = 10;
 	mLookSpeed = 5;
 	mLastPosIndex = 0;
 	for (int i = 0; i < SAMPLES_POSITION; i++)

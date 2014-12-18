@@ -252,8 +252,14 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	float dx = 4.0f;
 	float dz = 4.0f;
 
-	float width = (mWidth - 1) / dx;
-	float depth = (mHeight - 1) / dz;
+	float width = (mWidth - 1) / 2;
+	float depth = (mHeight - 1) / 2;
+
+	//((i - ((mWidth - 1) / 2.0f)), 0.0, (((mHeight - 1) / 2.0f) - j));
+	//vertices[index].Pos.y = mHeightMap[index];
+	//vertices[index].texCoord = XMFLOAT2(i / (float)mWidth * 10, (float)j / (float)mHeight * 10);
+	//vertices[index].TexCoord2 = XMFLOAT2(j / (float)mWidth, (float)-i / (float)mHeight);
+
 
 	for (int j = 0; j < mHeight; j++)
 	{
@@ -261,9 +267,9 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		{
 			int index = j*mWidth + i;
 			//mHeightMap[i][j] = i;
-			vertices[index].Pos = XMFLOAT3(i - (mWidth - 1) / 2.0f, mHeightMap[i][j], j - (mHeight - 1) / 2.0f);
-			vertices[index].texCoord = XMFLOAT2(i / width, j / depth);
-			vertices[index].TexCoord2 = XMFLOAT2(-i / (float)mWidth, -j/(float)mHeight);
+			vertices[index].Pos = XMFLOAT3(i, mHeightMap[i][j], j);
+			vertices[index].texCoord = XMFLOAT2(i / width  * dx, j / depth * dz);
+			vertices[index].TexCoord2 = XMFLOAT2(i / (float)mWidth, j/(float)mHeight);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
 		}
 	}
@@ -369,44 +375,8 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 {
-
-	//float x = pos.x;
-	//float z = -pos.z;
-
-	//int i = truncf(x);
-	//int j = truncf(z);
-
-	//if (!inBoundsOfHeightMap(i, j))
-	//	return 0.0;
-	//if (!inBoundsOfHeightMap(i + 1, j + 1))
-	//	return 0.0;
-
-	//float fTri0 = mHeightMap[i][j];
-	//float fTri1 = mHeightMap[i + 1][j];
-	//float fTri2 = mHeightMap[i][j + 1];
-	//float fTri3 = mHeightMap[i + 1][j + 1];
-
-	//float Height = 0;
-	//float sqX = x - i;
-	//float sqZ = z - j;
-
-	//if (sqX <= (1 - sqZ))
-	//{
-	//	float xu = fTri1 - fTri0;
-	//	float zu = fTri2 - fTri0;
-	//	Height = fTri0 + sqX*xu * sqZ*zu;
-	//}
-	//else
-	//{
-	//	float xu = fTri2 - fTri3;
-	//	float zu = fTri1 - fTri3;
-	//	Height = fTri3 + sqX*xu * sqZ*zu;
-	//}
-
-	//return Height;//(fTri0 +fTri1 + fTri2+fTri3)/4.0f;
-
-	int x = (int)pos.x + (mWidth-1)/2.0f;
-	int z = (int)pos.z + (mHeight - 1) / 2.0f;
+	int x = (int)pos.x;
+	int z = (int)pos.z;
 
 	if (!inBoundsOfHeightMap(x, z))
 			return 0.0;
@@ -437,44 +407,4 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 		fHeight += (fTriY2 - fTriY3) * (1.0f - fSqX);
 	}
 	return fHeight;
-
-
-	/*int minX = (int)pos.x;
-	int minZ = (int)pos.z;
-
-	int i = (int)(minX + mWidth / 2.0f);
-	int j = (int)(mHeight / 2.0f - minZ);
-
-	float X = (pos.x + mWidth / 2.0f);
-	float Z = (mHeight / 2.0f - pos.z);
-
-
-	XMVECTOR p1, p2, p3;
-
-	int index = 0;
-	float diff = pos.x - minX + pos.z - minZ;
-
-	if (diff < 1.0f)
-	{
-		index = j*mWidth + i;
-		p1 = XMVectorSet(minX, mHeightMap[index], minZ, 1);
-	}
-	else
-	{
-		index = (j + 1)*mWidth + (i + 1);
-		p1 = XMVectorSet(minX + 1, mHeightMap[index], minZ + 1, 1);		
-	}
-
-	index = j*mWidth + (i + 1);
-	p2 = XMVectorSet(minX + 1, mHeightMap[index], minZ, 1);
-	index = (j + 1)*mWidth + i;
-	p3 = XMVectorSet(minX, mHeightMap[index], minZ - 1, 1);
-
-	XMVECTOR rayO = XMVectorSet(pos.x, 256, pos.z, 0);
-	XMVECTOR rayD = XMVectorSet(0, -1, 0, 0);
-
-	float dist = 0;
-	DirectX::TriangleTests::Intersects(rayO, rayD, p1, p2, p3, dist);
-
-	return 256 - dist;*/
 }
