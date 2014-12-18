@@ -4,6 +4,7 @@
 #pragma once
 
 #include "PositionClass.h"
+#include <DirectXCollision.h>
 
 class CameraClass : public PositionClass
 {
@@ -17,12 +18,16 @@ public:
 
 	XMFLOAT4X4 GetViewMatrix()const;
 	XMFLOAT4X4 GetProjMatrix()const;
+	BoundingFrustum GetBoundingFrustrum()const;
+
 
 	void CalcViewMatrix();
 	
 private:
 	XMFLOAT4X4 mViewMatrix;
 	XMFLOAT4X4 mProjMatrix;
+
+	BoundingFrustum mFrustrum;
 };
 
 #endif

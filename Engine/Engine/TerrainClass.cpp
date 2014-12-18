@@ -255,12 +255,6 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	float width = (mWidth - 1) / 2;
 	float depth = (mHeight - 1) / 2;
 
-	//((i - ((mWidth - 1) / 2.0f)), 0.0, (((mHeight - 1) / 2.0f) - j));
-	//vertices[index].Pos.y = mHeightMap[index];
-	//vertices[index].texCoord = XMFLOAT2(i / (float)mWidth * 10, (float)j / (float)mHeight * 10);
-	//vertices[index].TexCoord2 = XMFLOAT2(j / (float)mWidth, (float)-i / (float)mHeight);
-
-
 	for (int j = 0; j < mHeight; j++)
 	{
 		for (int i = 0; i < mWidth; i++)
@@ -388,9 +382,6 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 	float fTriY2 = (mHeightMap[x][z + 1]);
 	float fTriY3 = (mHeightMap[x + 1][z + 1]);
 
-	// find which of the 2 triangles the point is over (depends on how you render)
-	// then take the height at a triangle point
-	// and adjust by the slope down right-angle edges * distance along that edge.
 	float fHeight;
 	float fSqX = pos.x - truncf(pos.x);
 	float fSqZ = pos.z - truncf(pos.z);

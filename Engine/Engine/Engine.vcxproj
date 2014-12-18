@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABB.cpp" />
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DApp.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="ObjectClass.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PositionClass.cpp" />
+    <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
     <ClCompile Include="SunLightShaderClass.cpp" />
     <ClCompile Include="TerrainClass.cpp" />
@@ -38,6 +40,7 @@
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h" />
     <ClInclude Include="bth_image.h" />
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="ColorShaderClass.h" />
@@ -58,6 +61,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlatformHelpers.h" />
     <ClInclude Include="PositionClass.h" />
+    <ClInclude Include="QuadTree.h" />
     <ClInclude Include="ShaderClass.h" />
     <ClInclude Include="SunLightShaderClass.h" />
     <ClInclude Include="TerrainClass.h" />

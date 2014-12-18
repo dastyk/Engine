@@ -14,7 +14,7 @@ CameraClass::~CameraClass()
 }
 
 
-void CameraClass::CalcViewMatrix()
+void CameraClass::CalcViewMatrix() 
 {
 	XMVECTOR position, lookAt;
 	XMMATRIX rotationMatrix;
@@ -39,6 +39,7 @@ void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float
 {
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
+	BoundingFrustum::CreateFromMatrix(mFrustrum, proj);
 }
 
 void CameraClass::SetRotation(XMFLOAT3& rot)
@@ -67,4 +68,9 @@ XMFLOAT4X4 CameraClass::GetViewMatrix()const
 XMFLOAT4X4 CameraClass::GetProjMatrix()const
 {
 	return (XMFLOAT4X4)mProjMatrix;
+}
+
+BoundingFrustum CameraClass::GetBoundingFrustrum()const
+{
+	return mFrustrum;
 }

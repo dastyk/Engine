@@ -30,6 +30,7 @@ public:
 	bool Init(ID3D11Device*);
 
 	float getHeightAtPoint(const XMFLOAT3&)const;
+	XMFLOAT3 GetVectorAtPoint(const XMFLOAT3&)const;
 
 private:
 	bool loadRAW(int width, int height, const char* filename, float heightScale, float heightOffset);

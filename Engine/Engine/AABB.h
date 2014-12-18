@@ -1,5 +1,5 @@
-#ifndef _OBB_H_
-#define _OBB_H_
+#ifndef _AABB_H_
+#define _AABB_H_
 
 #pragma once
 
@@ -7,20 +7,20 @@
 
 using namespace DirectX;
 
-class OBB
+class AABB
 {
 public:
-	OBB();
-	virtual ~OBB();
+	AABB();
+	virtual ~AABB();
 
 	void createFromPoints(int pointCount, const XMFLOAT3* pPoints);
 
 	bool Intersect(XMVECTOR origin, XMVECTOR direction, float& dist)const;
-	bool Intersect(const BoundingOrientedBox&)const;
+	bool Intersect(const BoundingBox&)const;
 
 protected:
 
-	BoundingOrientedBox mBox;
+	BoundingBox mBox;
 };
 
 #endif

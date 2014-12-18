@@ -86,8 +86,6 @@ void PositionClass::MoveForward(bool state)
 		XMVECTOR pos = XMLoadFloat3(&mPosition);
 		pos += mForward*mUpdateTime*mMoveSpeed;
 		SetPosition(pos);
-		//mPosition.x += 0.05;
-		//mPosition.z -= 0.05;
 	}
 }
 

@@ -22,7 +22,7 @@ bool OBB::Intersect(XMVECTOR origin, XMVECTOR direction, float& dist)const
 	return mBox.Intersects(origin, direction, dist);
 }
 
-bool OBB::InterSect(const BoundingOrientedBox& boundingBox)const
+bool OBB::Intersect(const BoundingOrientedBox& boundingBox)const
 {
 	return mBox.Intersects(boundingBox);
 }
