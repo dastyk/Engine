@@ -31,12 +31,24 @@ void CameraClass::CalcViewMatrix()
 	// Finally create the view matrix from the three updated vectors.
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(position, lookAt, mUpVector);
 	XMStoreFloat4x4(&mViewMatrix, viewMatrix);
+
+	XMMATRIX proj = XMMatrixPerspectiveFovLH(mFoV, mAspectRatio, mNearPlane, mFarPlane);
+	BoundingFrustum::CreateFromMatrix(mFrustrum, proj);
+	XMVECTOR det;
+	XMMATRIX invViewMatrix = XMMatrixInverse(&det, viewMatrix);
+	mFrustrum.Transform(mFrustrum, invViewMatrix);
+
 	return;
 }
 
 
 void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP)
 {
+	mFoV = FoV;
+	mAspectRatio = AspectRatio;
+	mNearPlane = nearP;
+	mFarPlane = mFarPlane;
+
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
 	BoundingFrustum::CreateFromMatrix(mFrustrum, proj);

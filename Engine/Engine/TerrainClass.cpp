@@ -3,11 +3,15 @@
 
 TerrainClass::TerrainClass() : ModelClass()
 {
+	mTree = 0;
+	mHeightMap = 0;
+	mDynIndexBuffer = 0;
+	mDynIndexCount = 0;
 }
 
 
 TerrainClass::~TerrainClass()
-{	
+{
 	for (int i = 0; i < mWidth; i++)
 	{
 		delete[] mHeightMap[i];
@@ -16,6 +20,16 @@ TerrainClass::~TerrainClass()
 	{
 		delete[]mHeightMap;
 		mHeightMap = 0;
+	}	
+	if (mTree)
+	{
+		delete mTree;
+		mTree = 0;
+	}
+	if (mDynIndexBuffer)
+	{
+		mDynIndexBuffer->Release();
+		mDynIndexBuffer = 0;
 	}
 }
 
@@ -24,13 +38,17 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	bool result;
 
-	//loadRAW(257,257 , "data/resources/Heightmap.raw", 0.7, 0);
-
-	result = loadBitmap("data/resources/workin10.bmp",0.3,0);
+	result = loadRAW(257, 257, "data/resources/Heightmap.raw", 0.7, 0);
 	if (!result)
 	{
 		return false;
 	}
+
+	/*result = loadBitmap("data/resources/workin10.bmp",0.3,0);
+	if (!result)
+	{
+		return false;
+	}*/
 
 	filterTerrain();
 
@@ -76,7 +94,6 @@ bool TerrainClass::loadRAW(int width, int height, const char* filename, float he
 			int index = j*mWidth + i;
 			float height = vertexHeights[index];
 			mHeightMap[i][j] = (float)(((vertexHeights[index])) * mHeightScale + mHeightOffset);
-			int hej = 12;
 		}
 	}
 
@@ -249,6 +266,8 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	
 	vertices = new TerrainVertex[mVertexCount];
+	XMFLOAT3* pPoints = new XMFLOAT3[mVertexCount];
+
 	float dx = 4.0f;
 	float dz = 4.0f;
 
@@ -262,6 +281,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			int index = j*mWidth + i;
 			//mHeightMap[i][j] = i;
 			vertices[index].Pos = XMFLOAT3(i, mHeightMap[i][j], j);
+			pPoints[index] = vertices[index].Pos;
 			vertices[index].texCoord = XMFLOAT2(i / width  * dx, j / depth * dz);
 			vertices[index].TexCoord2 = XMFLOAT2(i / (float)mWidth, j/(float)mHeight);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
@@ -320,6 +340,19 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		}
 	}
 
+
+	mTree = new QuadTree(mVertexCount, pPoints, mIndexCount, indices, mWidth - 1, mHeight - 1);
+	if (!mTree)
+		return false;
+
+	delete[]pPoints;
+
+	result = createIndexBuffer(pDevice, &mDynIndexBuffer, sizeof(unsigned long)*mIndexCount);
+	if (!result)
+	{
+		return false;
+	}
+
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = vertices;
 	vinitData.SysMemPitch = 0;
@@ -345,6 +378,9 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	}
 
 	delete[]indices;
+
+
+
 
 	mTexture = new TextureClass();
 	if (!mTexture)
@@ -398,4 +434,66 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 		fHeight += (fTriY2 - fTriY3) * (1.0f - fSqX);
 	}
 	return fHeight;
+}
+
+bool TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
+{
+	unsigned long* pIndices = new unsigned long[mIndexCount];
+	mDynIndexCount = 0;
+	if (mTree->GetIndexArray(mDynIndexCount, pIndices, frustum))
+	{
+
+		HRESULT result;
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		unsigned long* dataPtr;
+		unsigned int bufferNumber;
+
+		// Lock the constant buffer so it can be written to.
+		result = pDeviceContext->Map(mDynIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		// Get a pointer to the data in the constant buffer.
+		dataPtr = (unsigned long*)mappedResource.pData;
+
+		for (int i = 0; i < mDynIndexCount; i++)
+		{
+			dataPtr[i] = pIndices[i];
+		}
+
+		// Unlock the constant buffer.
+		pDeviceContext->Unmap(mDynIndexBuffer, 0);
+
+		unsigned int stride;
+		unsigned int offset;
+
+		// Set vertex buffer stride and offset.
+		stride = mStride;
+		offset = 0;
+
+		// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
+
+		pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
+
+		pDeviceContext->IASetIndexBuffer(mDynIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set topology
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		delete[]pIndices;
+
+		return true;
+	}
+	else
+	{
+		delete[]pIndices;
+		return false;
+	}
+}
+
+int TerrainClass::GetIndexCount() const
+{
+	return (int)mDynIndexCount;
 }

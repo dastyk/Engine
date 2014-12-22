@@ -23,7 +23,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mClientWidth = 800;
 	mClientHeight = 640;
 
-	mNearPlane = 0.1;
+	mNearPlane = 0.1f;
 	mFarPlane = 500;
 	mFoV = XMConvertToRadians(90);
 

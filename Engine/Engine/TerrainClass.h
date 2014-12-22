@@ -13,6 +13,8 @@ using namespace std;
 
 #include <DirectXCollision.h>
 
+#include "QuadTree.h"
+
 struct TerrainVertex
 {
 	XMFLOAT3 Pos;
@@ -32,6 +34,10 @@ public:
 	float getHeightAtPoint(const XMFLOAT3&)const;
 	XMFLOAT3 GetVectorAtPoint(const XMFLOAT3&)const;
 
+	bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
+	int GetIndexCount()const;
+
+
 private:
 	bool loadRAW(int width, int height, const char* filename, float heightScale, float heightOffset);
 	bool loadBitmap(char* fileName, float heightScale, float heightOffset);
@@ -47,8 +53,16 @@ private:
 private:
 	int mWidth, mHeight;
 	float mHeightScale, mHeightOffset;
-	
+	int mDynIndexCount;
+
+
 	float** mHeightMap;
+
+
+	QuadTree* mTree;
+
+	ID3D11Buffer* mDynIndexBuffer;
+
 };
 
 #endif

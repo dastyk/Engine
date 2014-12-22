@@ -69,13 +69,13 @@ ShaderClass::~ShaderClass()
 
 void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, WCHAR* shaderFilename)
 {
-	char* compileErrors;
+	WCHAR* compileErrors;
 	unsigned long bufferSize, i;
-	std::ofstream fout;
+	std::wofstream fout;
 
 
 	// Get a pointer to the error message text buffer.
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
+	compileErrors = (WCHAR*)(errorMessage->GetBufferPointer());
 
 	// Get the length of the message.
 	bufferSize = errorMessage->GetBufferSize();

@@ -253,7 +253,18 @@ void InitDirect3DApp::DrawScene()
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	if (mTerrain->SetAsObjectToBeDrawn(mDeviceContext, mCamera->GetBoundingFrustrum()))
+	{
+		result = mTerrainShader->Render(
+			mDeviceContext,
+			mTerrain,
+			mCamera,
+			mSun,
+			mObject->GetMaterial(),
+			mDrawDistFog);
+	}
+
+	/*mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 
 	result = mTerrainShader->Render(
 		mDeviceContext,
@@ -261,7 +272,7 @@ void InitDirect3DApp::DrawScene()
 		mCamera,
 		mSun,
 		mObject->GetMaterial(),
-		mDrawDistFog);
+		mDrawDistFog);*/
 
 	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 

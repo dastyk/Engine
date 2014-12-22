@@ -329,7 +329,33 @@ bool ModelClass::createIndexBuffer(ID3D11Device* pDevice, D3D11_SUBRESOURCE_DATA
 	return true;
 }
 
+bool ModelClass::createIndexBuffer(ID3D11Device* pDevice, ID3D11Buffer **ppBuffer, UINT byteWidth)
+{
+	HRESULT hr;
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = byteWidth;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	hr = pDevice->CreateBuffer(&ibd, NULL, ppBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Failed to create dynamic Index Buffer.", 0, 0);
+		return false;
+	}
+	return true;
+}
+
 TextureClass* ModelClass::GetTexture()const
 {
 	return mTexture;
+}
+
+
+bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
+{
+	return false;
 }

@@ -1,81 +1,171 @@
 #include "QuadTree.h"
 
 
-QuadTree::QuadTree(int pointCount, const XMFLOAT3* pPoints, float minSize)
+QuadTree::QuadTree(int pointCount, const XMFLOAT3* pPoints, int indexCount, unsigned long* pIndices, int width, int depth)
 {
 	AABB::createFromPoints(pointCount, pPoints);
 
-	QuadTree::createChildren(minSize);
+	mIndexCount = indexCount;
+
+	mIndices = new unsigned long[mIndexCount];
+	for (int i = 0; i < mIndexCount; i++)
+	{
+		mIndices[i] = pIndices[i];
+	}
+
+	QuadTree::createChildren(width, depth, width, depth, 0, 0, pIndices);
+}
+
+QuadTree::QuadTree(XMVECTOR p1, XMVECTOR p2, int indexCount, unsigned long* pIndices, int wOffset, int dOffset, int width, int depth, int fWidth, int fDepth)
+{
+	AABB::createFromPoints(p1, p2);
+
+	mIndexCount = indexCount / 4;
+	int nWidth = width / 2;
+	int nDepth = depth / 2;
+
+	if (mIndexCount <= QUAD_SIZE_MIN)
+	{
+		mIndices = new unsigned long[mIndexCount];
+
+		int count = 0;
+		for (int j = 0; j < nDepth; j++)
+		{
+			for (int i = 0; i < nWidth; i++)
+			{
+				int d = ((dOffset + j)*fWidth + (wOffset + i)) * 6;
+				for (int u = 0; u < 6; u++)
+				{
+					unsigned long test = pIndices[d + u];
+					mIndices[count] = test;
+					count++;
+				}
+			}
+		}
+	}
+	else
+		createChildren(nWidth, nDepth,fWidth,fDepth, wOffset, dOffset, pIndices);
+
+
 }
 
 QuadTree::~QuadTree()
 {
 	for (int i = 0; i < 4; i++)
 	{
-		delete mChildren[i];
+		if (mChildren[i])
+			delete mChildren[i];
 	}
-
+	if (mIndices)
+	{
+		delete mIndices;
+		mIndices = 0;
+	}
 }
 
-void QuadTree::createChildren(float minSize)
+void QuadTree::createChildren(int width, int depth, int fWidth, int fDepth, int wOffset, int dOffset, unsigned long* pIndices)
 {
 	XMFLOAT3 c = mBox.Center;
 	XMFLOAT3 e = mBox.Extents;
 
-	if (e.x < minSize || e.y < minSize || e.z < minSize)
+	int nwOffset = wOffset;
+	int ndOffset = dOffset + depth / 2;
+
+	// Top Left Box
+	mChildren[0] = new QuadTree(
+		XMVectorSet(c.x - e.x, c.y - e.y, c.z, 0),
+		XMVectorSet(c.x, c.y + e.y, c.z + e.z, 0),
+		mIndexCount,
+		pIndices,
+		nwOffset,
+		ndOffset,
+		width,
+		depth,
+		fWidth,
+		fDepth);
+
+	nwOffset = wOffset + width / 2;
+	ndOffset = dOffset + depth / 2;
+
+	// Top Right Box
+	mChildren[1] = new QuadTree(
+		XMVectorSet(c.x, c.y - e.y, c.z, 0),
+		XMVectorSet(c.x + e.x, c.y + e.y, c.z + e.y, 0),
+		mIndexCount,
+		pIndices,
+		nwOffset,
+		ndOffset,
+		width,
+		depth,
+		fWidth,
+		fDepth);
+
+	nwOffset = wOffset;
+	ndOffset = dOffset;
+
+	// Bottom Left Box
+	mChildren[2] = new QuadTree(
+		XMVectorSet(c.x - e.x, c.y - e.y, c.z - e.z, 0),
+		XMVectorSet(c.x, c.y + e.y, c.z, 0),
+		mIndexCount,
+		pIndices,
+		nwOffset,
+		ndOffset,
+		width,
+		depth,
+		fWidth,
+		fDepth);
+
+	nwOffset = wOffset + width / 2;
+	ndOffset = dOffset;
+
+	// Bottom Right Box
+	mChildren[3] = new QuadTree(
+		XMVectorSet(c.x, c.y - e.y, c.z - e.z, 0),
+		XMVectorSet(c.x + e.x, c.y + e.y, c.z, 0),
+		mIndexCount,
+		pIndices,
+		nwOffset,
+		ndOffset,
+		width,
+		depth,
+		fWidth,
+		fDepth);
+
+}
+
+bool QuadTree::GetIndexArray(int& indexCount, unsigned long* pIndices, BoundingFrustum& frustum)
+{
+	if (Intersect(frustum))
 	{
-		for (int i = 0; i < 4; i++)
-			mChildren[i] = nullptr;
+		if (mChildren[0])
+		{
+			int iCount = 0;
+			for (int i = 0; i < 4; i++)
+			{
+				if (mChildren[i]->GetIndexArray(indexCount, pIndices, frustum))
+				{
+					iCount += indexCount;
+				}
+				indexCount = iCount;
+			}
+			
+		}
+		else
+		{
+			for (int i = 0; i < mIndexCount; i++)
+			{
+				pIndices[indexCount + i] = mIndices[i];
+			}
+			indexCount = mIndexCount;
+		}
+		return true;
 	}
 	else
 	{
-		// Middle points
-		XMFLOAT3 p1 = XMFLOAT3(c.x, c.y + e.y, c.z);
-		XMFLOAT3 p2 = XMFLOAT3(c.x, c.y - e.y, c.z);
-
-		// Middle Top points
-		XMFLOAT3 p3 = XMFLOAT3(c.x, c.y + e.y, c.z + e.z);
-		XMFLOAT3 p4 = XMFLOAT3(c.x, c.y - e.y, c.z + e.z);
-
-		// Middle Right points
-		XMFLOAT3 p5 = XMFLOAT3(c.x + e.x, c.y + e.y, c.z);
-		XMFLOAT3 p6 = XMFLOAT3(c.x + e.x, c.y - e.y, c.z);
-
-		// Middle Bottom points
-		XMFLOAT3 p7 = XMFLOAT3(c.x, c.y + e.y, c.z - e.z);
-		XMFLOAT3 p8 = XMFLOAT3(c.x, c.y - e.y, c.z - e.z);
-
-		// Middle left points
-		XMFLOAT3 p9 = XMFLOAT3(c.x - e.x, c.y + e.y, c.z);
-		XMFLOAT3 p10 = XMFLOAT3(c.x - e.x, c.y - e.y, c.z);
-
-		// Top Left points
-		XMFLOAT3 p11 = XMFLOAT3(c.x - e.x, c.y + e.y, c.z + e.z);
-		XMFLOAT3 p12 = XMFLOAT3(c.x - e.x, c.y - e.y, c.z + e.z);
-
-		// Top Right points
-		XMFLOAT3 p13 = XMFLOAT3(c.x + e.x, c.y + e.y, c.z + e.z);
-		XMFLOAT3 p14 = XMFLOAT3(c.x + e.x, c.y - e.y, c.z + e.z);
-
-		// Bottom Left points
-		XMFLOAT3 p15 = XMFLOAT3(c.x - e.x, c.y + e.y, c.z - e.z);
-		XMFLOAT3 p16 = XMFLOAT3(c.x - e.x, c.y - e.y, c.z - e.z);
-
-		// Bottom Right points
-		XMFLOAT3 p17 = XMFLOAT3(c.x + e.x, c.y + e.y, c.z - e.z);
-		XMFLOAT3 p18 = XMFLOAT3(c.x + e.x, c.y - e.y, c.z - e.z);
-
-
-		XMFLOAT3 b0[8] = { p1, p2, p3, p4, p9, p10, p11, p12 };
-		mChildren[0] = new QuadTree(8, b0);
-
-		XMFLOAT3 b1[8] = { p1, p2, p3, p4, p5, p6, p13, p14 };
-		mChildren[1] = new QuadTree(8, b1);
-
-		XMFLOAT3 b2[8] = { p1, p2, p7, p8, p9, p10, p15, p16 };
-		mChildren[2] = new QuadTree(8, b2);
-
-		XMFLOAT3 b3[8] = { p1, p2, p7, p8, p5, p6, p17, p18 };
-		mChildren[3] = new QuadTree(8, b3);
+		indexCount = 0;
+		return false;
 	}
+
+	
 }

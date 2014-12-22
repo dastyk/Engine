@@ -5,6 +5,8 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "TextureClass.h"
+#include <DirectXCollision.h>
+
 
 using namespace DirectX;
 
@@ -25,8 +27,11 @@ public:
 	
 
 	void SetAsModelToBeDrawn(ID3D11DeviceContext*);
+	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
 
-	int GetIndexCount()const;
+
+	virtual int GetIndexCount()const;
+
 	TextureClass* GetTexture()const;
 
 
@@ -35,6 +40,7 @@ public:
 protected:
 	bool createVertexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
 	bool createIndexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
+	bool createIndexBuffer(ID3D11Device*, ID3D11Buffer**, UINT);
 
 protected:
 	TextureClass *mTexture;

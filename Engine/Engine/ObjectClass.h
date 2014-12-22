@@ -22,6 +22,7 @@ public:
 
 	void Update();
 	void SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext);
+	bool SetAsObjectToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
 
 	XMFLOAT4X4 GetWorldMatrix()const;
 	int GetIndexCount()const;

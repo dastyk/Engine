@@ -14,9 +14,12 @@ public:
 	virtual ~AABB();
 
 	void createFromPoints(int pointCount, const XMFLOAT3* pPoints);
+	void createFromPoints(XMVECTOR p1, XMVECTOR p2);
+
 
 	bool Intersect(XMVECTOR origin, XMVECTOR direction, float& dist)const;
 	bool Intersect(const BoundingBox&)const;
+	bool Intersect(const BoundingFrustum&)const;
 
 protected:
 

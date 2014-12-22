@@ -36,7 +36,7 @@ bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* 
 {
 
 	HRESULT hr;
-	mTextureCount = fileName.size();
+	
 	
 	if (blendMapName)
 	{
@@ -52,7 +52,7 @@ bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* 
 	}		
 	else
 		mUseBlendMap = false;
-
+	mTextureCount = fileName.size();
 	mSRV = new ID3D11ShaderResourceView*[mTextureCount];
 	if (!mSRV)
 		return false;

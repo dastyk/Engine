@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CameraClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,6 +39,9 @@
     <ClCompile Include="InitDirect3DApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InputClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="LightClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,10 +57,19 @@
     <ClCompile Include="ModelClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OBB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ObjectClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PositionClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderClass.cpp">
@@ -81,23 +96,11 @@
     <ClCompile Include="WICTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PositionClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OBB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AABB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="bth_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -125,6 +128,9 @@
     <ClInclude Include="InitDirect3DApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InputClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="LightClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -140,6 +146,9 @@
     <ClInclude Include="ModelClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OBB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ObjectClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -147,6 +156,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlatformHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PositionClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClass.h">
@@ -171,21 +186,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WICTextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InputClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PositionClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OBB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
