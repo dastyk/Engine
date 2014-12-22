@@ -33,8 +33,10 @@ void CameraClass::CalcViewMatrix()
 	XMStoreFloat4x4(&mViewMatrix, viewMatrix);
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(mFoV, mAspectRatio, mNearPlane, mFarPlane);
+	XMVECTOR det = XMMatrixDeterminant(proj);
+	XMMATRIX invProj = XMMatrixInverse(&det, proj);
 	BoundingFrustum::CreateFromMatrix(mFrustrum, proj);
-	XMVECTOR det;
+	det = XMMatrixDeterminant(viewMatrix);
 	XMMATRIX invViewMatrix = XMMatrixInverse(&det, viewMatrix);
 	mFrustrum.Transform(mFrustrum, invViewMatrix);
 
@@ -51,7 +53,9 @@ void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
-	BoundingFrustum::CreateFromMatrix(mFrustrum, proj);
+	XMVECTOR det = XMMatrixDeterminant(proj);
+	XMMATRIX invProj = XMMatrixInverse(&det, proj);
+	BoundingFrustum::CreateFromMatrix(mFrustrum, invProj);
 }
 
 void CameraClass::SetRotation(XMFLOAT3& rot)

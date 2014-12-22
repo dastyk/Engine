@@ -438,30 +438,26 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 
 bool TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
 {
-	unsigned long* pIndices = new unsigned long[mIndexCount];
 	mDynIndexCount = 0;
-	if (mTree->GetIndexArray(mDynIndexCount, pIndices, frustum))
+
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	unsigned long* dataPtr;
+	unsigned int bufferNumber;
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mDynIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (unsigned long*)mappedResource.pData;
+
+	if (mTree->GetIndexArray(mDynIndexCount, dataPtr, frustum))
 	{
 
-		HRESULT result;
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		unsigned long* dataPtr;
-		unsigned int bufferNumber;
-
-		// Lock the constant buffer so it can be written to.
-		result = pDeviceContext->Map(mDynIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
-		{
-			return false;
-		}
-
-		// Get a pointer to the data in the constant buffer.
-		dataPtr = (unsigned long*)mappedResource.pData;
-
-		for (int i = 0; i < mDynIndexCount; i++)
-		{
-			dataPtr[i] = pIndices[i];
-		}
 
 		// Unlock the constant buffer.
 		pDeviceContext->Unmap(mDynIndexBuffer, 0);
@@ -482,13 +478,16 @@ bool TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, Boun
 		// Set topology
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		delete[]pIndices;
 
 		return true;
 	}
 	else
 	{
-		delete[]pIndices;
+
+
+		// Unlock the constant buffer.
+		pDeviceContext->Unmap(mDynIndexBuffer, 0);
+
 		return false;
 	}
 }
