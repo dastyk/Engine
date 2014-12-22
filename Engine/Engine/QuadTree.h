@@ -2,7 +2,7 @@
 #define _QUADTREE_H_
 
 #pragma once
-#define QUAD_SIZE_MIN 24576
+#define QUAD_SIZE_MIN 98304
 #include "AABB.h"
 
 class QuadTree : public AABB

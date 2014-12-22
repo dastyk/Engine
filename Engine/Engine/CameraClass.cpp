@@ -47,7 +47,7 @@ void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float
 	mFoV = FoV;
 	mAspectRatio = AspectRatio;
 	mNearPlane = nearP;
-	mFarPlane = mFarPlane;
+	mFarPlane = farP;
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
