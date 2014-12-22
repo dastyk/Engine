@@ -208,11 +208,11 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);
 
-	//pos = mCamera->GetPosition();
-	//pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
-	//mCamera->SetPosition(pos);
-	/*pos.y = (mCamera->GetAvgPosY());
-	mCamera->SetPosition(pos);*/
+	pos = mCamera->GetPosition();
+	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
+	mCamera->SetPosition(pos);
+	pos.y = (mCamera->GetAvgPosY());
+	mCamera->SetPosition(pos);
 
 	/*std::wostringstream outs;
 	outs.precision(6);
@@ -253,27 +253,26 @@ void InitDirect3DApp::DrawScene()
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	int indexCount = 0;
-	if (mTerrain->SetAsModelToBeDrawnFromViewFrustum(mDeviceContext, mCamera->GetBoundingFrustum()))
+	if (mTerrain->SetAsObjectToBeDrawn(mDeviceContext, mCamera->GetBoundingFrustrum()))
 	{
 		result = mTerrainShader->Render(
 			mDeviceContext,
 			mTerrain,
 			mCamera,
 			mSun,
-			mTerrain->GetMaterial(),
+			mObject->GetMaterial(),
 			mDrawDistFog);
 	}
 
-	//mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	/*mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 
-	//result = mTerrainShader->Render(
-	//	mDeviceContext,
-	//	mTerrain,
-	//	mCamera,
-	//	mSun,
-	//	mTerrain->GetMaterial(),
-	//	mDrawDistFog);
+	result = mTerrainShader->Render(
+		mDeviceContext,
+		mTerrain,
+		mCamera,
+		mSun,
+		mObject->GetMaterial(),
+		mDrawDistFog);*/
 
 	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 

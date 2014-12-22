@@ -21,7 +21,7 @@ TerrainShaderClass::~TerrainShaderClass()
 		mLightBuffer = 0;
 	}
 
-	}
+}
 
 bool TerrainShaderClass::Init(ID3D11Device* pDevice)
 {

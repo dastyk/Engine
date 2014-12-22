@@ -11,8 +11,9 @@ using namespace std;
 
 #include "ModelClass.h"
 
-#include "QuadTree.h"
+#include <DirectXCollision.h>
 
+#include "QuadTree.h"
 
 struct TerrainVertex
 {
@@ -33,11 +34,9 @@ public:
 	float getHeightAtPoint(const XMFLOAT3&)const;
 	XMFLOAT3 GetVectorAtPoint(const XMFLOAT3&)const;
 
-	void SetAsModelToBeDrawn(ID3D11DeviceContext*, int, unsigned long*);
-
-	bool SetAsModelToBeDrawnFromViewFrustum(ID3D11DeviceContext*, BoundingFrustum& frustum);
-
+	bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
 	int GetIndexCount()const;
+
 
 private:
 	bool loadRAW(int width, int height, const char* filename, float heightScale, float heightOffset);
@@ -54,14 +53,16 @@ private:
 private:
 	int mWidth, mHeight;
 	float mHeightScale, mHeightOffset;
-	
 	int mDynIndexCount;
+
 
 	float** mHeightMap;
 
+
+	QuadTree* mTree;
+
 	ID3D11Buffer* mDynIndexBuffer;
 
-	QuadTree* mQuadTree;
 };
 
 #endif

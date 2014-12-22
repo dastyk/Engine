@@ -7,6 +7,7 @@
 #include "TextureClass.h"
 #include <DirectXCollision.h>
 
+
 using namespace DirectX;
 
 struct Vertex
@@ -25,10 +26,12 @@ public:
 
 	
 
-	virtual void SetAsModelToBeDrawn(ID3D11DeviceContext*);
-	virtual void SetAsModelToBeDrawn(ID3D11DeviceContext*, int , unsigned long* );
-	virtual bool SetAsModelToBeDrawnFromViewFrustum(ID3D11DeviceContext*, BoundingFrustum& frustum);
+	void SetAsModelToBeDrawn(ID3D11DeviceContext*);
+	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
+
+
 	virtual int GetIndexCount()const;
+
 	TextureClass* GetTexture()const;
 
 
