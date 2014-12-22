@@ -84,9 +84,9 @@ float4 PSMain(PS_IN input) : SV_TARGET
 		float4 blendMapColor = blendMap.Sample(SampleType, input.Tex2);
 
 
-			/*float4 w1 = blendMapColor.x / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
+			float4 w1 = blendMapColor.x / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
 			float4 w2 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
-			float4 w3 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);*/
+			float4 w3 = blendMapColor.y / (blendMapColor.x + blendMapColor.y + blendMapColor.z + 0.000001);
 
 			float3 norm = float3(0, 1, 0);
 			float3 ref = reflect(N, norm);

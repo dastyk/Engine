@@ -115,7 +115,7 @@ bool InitDirect3DApp::Init()
 		return false;
 
 	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
-	XMFLOAT3 pos(0.0, 0.0, -10.0);
+	XMFLOAT3 pos(128.0f, 0, 128.0f);
 	mCamera->SetPosition(pos);
 
 	mTexShader = new TextureShaderClass();
@@ -154,13 +154,16 @@ bool InitDirect3DApp::Init()
 	if (!mObject)
 		return false;
 
-	mDrawDistFog = new FogClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.4, 0.4, 0.9f), 10);
+	mDrawDistFog = new FogClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.4f, 0.4f, 0.9f), 10);
 	if (!mDrawDistFog)
 		return false;
 
 	mSun = new LightObjectClass();
 	if (!mSun)
 		return false;
+
+	XMFLOAT3 dir = XMFLOAT3(-1, 0, 0);
+	mSun->GetDiffuseLight()->SetLightDir(dir);
 
 	mTerrainModel = new TerrainClass();
 	if (!mTerrainModel)
@@ -205,9 +208,22 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);
 
+	//pos = mCamera->GetPosition();
+	//pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
+	//mCamera->SetPosition(pos);
+	/*pos.y = (mCamera->GetAvgPosY());
+	mCamera->SetPosition(pos);*/
+
+	/*std::wostringstream outs;
+	outs.precision(6);
+	outs << mMainWndCaption << pos.y;
+	SetWindowText(mhMainWnd, outs.str().c_str());*/
+
 	mCamera->SetUpdateTime(dt);
 
 	mCamera->CalcViewMatrix();
+
+	pos = mCamera->GetPosition();
 }
 
 void InitDirect3DApp::handleInput()
@@ -230,22 +246,34 @@ void InitDirect3DApp::DrawScene()
 
 
 	// Clear back buffer blue.
-	float clearColor[] = { 0.4, 0.4, 0.9f, 1 };
+	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 	
 
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	int indexCount = 0;
+	if (mTerrain->SetAsModelToBeDrawnFromViewFrustum(mDeviceContext, mCamera->GetBoundingFrustum()))
+	{
+		result = mTerrainShader->Render(
+			mDeviceContext,
+			mTerrain,
+			mCamera,
+			mSun,
+			mTerrain->GetMaterial(),
+			mDrawDistFog);
+	}
 
-	result = mTerrainShader->Render(
-		mDeviceContext,
-		mTerrain,
-		mCamera,
-		mSun,
-		mObject->GetMaterial(),
-		mDrawDistFog);
+	//mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+
+	//result = mTerrainShader->Render(
+	//	mDeviceContext,
+	//	mTerrain,
+	//	mCamera,
+	//	mSun,
+	//	mTerrain->GetMaterial(),
+	//	mDrawDistFog);
 
 	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 

@@ -23,7 +23,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mClientWidth = 800;
 	mClientHeight = 640;
 
-	mNearPlane = 0.1;
+	mNearPlane = 0.1f;
 	mFarPlane = 500;
 	mFoV = XMConvertToRadians(90);
 
@@ -162,8 +162,9 @@ int D3DApp::Run()
 			if (!mAppPaused)
 			{
 				CalculateFrameState();
-				UpdateScene(mTimer.DeltaTime());
 				handleInput();
+				UpdateScene(mTimer.DeltaTime());
+				
 				DrawScene();
 			}
 			else

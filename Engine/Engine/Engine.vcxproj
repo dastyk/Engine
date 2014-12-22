@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABB.cpp" />
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DApp.cpp" />
@@ -24,9 +25,11 @@
     <ClCompile Include="LightShaderClass.cpp" />
     <ClCompile Include="MaterialClass.cpp" />
     <ClCompile Include="ModelClass.cpp" />
+    <ClCompile Include="OBB.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PositionClass.cpp" />
+    <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
     <ClCompile Include="SunLightShaderClass.cpp" />
     <ClCompile Include="TerrainClass.cpp" />
@@ -37,6 +40,7 @@
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h" />
     <ClInclude Include="bth_image.h" />
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="ColorShaderClass.h" />
@@ -52,10 +56,12 @@
     <ClInclude Include="LightShaderClass.h" />
     <ClInclude Include="MaterialClass.h" />
     <ClInclude Include="ModelClass.h" />
+    <ClInclude Include="OBB.h" />
     <ClInclude Include="ObjectClass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlatformHelpers.h" />
     <ClInclude Include="PositionClass.h" />
+    <ClInclude Include="QuadTree.h" />
     <ClInclude Include="ShaderClass.h" />
     <ClInclude Include="SunLightShaderClass.h" />
     <ClInclude Include="TerrainClass.h" />
@@ -102,6 +108,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
