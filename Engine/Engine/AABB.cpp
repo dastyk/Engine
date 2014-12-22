@@ -25,3 +25,10 @@ bool AABB::Intersect(const BoundingBox& boundingBox)const
 {
 	return mBox.Intersects(boundingBox);
 }
+
+bool AABB::Intersect(const BoundingFrustum& boundingFrustum)const
+{
+	return boundingFrustum.Contains(mBox);
+		
+		//mBox.Intersects(boundingFrustum);
+}

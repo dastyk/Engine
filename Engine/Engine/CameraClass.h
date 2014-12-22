@@ -18,7 +18,7 @@ public:
 
 	XMFLOAT4X4 GetViewMatrix()const;
 	XMFLOAT4X4 GetProjMatrix()const;
-	BoundingFrustum GetBoundingFrustrum()const;
+	BoundingFrustum GetBoundingFrustum()const;
 
 
 	void CalcViewMatrix();
@@ -27,7 +27,9 @@ private:
 	XMFLOAT4X4 mViewMatrix;
 	XMFLOAT4X4 mProjMatrix;
 
-	BoundingFrustum mFrustrum;
+	BoundingFrustum mFrustum;
+
+	float mFoV, mAspectRatio, mNearPlane, mFarPlane;
 };
 
 #endif

@@ -3,6 +3,9 @@
 
 TerrainClass::TerrainClass() : ModelClass()
 {
+	mQuadTree = 0;
+	mDynIndexBuffer = 0;
+	mDynIndexCount = 0;
 }
 
 
@@ -17,6 +20,16 @@ TerrainClass::~TerrainClass()
 		delete[]mHeightMap;
 		mHeightMap = 0;
 	}
+	if (mQuadTree)
+	{
+		delete mQuadTree;
+		mQuadTree = 0;
+	}
+	if (mDynIndexBuffer)
+	{
+		mDynIndexBuffer->Release();
+		mDynIndexBuffer = 0;
+	}
 }
 
 bool TerrainClass::Init(ID3D11Device* pDevice)
@@ -24,13 +37,17 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	bool result;
 
-	//loadRAW(257,257 , "data/resources/Heightmap.raw", 0.7, 0);
-
-	result = loadBitmap("data/resources/workin10.bmp",0.3,0);
+	result = loadRAW(257,257 , "data/resources/Heightmap.raw", 0.7f, 0);
 	if (!result)
 	{
 		return false;
 	}
+
+	//result = loadBitmap("data/resources/workin10.bmp",0.3,0);
+	//if (!result)
+	//{
+	//	return false;
+	//}
 
 	filterTerrain();
 
@@ -92,7 +109,7 @@ bool TerrainClass::loadBitmap(char* fileName, float heightScale, float heightOff
 	unsigned int count;
 	BITMAPFILEHEADER bitmapFileHeader;
 	BITMAPINFOHEADER bitmapInfoHeader;
-	int imageSize, i, j, k, index;
+	int imageSize, i, j, k;
 	unsigned char* bitmapImage;
 
 	mHeightScale = heightScale;
@@ -243,17 +260,19 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 {
 	bool result;
 	TerrainVertex* vertices = 0;
+	
+
 
 	mStride = sizeof(TerrainVertex);
 	mVertexCount = mWidth*mHeight;
-
+	XMFLOAT3* pPoints = new XMFLOAT3[mVertexCount];
 	
 	vertices = new TerrainVertex[mVertexCount];
 	float dx = 4.0f;
 	float dz = 4.0f;
 
-	float width = (mWidth - 1) / 2;
-	float depth = (mHeight - 1) / 2;
+	float width = (float)(mWidth - 1) / 2;
+	float depth = (float)(mHeight - 1) / 2;
 
 	for (int j = 0; j < mHeight; j++)
 	{
@@ -261,7 +280,8 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		{
 			int index = j*mWidth + i;
 			//mHeightMap[i][j] = i;
-			vertices[index].Pos = XMFLOAT3(i, mHeightMap[i][j], j);
+			vertices[index].Pos = XMFLOAT3((float)i, mHeightMap[i][j], (float)j);
+			pPoints[index] = vertices[index].Pos;
 			vertices[index].texCoord = XMFLOAT2(i / width  * dx, j / depth * dz);
 			vertices[index].TexCoord2 = XMFLOAT2(i / (float)mWidth, j/(float)mHeight);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
@@ -320,6 +340,12 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		}
 	}
 
+	mQuadTree = new QuadTree(mVertexCount, pPoints, indices, mIndexCount, 0, 0, mWidth-1, mHeight-1, mWidth-1, mHeight-1);
+	if (!mQuadTree)
+		return false;
+
+	delete pPoints;
+
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = vertices;
 	vinitData.SysMemPitch = 0;
@@ -333,18 +359,25 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	delete[]vertices;
 
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = indices;
-	iinitData.SysMemPitch = 0;
-	iinitData.SysMemSlicePitch = 0;
+	//D3D11_SUBRESOURCE_DATA iinitData;
+	//iinitData.pSysMem = indices;
+	//iinitData.SysMemPitch = 0;
+	//iinitData.SysMemSlicePitch = 0;
 
-	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount);
+	//result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount);
+	//if (!result)
+	//{
+	//	return false;
+	//}
+
+	delete[]indices;
+
+	result = createIndexBuffer(pDevice, &mDynIndexBuffer, sizeof(unsigned long)*mIndexCount);
 	if (!result)
 	{
 		return false;
 	}
 
-	delete[]indices;
 
 	mTexture = new TextureClass();
 	if (!mTexture)
@@ -398,4 +431,59 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 		fHeight += (fTriY2 - fTriY3) * (1.0f - fSqX);
 	}
 	return fHeight;
+}
+
+void TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, int indexCount, unsigned long* pIndices)
+{
+	unsigned int stride;
+	unsigned int offset;
+
+	// Set vertex buffer stride and offset.
+	stride = mStride;
+	offset = 0;
+
+	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
+
+	pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
+
+	unsigned long* dataPtr;
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	pDeviceContext->Map(mDynIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+	dataPtr = (unsigned long*)mappedResource.pData;
+	for (int i = 0; i < indexCount; i++)
+	{
+		dataPtr[i] = pIndices[i];
+	}
+
+	pDeviceContext->Unmap(mDynIndexBuffer, 0);
+
+
+	pDeviceContext->IASetIndexBuffer(mDynIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	// Set topology
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+bool TerrainClass::SetAsModelToBeDrawnFromViewFrustum(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
+{
+	unsigned long* pIndices = new unsigned long[mIndexCount];
+	if (mQuadTree->GetIndexArray(mDynIndexCount, pIndices, frustum))
+	{
+		SetAsModelToBeDrawn(pDeviceContext, mDynIndexCount, pIndices);
+		if (pIndices)
+			delete pIndices;
+
+		return true;
+	}
+	if (pIndices)
+		delete pIndices;
+
+	return false;
+}
+
+int TerrainClass::GetIndexCount() const
+{
+	return (int)mDynIndexCount;
 }

@@ -17,6 +17,7 @@ public:
 
 	bool Intersect(XMVECTOR origin, XMVECTOR direction, float& dist)const;
 	bool Intersect(const BoundingBox&)const;
+	bool Intersect(const BoundingFrustum&)const;
 
 protected:
 

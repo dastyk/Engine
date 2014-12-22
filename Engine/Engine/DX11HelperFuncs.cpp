@@ -175,7 +175,6 @@ namespace DX11HelpF
 	// Create DXGI Adapter
 	bool createDxgiAdapter(IDXGIDevice* pDXGIDevice, IDXGIAdapter** ppDxgiAdapter)
 	{
-		bool result;
 		HRESULT hr;
 		if (!pDXGIDevice)
 		{
@@ -195,7 +194,7 @@ namespace DX11HelpF
 	// Create DXGI Factory
 	bool createDxgiFactory(IDXGIAdapter* pDXGIAdapter, IDXGIFactory** ppFactory)
 	{
-		bool result;
+
 		HRESULT hr;
 		if (!pDXGIAdapter)
 		{

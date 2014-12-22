@@ -63,6 +63,14 @@ void ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext)
 	mModel->SetAsModelToBeDrawn(pDeviceContext);
 }
 
+
+bool ObjectClass::SetAsModelToBeDrawnFromViewFrustum(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
+{
+	if (mModel->SetAsModelToBeDrawnFromViewFrustum(pDeviceContext, frustum))
+		return true;
+	return false;
+}
+
 XMFLOAT4X4 ObjectClass::GetWorldMatrix() const
 {
 	return mTransform->GetWorldMatrix();

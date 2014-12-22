@@ -6,6 +6,7 @@
 #include "ModelClass.h"
 #include "MaterialClass.h"
 #include "TransformationClass.h"
+#include <DirectXCollision.h>
 
 class ObjectClass
 {
@@ -22,6 +23,9 @@ public:
 
 	void Update();
 	void SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext);
+	bool SetAsModelToBeDrawnFromViewFrustum(ID3D11DeviceContext*, BoundingFrustum& frustum);
+
+
 
 	XMFLOAT4X4 GetWorldMatrix()const;
 	int GetIndexCount()const;
