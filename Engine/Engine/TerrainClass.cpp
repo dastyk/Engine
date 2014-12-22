@@ -29,7 +29,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	filterTerrain();
 
-	result = fillVertexAndIndexData(pDevice, L"data/resources/seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"data/resources/seemless_4.jpg",L"data/resources/blendmap1.jpg");
+	result = fillVertexAndIndexData(pDevice, L"data/resources/seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"data/resources/flint_like_rock_4787.JPG",L"data/resources/blendmap.jpg");
 	if (!result)
 	{
 		return false;
