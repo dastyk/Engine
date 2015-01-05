@@ -211,8 +211,8 @@ void InitDirect3DApp::UpdateScene(float dt)
 	pos = mCamera->GetPosition();
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
 	mCamera->SetPosition(pos);
-	pos.y = (mCamera->GetAvgPosY());
-	mCamera->SetPosition(pos);
+	//pos.y = (mCamera->GetAvgPosY());
+	//mCamera->SetPosition(pos);
 
 	/*std::wostringstream outs;
 	outs.precision(6);
@@ -222,8 +222,6 @@ void InitDirect3DApp::UpdateScene(float dt)
 	mCamera->SetUpdateTime(dt);
 
 	mCamera->CalcViewMatrix();
-
-	pos = mCamera->GetPosition();
 }
 
 void InitDirect3DApp::handleInput()
@@ -253,7 +251,7 @@ void InitDirect3DApp::DrawScene()
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	if (mTerrain->SetAsObjectToBeDrawn(mDeviceContext, mCamera->GetBoundingFrustrum()))
+	/*if (mTerrain->SetAsObjectToBeDrawn(mDeviceContext, mCamera->GetBoundingFrustrum()))
 	{
 		result = mTerrainShader->Render(
 			mDeviceContext,
@@ -262,17 +260,20 @@ void InitDirect3DApp::DrawScene()
 			mSun,
 			mObject->GetMaterial(),
 			mDrawDistFog);
-	}
+	}*/
 
-	/*mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 
+	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	
 	result = mTerrainShader->Render(
 		mDeviceContext,
 		mTerrain,
 		mCamera,
 		mSun,
 		mObject->GetMaterial(),
-		mDrawDistFog);*/
+		mDrawDistFog);
+	
+
 
 	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
@@ -323,13 +324,11 @@ void InitDirect3DApp::OnMouseDown(WPARAM btnState, int x, int y)
 
 void InitDirect3DApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
-
 	ReleaseCapture();
 }
 
 void InitDirect3DApp::OnMouseMove(WPARAM btnState, int x, int y)
-{
-	
+{	
 	if (btnState)
 	{
 		float dx = (float)(x - mLastMousePos.x);
@@ -340,9 +339,6 @@ void InitDirect3DApp::OnMouseMove(WPARAM btnState, int x, int y)
 		rot.y += dy / 10;
 		mCamera->SetRotation(rot);
 	}
-
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
-
-
 }

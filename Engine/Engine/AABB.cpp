@@ -12,7 +12,7 @@ AABB::~AABB()
 
 void AABB::createFromPoints(int pointCount, const XMFLOAT3* pPoints)
 {
-	BoundingBox::CreateFromPoints(mBox, pointCount, pPoints, 12);
+	BoundingBox::CreateFromPoints(mBox, pointCount, pPoints, sizeof(XMFLOAT3));
 }
 
 void AABB::createFromPoints(XMVECTOR p1, XMVECTOR p2)

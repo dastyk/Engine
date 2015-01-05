@@ -51,6 +51,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 	}*/
 
 	filterTerrain();
+	filterTerrain();
 
 	result = fillVertexAndIndexData(pDevice, L"data/resources/seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"data/resources/seemless_4.jpg",L"data/resources/blendmap1.jpg");
 	if (!result)
@@ -494,5 +495,5 @@ bool TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, Boun
 
 int TerrainClass::GetIndexCount() const
 {
-	return (int)mDynIndexCount;
+	return (int)mIndexCount;
 }

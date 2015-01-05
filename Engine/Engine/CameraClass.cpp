@@ -34,12 +34,11 @@ void CameraClass::CalcViewMatrix()
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(mFoV, mAspectRatio, mNearPlane, mFarPlane);
 	XMVECTOR det = XMMatrixDeterminant(proj);
-	XMMATRIX invProj = XMMatrixInverse(&det, proj);
+	XMMATRIX invProj = XMMatrixTranspose(proj);
 	BoundingFrustum::CreateFromMatrix(mFrustrum, proj);
 	det = XMMatrixDeterminant(viewMatrix);
-	XMMATRIX invViewMatrix = XMMatrixInverse(&det, viewMatrix);
+	XMMATRIX invViewMatrix = XMMatrixInverse(&det,viewMatrix);
 	mFrustrum.Transform(mFrustrum, invViewMatrix);
-
 	return;
 }
 
