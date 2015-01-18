@@ -27,6 +27,19 @@ PositionClass::PositionClass(XMFLOAT3& Position, XMFLOAT3& Rotation)
 {
 	mPosition = Position;
 	mRotation = Rotation;
+	mForward = XMVectorSet(0.0, 0.0, 1.0, 0.0);
+	mRightVector = XMVectorSet(1.0, 0.0, 0.0, 0.0);
+	mMoveSpeed = 1;
+	mLookSpeed = 5;
+}
+PositionClass::PositionClass(XMFLOAT3& Position, XMFLOAT3& Rotation, float moveSpeed)
+{
+	mPosition = Position;
+	mRotation = Rotation;
+	mForward = XMVectorSet(0.0, 0.0, 1.0, 0.0);
+	mRightVector = XMVectorSet(1.0, 0.0, 0.0, 0.0);
+	mMoveSpeed = moveSpeed;
+	mLookSpeed = 5;
 }
 
 PositionClass::~PositionClass()
@@ -35,16 +48,21 @@ PositionClass::~PositionClass()
 
 void PositionClass::SetPosition(XMFLOAT3& pos)
 {
-	mLastPos[mLastPosIndex] = mPosition;
+	//mLastPos[mLastPosIndex] = mPosition;
 	mPosition = pos;
-	mLastPosIndex = (mLastPosIndex + 1) % SAMPLES_POSITION;
+	//mLastPosIndex = (mLastPosIndex + 1) % SAMPLES_POSITION;
 }
 
 void PositionClass::SetPosition(XMVECTOR& pos)
 {
-	mLastPos[mLastPosIndex] = mPosition;
+	//mLastPos[mLastPosIndex] = mPosition;
 	XMStoreFloat3(&mPosition, pos);
-	mLastPosIndex = (mLastPosIndex + 1) % SAMPLES_POSITION;
+	//mLastPosIndex = (mLastPosIndex + 1) % SAMPLES_POSITION;
+}
+
+void PositionClass::SetMoveSpeed(float speed)
+{
+	mMoveSpeed = speed;
 }
 
 void PositionClass::SetRotation(XMFLOAT3& rot)
@@ -139,6 +157,12 @@ void PositionClass::MoveLeft(bool state)
 	}
 }
 
+void PositionClass::MoveAlongVector(XMVECTOR* dir)
+{
+	XMVECTOR pos = XMLoadFloat3(&mPosition);
+	pos += (*dir)*mUpdateTime*mMoveSpeed;
+	SetPosition(pos);
+}
 
 void PositionClass::TurnLeft(bool state)
 {

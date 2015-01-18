@@ -24,6 +24,8 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mTexShader = 0;
 	mLightShader = 0;
 	mTerrainShader = 0;
+	mParticleShader = 0;
+	mParticles = 0;
 
 	mModel = 0;
 	mObject = 0;
@@ -41,6 +43,8 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 
 	mEnable4xMsaa = true;
 	m4xMsaaQuality = 1;
+
+	srand(time(NULL));
 }
 
 
@@ -101,6 +105,16 @@ InitDirect3DApp::~InitDirect3DApp()
 		delete mTerrainShader;
 		mTerrainShader = 0;
 	}
+	if (mParticleShader)
+	{
+		delete mParticleShader;
+		mParticleShader = 0;
+	}
+	if (mParticles)
+	{
+		delete mParticles;
+		mParticles = 0;
+	}
 }
 
 bool InitDirect3DApp::Init()
@@ -115,7 +129,7 @@ bool InitDirect3DApp::Init()
 		return false;
 
 	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
-	XMFLOAT3 pos(128.0f, 0, 128.0f);
+	XMFLOAT3  pos(128.0f, 80, 130.0f);// pos(0.0f, 0.0f, 0.0f);
 	mCamera->SetPosition(pos);
 
 	mTexShader = new TextureShaderClass();
@@ -185,6 +199,22 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
+	mParticleShader = new ParticleShaderClass;
+	if (!mParticleShader)
+		return false;
+
+	result = mParticleShader->Init(mDevice);
+	if (!result)
+		return false;
+
+	mParticles = new ParticleSystemClass();
+	if (!mParticles)
+		return false;
+
+	result = mParticles->Init(mDevice);
+	if (!result)
+		return false;
+
 	return true;
 }
 
@@ -208,9 +238,9 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);
 
-	pos = mCamera->GetPosition();
+	/*pos = mCamera->GetPosition();
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
-	mCamera->SetPosition(pos);
+	mCamera->SetPosition(pos);*/
 	//pos.y = (mCamera->GetAvgPosY());
 	//mCamera->SetPosition(pos);
 
@@ -218,6 +248,8 @@ void InitDirect3DApp::UpdateScene(float dt)
 	outs.precision(6);
 	outs << mMainWndCaption << pos.y;
 	SetWindowText(mhMainWnd, outs.str().c_str());*/
+
+	mParticles->Update(dt);
 
 	mCamera->SetUpdateTime(dt);
 
@@ -262,6 +294,15 @@ void InitDirect3DApp::DrawScene()
 			mDrawDistFog);
 	}*/
 
+	mParticles->render(mDeviceContext);
+
+	result = mParticleShader->Render(mDeviceContext, mParticles->GetAliveParticles(), mCamera);
+	if (!result)
+	{
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
+	}
+
 
 	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 	
@@ -273,17 +314,21 @@ void InitDirect3DApp::DrawScene()
 		mObject->GetMaterial(),
 		mDrawDistFog);
 	
+	if (!result)
+	{
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
+	}
 
+	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-
-	result = mLightShader->Render(
-		mDeviceContext,
-		mObject,
-		mCamera,
-		mSun,
-		mObject->GetMaterial(),
-		mDrawDistFog);
+	//result = mLightShader->Render(
+	//	mDeviceContext,
+	//	mObject,
+	//	mCamera,
+	//	mSun,
+	//	mObject->GetMaterial(),
+	//	mDrawDistFog);
 
 	if (!result)
 	{

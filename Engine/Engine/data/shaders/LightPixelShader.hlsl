@@ -28,12 +28,6 @@ struct PS_IN
 	float3 PosH : POSITION;
 };
 
-struct PS_OUT
-{
-	float4 Pos : SV_POSITION;
-	float2 Tex : TEXCOORD0;
-};
-
 float4 PSMain(PS_IN input) : SV_TARGET
 {
 	float4 textureColor;

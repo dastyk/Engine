@@ -69,13 +69,13 @@ ShaderClass::~ShaderClass()
 
 void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, WCHAR* shaderFilename)
 {
-	WCHAR* compileErrors;
+	char* compileErrors;
 	unsigned long bufferSize, i;
-	std::wofstream fout;
+	std::ofstream fout;
 
 
 	// Get a pointer to the error message text buffer.
-	compileErrors = (WCHAR*)(errorMessage->GetBufferPointer());
+	compileErrors = (char*)(errorMessage->GetBufferPointer());
 
 	// Get the length of the message.
 	bufferSize = errorMessage->GetBufferSize();
@@ -244,6 +244,13 @@ bool ShaderClass::createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_D
 	return true;
 }
 
+
+bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int vertexCount, CameraClass* pCamera)
+{
+
+
+	return true;
+}
 
 bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix)
 {

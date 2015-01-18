@@ -27,6 +27,9 @@
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="OBB.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
+    <ClCompile Include="ParticleClass.cpp" />
+    <ClCompile Include="ParticleShaderClass.cpp" />
+    <ClCompile Include="ParticleSystemClass.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PositionClass.cpp" />
     <ClCompile Include="QuadTree.cpp" />
@@ -58,6 +61,9 @@
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="OBB.h" />
     <ClInclude Include="ObjectClass.h" />
+    <ClInclude Include="ParticleClass.h" />
+    <ClInclude Include="ParticleShaderClass.h" />
+    <ClInclude Include="ParticleSystemClass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlatformHelpers.h" />
     <ClInclude Include="PositionClass.h" />

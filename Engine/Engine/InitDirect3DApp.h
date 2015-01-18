@@ -21,6 +21,10 @@
 #include "TerrainClass.h"
 #include "TerrainShaderClass.h"
 
+#include "ParticleShaderClass.h"
+#include "ParticleSystemClass.h"
+
+#include <time.h>
 class InitDirect3DApp : public D3DApp
 {
 public:
@@ -54,6 +58,10 @@ private:
 
 	TerrainClass* mTerrainModel;
 	ObjectClass* mTerrain;
+
+	ParticleShaderClass* mParticleShader;
+	ParticleSystemClass* mParticles;
+
 
 	FogClass* mDrawDistFog;
 

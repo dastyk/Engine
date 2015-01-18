@@ -309,6 +309,28 @@ bool ModelClass::createVertexBuffer(ID3D11Device* pDevice, D3D11_SUBRESOURCE_DAT
 	return true;
 }
 
+bool ModelClass::createVertexBuffer(ID3D11Device* pDevice, ID3D11Buffer **ppBuffer, UINT byteWidth)
+{
+	HRESULT hr;
+
+	D3D11_BUFFER_DESC vbd;
+	memset(&vbd, 0, sizeof(vbd));
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.ByteWidth = byteWidth;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vbd.MiscFlags = 0;
+	vbd.StructureByteStride = 0;
+
+	hr = pDevice->CreateBuffer(&vbd, NULL, ppBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Failed to create dynamic Vertex Buffer.", 0, 0);
+		return false;
+	}
+	
+	return true;
+}
 bool ModelClass::createIndexBuffer(ID3D11Device* pDevice, D3D11_SUBRESOURCE_DATA* pData, UINT byteWidth)
 {
 	HRESULT hr;

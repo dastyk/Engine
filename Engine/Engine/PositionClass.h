@@ -14,6 +14,7 @@ public:
 	PositionClass();
 	PositionClass(const PositionClass* other);
 	PositionClass(XMFLOAT3& Position, XMFLOAT3& Rotation);
+	PositionClass(XMFLOAT3& Position, XMFLOAT3& Rotation, float moveSpeed);
 	virtual ~PositionClass();
 
 public:
@@ -35,6 +36,8 @@ public:
 	void MoveDownward(bool);
 	void MoveRight(bool);
 	void MoveLeft(bool);
+	void MoveAlongVector(XMVECTOR* dir);
+
 
 	void TurnLeft(bool);
 	void TurnRight(bool);
