@@ -8,6 +8,7 @@
 class ParticleClass
 {
 public:
+	ParticleClass();
 	ParticleClass(XMFLOAT3& Position, XMFLOAT3& Color, XMFLOAT3& travelDir, int mMaxLifeTime);
 	ParticleClass(const ParticleClass& other);
 	ParticleClass(const ParticleClass* other);

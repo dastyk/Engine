@@ -7,6 +7,7 @@
 
 #include "ShaderClass.h"
 
+
 struct ParticleConstBufferType
 {
 	XMFLOAT4X4 Proj;
@@ -20,7 +21,7 @@ public:
 	~ParticleShaderClass();
 
 	bool Init(ID3D11Device* pDevice);
-	bool Render(ID3D11DeviceContext* pDeviceContext, int vertexCount, CameraClass* pCamera);
+	bool Render(ID3D11DeviceContext* pDeviceContext, ParticleSystemClass* mParticleS, CameraClass* pCamera);
 	
 
 private:
@@ -28,6 +29,8 @@ private:
 	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix);
 
 	void RenderShader(ID3D11DeviceContext*, int);
+
+	ID3D11SamplerState* mSampleState;
 };
 
 #endif

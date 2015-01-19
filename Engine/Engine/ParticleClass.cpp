@@ -1,5 +1,15 @@
 #include "ParticleClass.h"
 
+ParticleClass::ParticleClass()
+{
+	mTransform = new TransformationClass(XMFLOAT3(0,0,0), XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 0));
+	mColor = XMFLOAT3(0,0,0);
+	mTravelDirection = XMFLOAT3(0, 0, 0);
+	mMaxLifeTime = 0;
+	mLifeTime = new GameTimer();
+	mLifeTime->Reset();
+	mTransform->SetMoveSpeed(0);
+}
 
 ParticleClass::ParticleClass(XMFLOAT3& Position, XMFLOAT3& Color, XMFLOAT3& travelDir, int maxLifeTime)
 {

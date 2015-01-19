@@ -296,7 +296,7 @@ void InitDirect3DApp::DrawScene()
 
 	mParticles->render(mDeviceContext);
 
-	result = mParticleShader->Render(mDeviceContext, mParticles->GetAliveParticles(), mCamera);
+	result = mParticleShader->Render(mDeviceContext, mParticles, mCamera);
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);

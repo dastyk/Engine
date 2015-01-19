@@ -43,10 +43,16 @@ bool ParticleShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WC
 		return false;
 	}
 
+	result = createSamplerState(pDevice, &mSampleState);
+	if (!result)
+	{
+		return false;
+	}
+
 	return true;
 }
 
-bool ParticleShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int vertexCount, CameraClass* pCamera)
+bool ParticleShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ParticleSystemClass* mParticleS, CameraClass* pCamera)
 {
 	bool result;
 
@@ -60,8 +66,14 @@ bool ParticleShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int vertex
 	// Set the constant buffer in the vertex shader with the updated values.
 	pDeviceContext->GSSetConstantBuffers(0, 1, &mMatrixBuffer);
 
+	TextureClass* pTexture = mParticleS->GetTexture();
+	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(0, pTexture->GetTextureCount(), tex);
+
 	// Now render the prepared buffers with the shader.
-	ParticleShaderClass::RenderShader(pDeviceContext, vertexCount);
+	ParticleShaderClass::RenderShader(pDeviceContext, mParticleS->GetAliveParticles());
 
 	return true;
 }

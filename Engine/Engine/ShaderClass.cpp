@@ -245,7 +245,7 @@ bool ShaderClass::createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_D
 }
 
 
-bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int vertexCount, CameraClass* pCamera)
+bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ParticleSystemClass* mParticleS, CameraClass* pCamera)
 {
 
 

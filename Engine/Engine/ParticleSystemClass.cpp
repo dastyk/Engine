@@ -5,6 +5,7 @@ ParticleSystemClass::ParticleSystemClass()
 {
 	mVertexBuffer = nullptr;
 	mVertexCount = 0;
+	mTexture = 0;
 }
 
 
@@ -19,6 +20,11 @@ ParticleSystemClass::~ParticleSystemClass()
 	{
 		delete mParticle[i];
 		mParticle[i] = 0;
+	}
+	if (mTexture)
+	{
+		delete mTexture;
+		mTexture = 0;
 	}
 }
 
@@ -42,7 +48,22 @@ bool ParticleSystemClass::Init(ID3D11Device* pDevice)
 		return false;
 	}
 
-	mParticle.push_back(new ParticleClass(XMFLOAT3(128, 80, 128), XMFLOAT3(1, 0, 0), XMFLOAT3(0,1,0), 0));
+	mParticle.push_back(new ParticleClass(XMFLOAT3(128, 80, 128), XMFLOAT3(1, 0, 0), XMFLOAT3(0,0,0), 0));
+
+	mTexture = new TextureClass();
+	if (!mTexture)
+	{
+		return false;
+	}
+
+	vector<wstring> tex;
+	tex.push_back(L"data/resources/BTH_ny.jpg");
+
+	bool result = mTexture->Init(pDevice, tex, NULL);
+	if (!result)
+	{
+		return false;
+	}
 
 	/* //Create Vertex Buffer
 	mVertexCount = 4;
@@ -128,6 +149,11 @@ void ParticleSystemClass::LoadParticlesToBuffer(ID3D11DeviceContext* pDeviceCont
 int ParticleSystemClass::GetAliveParticles()const
 {
 	return (int)mParticle.size();
+}
+
+TextureClass* ParticleSystemClass::GetTexture()const
+{
+	return mTexture;
 }
 
 void ParticleSystemClass::Update(float dt)
