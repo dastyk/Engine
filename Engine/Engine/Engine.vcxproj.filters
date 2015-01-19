@@ -105,7 +105,10 @@
     <ClCompile Include="ParticleShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleEffectClass.cpp">
+    <ClCompile Include="FireworkEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -209,13 +212,16 @@
     <ClInclude Include="ParticleShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleEffectClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CircularDoubleDirectedList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ICircularDoubleDirectedList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FireworkEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SnowEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

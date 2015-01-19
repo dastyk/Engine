@@ -11,7 +11,7 @@ ParticleClass::ParticleClass()
 	mTransform->SetMoveSpeed(0);
 }
 
-ParticleClass::ParticleClass(XMFLOAT3& Position, XMFLOAT3& Color, XMFLOAT3& travelDir, int maxLifeTime)
+ParticleClass::ParticleClass(XMFLOAT3& Position, XMFLOAT3& Color, XMFLOAT3& travelDir, float moveSpeed, int maxLifeTime)
 {
 	mTransform = new TransformationClass(Position, XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 0));
 	mColor = Color;
@@ -20,7 +20,7 @@ ParticleClass::ParticleClass(XMFLOAT3& Position, XMFLOAT3& Color, XMFLOAT3& trav
 	mLifeTime = new GameTimer();
 	mLifeTime->Reset();
 	mLifeTime->Start();
-	mTransform->SetMoveSpeed(10);
+	mTransform->SetMoveSpeed(moveSpeed);
 }
 
 ParticleClass::ParticleClass(const ParticleClass& other)
@@ -47,12 +47,12 @@ ParticleClass::ParticleClass(const ParticleClass* other)
 	mTransform->SetMoveSpeed(10 / (float)mMaxLifeTime);
 }
 
-ParticleClass::ParticleClass(const ParticleClass* other, XMFLOAT3& travelDir,float moveSpeed)
+ParticleClass::ParticleClass(const ParticleClass* other, XMFLOAT3& travelDir,float moveSpeed, int lifeTime)
 {
 	mTransform = new TransformationClass(other->mTransform);
 	mColor = other->mColor;
 	mTravelDirection = travelDir;
-	mMaxLifeTime = 10;
+	mMaxLifeTime = lifeTime;
 	mLifeTime = new GameTimer();
 	mLifeTime->Reset();
 	mLifeTime->Start();

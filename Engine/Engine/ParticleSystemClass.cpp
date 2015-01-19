@@ -16,10 +16,20 @@ ParticleSystemClass::~ParticleSystemClass()
 		mVertexBuffer->Release();
 		mVertexBuffer = 0;
 	}
-	for (UINT i = 0; i < mParticle.size(); i++)
+	for (UINT i = 0; i < mConstant.size(); i++)
 	{
-		delete mParticle[i];
-		mParticle[i] = 0;
+		delete mConstant[i];
+		mConstant[i] = 0;
+	}
+	for (UINT i = 0; i < mEmitters.size(); i++)
+	{
+		delete mEmitters[i];
+		mEmitters[i] = 0;
+	}
+	for (UINT i = 0; i < mMoving.size(); i++)
+	{
+		delete mMoving[i];
+		mMoving[i] = 0;
 	}
 	if (mTexture)
 	{
@@ -48,8 +58,6 @@ bool ParticleSystemClass::Init(ID3D11Device* pDevice)
 		return false;
 	}
 
-	mParticle.push_back(new ParticleClass(XMFLOAT3(128, 80, 128), XMFLOAT3(1, 0, 0), XMFLOAT3(0,0,0), 0));
-
 	mTexture = new TextureClass();
 	if (!mTexture)
 	{
@@ -64,6 +72,8 @@ bool ParticleSystemClass::Init(ID3D11Device* pDevice)
 	{
 		return false;
 	}
+
+	createFirstParticles();
 
 	/* //Create Vertex Buffer
 	mVertexCount = 4;
@@ -135,12 +145,26 @@ void ParticleSystemClass::LoadParticlesToBuffer(ID3D11DeviceContext* pDeviceCont
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (ParticleVertex*)mappedResource.pData;
 
-	for (UINT i = 0; i < mParticle.size(); i++)
-	{
-		dataPtr[i].Pos = mParticle[i]->GetTranform()->GetPosition();
-		dataPtr[i].Color = mParticle[i]->GetColor();
-	}
+	UINT offset = 0;
 
+	for (UINT i = 0; i < mConstant.size(); i++)
+	{
+		dataPtr[offset].Pos = mConstant[i]->GetTranform()->GetPosition();
+		dataPtr[offset].Color = mConstant[i]->GetColor();
+		offset++;
+	}	
+	for (UINT i = 0; i < mEmitters.size(); i++)
+	{
+		dataPtr[offset].Pos = mEmitters[i]->GetTranform()->GetPosition();
+		dataPtr[offset].Color = mEmitters[i]->GetColor();
+		offset++;
+	}
+	for (UINT i = 0; i < mMoving.size(); i++)
+	{
+		dataPtr[offset].Pos = mMoving[i]->GetTranform()->GetPosition();
+		dataPtr[offset].Color = mMoving[i]->GetColor();
+		offset++;
+	}
 
 	// Unlock the constant buffer.
 	pDeviceContext->Unmap(mVertexBuffer, 0);
@@ -148,7 +172,7 @@ void ParticleSystemClass::LoadParticlesToBuffer(ID3D11DeviceContext* pDeviceCont
 
 int ParticleSystemClass::GetAliveParticles()const
 {
-	return (int)mParticle.size();
+	return  (int)mConstant.size() + mMoving.size() + mEmitters.size();
 }
 
 TextureClass* ParticleSystemClass::GetTexture()const
@@ -158,32 +182,54 @@ TextureClass* ParticleSystemClass::GetTexture()const
 
 void ParticleSystemClass::Update(float dt)
 {
-	for (UINT i = 0; i < mParticle.size(); i++)
+	UINT count = mConstant.size();
+	for (UINT i = 0; i < count; i++)
 	{
 
-		if (mParticle[i]->isAlive())
-		{
-			mParticle[i]->Update(dt);
+			mConstant[i]->Update(dt);
+			CreateConstantInUpdate(mConstant[i]);
 
-		
+	}
+
+	count = mMoving.size();
+	for (UINT i = 0; i < count; i++)
+	{
+
+		if (mMoving[i]->isAlive())
+		{
+			mMoving[i]->Update(dt);
+			CreateMovingInUpdate(mMoving[i]);
+
 		}
 		else
 		{
-			delete mParticle[i];
-			mParticle.erase(mParticle.begin() + i);
+			delete mMoving[i];
+			mMoving.erase(mMoving.begin() + i);
 			i--;
+			count--;
 		}
+
 	}
 
-	for (int i = 0; i < 10; i++)
+	count = mEmitters.size();
+	for (UINT i = 0; i < count; i++)
 	{
-		XMVECTOR dir = XMVectorSet(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50, 0);
-		dir = XMVector3Normalize(dir);
-		XMFLOAT3 fDir;
-		XMStoreFloat3(&fDir, dir);
-		mParticle.push_back(new ParticleClass(mParticle[0], fDir, 1));
-	}
 
+		if (mEmitters[i]->isAlive())
+		{
+			mEmitters[i]->Update(dt);
+			CreateEmitterInUpdate(mEmitters[i]);
+
+		}
+		else
+		{
+			delete mEmitters[i];
+			mEmitters.erase(mEmitters.begin() + i);
+			i--;
+			count--;
+		}
+
+	}
 
 }
 

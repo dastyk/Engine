@@ -25,7 +25,8 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mLightShader = 0;
 	mTerrainShader = 0;
 	mParticleShader = 0;
-	mParticles = 0;
+	mFirework = 0;
+	mSnow = 0;
 
 	mModel = 0;
 	mObject = 0;
@@ -110,10 +111,15 @@ InitDirect3DApp::~InitDirect3DApp()
 		delete mParticleShader;
 		mParticleShader = 0;
 	}
-	if (mParticles)
+	if (mFirework)
 	{
-		delete mParticles;
-		mParticles = 0;
+		delete mFirework;
+		mFirework = 0;
+	}
+	if (mSnow)
+	{
+		delete mSnow;
+		mSnow = 0;
 	}
 }
 
@@ -207,14 +213,21 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mParticles = new ParticleSystemClass();
-	if (!mParticles)
+	mFirework = new FireworkEffect();
+	if (!mFirework)
 		return false;
 
-	result = mParticles->Init(mDevice);
+	result = mFirework->Init(mDevice);
 	if (!result)
 		return false;
 
+	mSnow = new SnowEffect();
+	if (!mSnow)
+		return false;
+
+	result = mSnow->Init(mDevice);
+	if (!result)
+		return false;
 	return true;
 }
 
@@ -246,12 +259,13 @@ void InitDirect3DApp::UpdateScene(float dt)
 
 	/*std::wostringstream outs;
 	outs.precision(6);
-	outs << mMainWndCaption << pos.y;
+	outs << mMainWndCaption << mFirework->GetAliveParticles() + mSnow->GetAliveParticles();
 	SetWindowText(mhMainWnd, outs.str().c_str());*/
 
-	mParticles->Update(dt);
-
 	mCamera->SetUpdateTime(dt);
+
+	mFirework->Update(dt);
+	mSnow->Update(dt);
 
 	mCamera->CalcViewMatrix();
 }
@@ -294,15 +308,24 @@ void InitDirect3DApp::DrawScene()
 			mDrawDistFog);
 	}*/
 
-	mParticles->render(mDeviceContext);
 
-	result = mParticleShader->Render(mDeviceContext, mParticles, mCamera);
+	mFirework->render(mDeviceContext);
+
+	result = mParticleShader->Render(mDeviceContext, mFirework, mCamera);
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
 	}
 
+	mSnow->render(mDeviceContext);
+
+	result = mParticleShader->Render(mDeviceContext, mSnow, mCamera);
+	if (!result)
+	{
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
+	}
 
 	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 	

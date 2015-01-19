@@ -9,10 +9,10 @@ class ParticleClass
 {
 public:
 	ParticleClass();
-	ParticleClass(XMFLOAT3& Position, XMFLOAT3& Color, XMFLOAT3& travelDir, int mMaxLifeTime);
+	ParticleClass(XMFLOAT3& Position, XMFLOAT3& Color, XMFLOAT3& travelDir, float moveSpeed, int mMaxLifeTime);
 	ParticleClass(const ParticleClass& other);
 	ParticleClass(const ParticleClass* other);
-	ParticleClass(const ParticleClass* other, XMFLOAT3& travelDir, float moveSpeed);
+	ParticleClass(const ParticleClass* other, XMFLOAT3& travelDir, float moveSpeed, int lifeTime);
 	~ParticleClass();
 
 	void Update(float dt);

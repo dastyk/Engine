@@ -22,7 +22,8 @@
 #include "TerrainShaderClass.h"
 
 #include "ParticleShaderClass.h"
-#include "ParticleSystemClass.h"
+#include "FireworkEffect.h"
+#include "SnowEffect.h"
 
 #include <time.h>
 class InitDirect3DApp : public D3DApp
@@ -60,8 +61,8 @@ private:
 	ObjectClass* mTerrain;
 
 	ParticleShaderClass* mParticleShader;
-	ParticleSystemClass* mParticles;
-
+	FireworkEffect* mFirework;
+	SnowEffect* mSnow;
 
 	FogClass* mDrawDistFog;
 

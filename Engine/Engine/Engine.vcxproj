@@ -16,6 +16,7 @@
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DApp.cpp" />
     <ClCompile Include="DX11HelperFuncs.cpp" />
+    <ClCompile Include="FireworkEffect.cpp" />
     <ClCompile Include="FogClass.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="InitDirect3DApp.cpp" />
@@ -28,13 +29,13 @@
     <ClCompile Include="OBB.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
     <ClCompile Include="ParticleClass.cpp" />
-    <ClCompile Include="ParticleEffectClass.cpp" />
     <ClCompile Include="ParticleShaderClass.cpp" />
     <ClCompile Include="ParticleSystemClass.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PositionClass.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
+    <ClCompile Include="SnowEffect.cpp" />
     <ClCompile Include="SunLightShaderClass.cpp" />
     <ClCompile Include="TerrainClass.cpp" />
     <ClCompile Include="TerrainShaderClass.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="DirectXHelpers.h" />
     <ClInclude Include="DX11HelperFuncs.h" />
+    <ClInclude Include="FireworkEffect.h" />
     <ClInclude Include="FogClass.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="ICircularDoubleDirectedList.h" />
@@ -65,7 +67,6 @@
     <ClInclude Include="OBB.h" />
     <ClInclude Include="ObjectClass.h" />
     <ClInclude Include="ParticleClass.h" />
-    <ClInclude Include="ParticleEffectClass.h" />
     <ClInclude Include="ParticleShaderClass.h" />
     <ClInclude Include="ParticleSystemClass.h" />
     <ClInclude Include="pch.h" />
@@ -73,6 +74,7 @@
     <ClInclude Include="PositionClass.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="ShaderClass.h" />
+    <ClInclude Include="SnowEffect.h" />
     <ClInclude Include="SunLightShaderClass.h" />
     <ClInclude Include="TerrainClass.h" />
     <ClInclude Include="TerrainShaderClass.h" />

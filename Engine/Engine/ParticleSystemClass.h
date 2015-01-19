@@ -17,23 +17,34 @@ class ParticleSystemClass
 {
 public:
 	ParticleSystemClass();
-	~ParticleSystemClass();
+	virtual ~ParticleSystemClass();
 
-	bool Init(ID3D11Device*);
+	virtual bool Init(ID3D11Device*);
 
-	void Update(float dt);
+	virtual void Update(float dt);
+	
+
 	void render(ID3D11DeviceContext* pDeviceContext);
 	int GetAliveParticles()const;
 	TextureClass* GetTexture()const;
 
-private:
-	std::vector<ParticleClass*> mParticle;
+protected:
+	std::vector<ParticleClass*> mConstant;
+	std::vector<ParticleClass*> mMoving;
+	std::vector<ParticleClass*> mEmitters;
 
 	void LoadParticlesToBuffer(ID3D11DeviceContext* pDeviceContext);
 
 	ID3D11Buffer* mVertexBuffer;
 	int mVertexCount;
 	TextureClass* mTexture;
+
+	virtual void createFirstParticles() = 0;
+
+	virtual void CreateConstantInUpdate(ParticleClass*) = 0;
+	virtual void CreateEmitterInUpdate(ParticleClass*) = 0;
+	virtual void CreateMovingInUpdate(ParticleClass*) = 0;
+
 };
 
 #endif
