@@ -63,6 +63,7 @@
     <ClInclude Include="LightObjectClass.h" />
     <ClInclude Include="LightShaderClass.h" />
     <ClInclude Include="MaterialClass.h" />
+    <ClInclude Include="MemoryHandler.h" />
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="OBB.h" />
     <ClInclude Include="ObjectClass.h" />

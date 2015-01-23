@@ -6,6 +6,7 @@
 #include <vector>
 #include <d3d11.h>
 #include "TextureClass.h"
+#include "MemoryHandler.h"
 
 struct ParticleVertex
 {
@@ -19,7 +20,7 @@ public:
 	ParticleSystemClass();
 	virtual ~ParticleSystemClass();
 
-	virtual bool Init(ID3D11Device*);
+	virtual bool Init(ID3D11Device*, WCHAR*);
 
 	virtual void Update(float dt);
 	

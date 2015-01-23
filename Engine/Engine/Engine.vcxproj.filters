@@ -224,5 +224,8 @@
     <ClInclude Include="SnowEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

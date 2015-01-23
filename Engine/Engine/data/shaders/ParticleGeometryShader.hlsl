@@ -44,16 +44,16 @@ void GSMain(
 	float4 posH = mul(input[0].Pos, view);
 	posH = posH / posH.w;
 
-	float4 pos1 = posH + float4(-0.5, 0.5, 0, 0);
+	float4 pos1 = posH + float4(-0.05, 0.05, 0, 0);
 	float2 tex1 = float2(0, 0);
 
-	float4 pos2 = posH + float4(0.5, 0.5, 0, 0);
+	float4 pos2 = posH + float4(0.05, 0.05, 0, 0);
 	float2 tex2 = float2(1, 0);
 
-	float4 pos3 = posH + float4(-0.5, -0.5, 0, 0);
+	float4 pos3 = posH + float4(-0.05, -0.05, 0, 0);
 	float2 tex3 = float2(0, 1);
 
-	float4 pos4 = posH + float4(0.5, -0.5, 0, 0);
+	float4 pos4 = posH + float4(0.05, -0.05, 0, 0);
 	float2 tex4 = float2(1, 1);
 
 	output.Pos = mul(pos1, proj);

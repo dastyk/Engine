@@ -17,8 +17,8 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	// Sample texture
 	textureColor = shaderTexture.Sample(SampleType, input.Tex);
 
-	if (textureColor.x > 0.7 && textureColor.y > 0.7 && textureColor.z > 0.7)
-		discard;
+	/*if (textureColor.x > 0.7 && textureColor.y > 0.7 && textureColor.z > 0.7)
+		discard;*/
 
-	return float4(textureColor);
+	return float4((textureColor.xyz + input.Color), 1);
 }

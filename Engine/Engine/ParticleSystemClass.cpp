@@ -31,6 +31,8 @@ ParticleSystemClass::~ParticleSystemClass()
 		delete mMoving[i];
 		mMoving[i] = 0;
 	}
+
+
 	if (mTexture)
 	{
 		delete mTexture;
@@ -38,7 +40,7 @@ ParticleSystemClass::~ParticleSystemClass()
 	}
 }
 
-bool ParticleSystemClass::Init(ID3D11Device* pDevice)
+bool ParticleSystemClass::Init(ID3D11Device* pDevice, WCHAR* filename)
 {
 	HRESULT hr;
 
@@ -65,7 +67,7 @@ bool ParticleSystemClass::Init(ID3D11Device* pDevice)
 	}
 
 	vector<wstring> tex;
-	tex.push_back(L"data/resources/BTH_ny.jpg");
+	tex.push_back(filename);
 
 	bool result = mTexture->Init(pDevice, tex, NULL);
 	if (!result)
@@ -153,12 +155,6 @@ void ParticleSystemClass::LoadParticlesToBuffer(ID3D11DeviceContext* pDeviceCont
 		dataPtr[offset].Color = mConstant[i]->GetColor();
 		offset++;
 	}	
-	for (UINT i = 0; i < mEmitters.size(); i++)
-	{
-		dataPtr[offset].Pos = mEmitters[i]->GetTranform()->GetPosition();
-		dataPtr[offset].Color = mEmitters[i]->GetColor();
-		offset++;
-	}
 	for (UINT i = 0; i < mMoving.size(); i++)
 	{
 		dataPtr[offset].Pos = mMoving[i]->GetTranform()->GetPosition();
@@ -172,7 +168,7 @@ void ParticleSystemClass::LoadParticlesToBuffer(ID3D11DeviceContext* pDeviceCont
 
 int ParticleSystemClass::GetAliveParticles()const
 {
-	return  (int)mConstant.size() + mMoving.size() + mEmitters.size();
+	return  (int)mConstant.size() + mMoving.size();
 }
 
 TextureClass* ParticleSystemClass::GetTexture()const
@@ -230,6 +226,7 @@ void ParticleSystemClass::Update(float dt)
 		}
 
 	}
+
 
 }
 

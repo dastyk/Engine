@@ -137,6 +137,7 @@ bool InitDirect3DApp::Init()
 	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 	XMFLOAT3  pos(128.0f, 80, 130.0f);// pos(0.0f, 0.0f, 0.0f);
 	mCamera->SetPosition(pos);
+	mCamera->SetMoveSpeed(10);
 
 	mTexShader = new TextureShaderClass();
 	if (!mTexShader)
@@ -224,11 +225,14 @@ bool InitDirect3DApp::Init()
 	mSnow = new SnowEffect();
 	if (!mSnow)
 		return false;
-
+	mSnow->SetPlayerPos(mCamera->GetPosition());
 	result = mSnow->Init(mDevice);
 	if (!result)
 		return false;
 	return true;
+
+	
+
 }
 
 void InitDirect3DApp::OnResize()
@@ -251,11 +255,9 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);
 
-	/*pos = mCamera->GetPosition();
+	pos = mCamera->GetPosition();
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
-	mCamera->SetPosition(pos);*/
-	//pos.y = (mCamera->GetAvgPosY());
-	//mCamera->SetPosition(pos);
+	mCamera->SetPosition(pos);
 
 	/*std::wostringstream outs;
 	outs.precision(6);
@@ -264,10 +266,15 @@ void InitDirect3DApp::UpdateScene(float dt)
 
 	mCamera->SetUpdateTime(dt);
 
-	mFirework->Update(dt);
+	
+	//mFirework->Update(dt);
+
+	mSnow->SetPlayerPos(mCamera->GetPosition());
 	mSnow->Update(dt);
 
 	mCamera->CalcViewMatrix();
+
+
 }
 
 void InitDirect3DApp::handleInput()
@@ -278,6 +285,10 @@ void InitDirect3DApp::handleInput()
 	mCamera->MoveLeft(mInput->isKeyDown(VK_A));
 	mCamera->MoveUpward(mInput->isKeyDown(VK_SPACE));
 	mCamera->MoveDownward(mInput->isKeyDown(VK_SHIFT));
+	if (mInput->isKeyDown(VK_ESCAPE))
+	{
+		PostQuitMessage(0);
+	}
 }
 
 void InitDirect3DApp::DrawScene()
@@ -309,14 +320,14 @@ void InitDirect3DApp::DrawScene()
 	}*/
 
 
-	mFirework->render(mDeviceContext);
+	/*mFirework->render(mDeviceContext);
 
 	result = mParticleShader->Render(mDeviceContext, mFirework, mCamera);
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
-	}
+	}*/
 
 	mSnow->render(mDeviceContext);
 
@@ -406,7 +417,10 @@ void InitDirect3DApp::OnMouseMove(WPARAM btnState, int x, int y)
 		rot.x += dx / 10;
 		rot.y += dy / 10;
 		mCamera->SetRotation(rot);
+
 	}
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
+
+	
 }

@@ -236,13 +236,14 @@ bool D3DApp::InitMainWindow()
 	ShowWindow(mhMainWnd, SW_SHOW);
 	SetForegroundWindow(mhMainWnd);
 	SetFocus(mhMainWnd);
-
-	// Hide the mouse cursor.
-	ShowCursor(true);
+	
 
 	mScreenWidth = GetSystemMetrics(SM_CXSCREEN);
 	mScreenHeight = GetSystemMetrics(SM_CYSCREEN);
 	SetCursorPos(mScreenWidth/2, mScreenHeight/2);
+
+	// Hide the mouse cursor.
+	ShowCursor(true);
 
 	return true;
 }
@@ -292,6 +293,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_MOUSEMOVE:
+
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_SIZE: // If enter/exit fullscreen

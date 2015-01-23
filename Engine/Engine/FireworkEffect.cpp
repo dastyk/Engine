@@ -18,7 +18,7 @@ FireworkEffect::~FireworkEffect()
 
 bool FireworkEffect::Init(ID3D11Device* pDevice)
 {
-	ParticleSystemClass::Init(pDevice);
+	ParticleSystemClass::Init(pDevice, L"data/resources/BTH_ny.jpg");
 
 	mTimer = new GameTimer();
 	
@@ -37,11 +37,11 @@ void FireworkEffect::Update(float dt)
 
 void FireworkEffect::createFirstParticles()
 {
-	mConstant.push_back(new ParticleClass(XMFLOAT3(128, 80, 128), XMFLOAT3(1, 0, 0), XMFLOAT3(0, 1, 0), 10, 0));
+	mConstant.push_back(new ParticleClass(XMFLOAT3(128, 150, 128), XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 0), 10, 0));
 }
 void FireworkEffect::CreateConstantInUpdate(ParticleClass* pParticle)
 {
-	if (rand() % 100 < 5)
+	if (rand() % 1000 < 10)
 	{
 		XMFLOAT3 temp = pParticle->GetTranform()->GetPosition();
 		temp.x += rand() % 40 - 20;
@@ -54,13 +54,17 @@ void FireworkEffect::CreateConstantInUpdate(ParticleClass* pParticle)
 void FireworkEffect::CreateEmitterInUpdate(ParticleClass* pParticle)
 {
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 500; i++)
 	{
 		XMVECTOR dir = XMVectorSet(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50, 0);
 		dir = XMVector3Normalize(dir);
 		XMFLOAT3 fDir;
 		XMStoreFloat3(&fDir, dir);
-		mMoving.push_back(new ParticleClass(pParticle, fDir, 1, 10));
+		XMFLOAT3 color;
+		color.x = (rand() % 100)/100.0f;
+		color.y = (rand() % 100) / 100.0f;
+		color.z = (rand() % 100) / 100.0f;
+		mMoving.push_back(new ParticleClass(pParticle->GetTranform()->GetPosition(), color, fDir, 2, 10));
 	}
 
 }

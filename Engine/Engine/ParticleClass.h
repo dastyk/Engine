@@ -5,6 +5,7 @@
 #include "TransformationClass.h"
 #include "GameTimer.h"
 
+
 class ParticleClass
 {
 public:
@@ -28,6 +29,7 @@ private:
 	XMFLOAT3 mColor, mTravelDirection;
 	int mMaxLifeTime;
 	GameTimer* mLifeTime;
+
 };
 
 #endif
