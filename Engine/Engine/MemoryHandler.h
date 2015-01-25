@@ -5,47 +5,47 @@
 class MemoryHandler
 {
 public:
-	MemoryHandler(size_t sizeOfElement, UINT Count)
+	MemoryHandler(const size_t sizeOfElement,const UINT Count)
 	{
-		currentCell = new MemoryCell;
-		MemoryCell* temp = currentCell;
-		for (UINT i = 0; i < Count; i++)
+		mCount = Count;
+		mSizeOfElement = sizeOfElement;
+
+		memBlock = malloc(sizeOfElement*mCount);
+		firstFree = 0;
+
+		memIndex = new UINT[mCount];
+		for (UINT i = 0; i < mCount; i++)
 		{
-			temp->AllocatedMemory = malloc(sizeOfElement);
-			temp->nextCell = new MemoryCell;
-			temp = temp->nextCell;
+			memIndex[i] = i + 1;
 		}
 	}
+
 	~MemoryHandler()
 	{
-		deleteCells(currentCell);
+		delete[] memBlock;
+		delete[] memIndex;
 	}
 
-	struct MemoryCell
-	{
-		void*AllocatedMemory;
-		MemoryCell* nextCell;
-	};
+	void* memBlock;
+	UINT* memIndex;
+	UINT firstFree;
 
-	MemoryCell* currentCell;
 	UINT mCount;
+	size_t mSizeOfElement;
 
+	void* GetFirstEmptyMemoryBlock(){
+		void* temp = (void*)((UINT)memBlock + mSizeOfElement*firstFree);
+		firstFree = memIndex[firstFree];
+		return temp;
+	}
+
+	void* GetMemoryBlock(UINT i){
+		void* temp = (void*)((UINT)memBlock + mSizeOfElement*i);
+		return temp;
+	}
+	//void FreeMemory(){}
 private:
 
-	void deleteCells(MemoryCell* cell)
-	{
-		if (!cell->nextCell)
-		{
-			delete cell;
-			cell = 0;
-		}
-		else
-		{
-			deleteCells(cell);
-			delete cell;
-			cell = 0;
-		}
-	}
 };
 
 #endif

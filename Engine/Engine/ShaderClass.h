@@ -48,6 +48,7 @@ protected:
 	bool createGeometryShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint);
 	bool createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC *vertexDesc, ID3D10Blob* pVertexShaderBuffer, int numElements);
 	bool createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState);
+	bool createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState, D3D11_SAMPLER_DESC* samplerDesc);
 	bool createConstantBuffer(ID3D11Device*, UINT, ID3D11Buffer**);
 
 	virtual void RenderShader(ID3D11DeviceContext*, int);

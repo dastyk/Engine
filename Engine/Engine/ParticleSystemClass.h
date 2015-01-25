@@ -8,6 +8,8 @@
 #include "TextureClass.h"
 #include "MemoryHandler.h"
 
+#define MEMBLOCKCOUNT 10000
+
 struct ParticleVertex
 {
 	XMFLOAT3 Pos;
@@ -45,6 +47,8 @@ protected:
 	virtual void CreateConstantInUpdate(ParticleClass*) = 0;
 	virtual void CreateEmitterInUpdate(ParticleClass*) = 0;
 	virtual void CreateMovingInUpdate(ParticleClass*) = 0;
+
+	MemoryHandler* memHandler;
 
 };
 

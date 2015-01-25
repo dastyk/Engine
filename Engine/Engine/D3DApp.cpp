@@ -32,6 +32,9 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mDriverType = D3D_DRIVER_TYPE_HARDWARE;
 
 	mEnable4xMsaa = false;
+
+	defferedBuffer = nullptr;
+
 }
 
 bool D3DApp::Init()
@@ -56,6 +59,19 @@ bool D3DApp::Init()
 	if (!mInput)
 	{
 		MessageBox(0, L"Failed create input class", 0, 0);
+		return false;
+	}
+
+	defferedBuffer = new DefferedBufferClass();
+	if (!defferedBuffer)
+	{
+		return false;
+	}
+
+	defferedBuffer->Init(mDevice, mClientWidth, mClientHeight);
+	if (!defferedBuffer)
+	{
+		MessageBox(0, L"Failed init defferedBuffer", 0, 0);
 		return false;
 	}
 
@@ -124,9 +140,16 @@ D3DApp::~D3DApp()
 	if (mInput)
 	{
 		delete mInput;
-		mDxgiFactory = 0;
+		mInput = 0;
+	}
+
+	if (defferedBuffer)
+	{
+		delete defferedBuffer;
+		defferedBuffer = 0;
 	}
 }
+
 
 HINSTANCE D3DApp::AppInst()const
 {
@@ -431,7 +454,6 @@ bool D3DApp::createDepthStencilBufferView()
 	}
 
 
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 
 

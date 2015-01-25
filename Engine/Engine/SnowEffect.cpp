@@ -43,6 +43,7 @@ void SnowEffect::createFirstParticles()
 		temp.x = mPlayerPos.x + (rand() % 200 - 100) / 10.0f;
 		temp.y = mPlayerPos.y + (rand() % 500 - 250) / 10.0f;
 		temp.z = mPlayerPos.z + (rand() % 200 - 100) / 10.0f;
+		
 		mMoving.push_back(new ParticleClass(temp, XMFLOAT3(1, 1, 1), XMFLOAT3(0, -1, 0), 1, 0));
 	}
 }

@@ -15,6 +15,8 @@
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DApp.cpp" />
+    <ClCompile Include="DefferedBufferClass.cpp" />
+    <ClCompile Include="DefferedShaderClass.cpp" />
     <ClCompile Include="DX11HelperFuncs.cpp" />
     <ClCompile Include="FireworkEffect.cpp" />
     <ClCompile Include="FogClass.cpp" />
@@ -51,6 +53,8 @@
     <ClInclude Include="CircularDoubleDirectedList.h" />
     <ClInclude Include="ColorShaderClass.h" />
     <ClInclude Include="D3DApp.h" />
+    <ClInclude Include="DefferedBufferClass.h" />
+    <ClInclude Include="DefferedShaderClass.h" />
     <ClInclude Include="DirectXHelpers.h" />
     <ClInclude Include="DX11HelperFuncs.h" />
     <ClInclude Include="FireworkEffect.h" />

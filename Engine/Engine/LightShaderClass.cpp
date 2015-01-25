@@ -80,7 +80,6 @@ bool LightShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* 
 	unsigned int bufferNumber;
 
 
-
 	// Set the shader parameters that it will use for rendering.
 	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix());
 	if (!result)

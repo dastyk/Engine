@@ -13,6 +13,8 @@
 #include <sstream>
 #include "GameTimer.h"
 #include "InputClass.h"
+#include "DefferedBufferClass.h"
+
 
 using namespace DirectX;
 
@@ -77,6 +79,9 @@ protected:
 	UINT m4xMsaaQuality; // Quality level of 4x MSAA
 
 	GameTimer mTimer;
+	DefferedBufferClass* defferedBuffer;
+
+
 
 	IDXGISwapChain* mSwapChain;
 	ID3D11Device* mDevice;
@@ -88,7 +93,6 @@ protected:
 	ID3D11RasterizerState* mRasterState;
 
 	D3D11_VIEWPORT mScreenViewport;
-
 
 
 	std::wstring mMainWndCaption;

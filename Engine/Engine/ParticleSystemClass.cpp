@@ -6,6 +6,7 @@ ParticleSystemClass::ParticleSystemClass()
 	mVertexBuffer = nullptr;
 	mVertexCount = 0;
 	mTexture = 0;
+	memHandler = new MemoryHandler(sizeof(ParticleClass), 10000);
 }
 
 
@@ -31,7 +32,10 @@ ParticleSystemClass::~ParticleSystemClass()
 		delete mMoving[i];
 		mMoving[i] = 0;
 	}
-
+	if (memHandler)
+	{
+		delete memHandler;
+	}
 
 	if (mTexture)
 	{

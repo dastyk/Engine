@@ -431,6 +431,21 @@ bool ShaderClass::createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState**
 	return true;
 }
 
+bool ShaderClass::createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState, D3D11_SAMPLER_DESC* samplerDesc)
+{
+	HRESULT hr;
+
+	// Create the texture sampler state.
+	hr = pDevice->CreateSamplerState(samplerDesc, ppSampleState);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Could not create Sampler State.", 0, 0);
+		return false;
+	}
+
+	return true;
+}
+
 bool ShaderClass::createConstantBuffer(ID3D11Device* pDevice, UINT byteWidth, ID3D11Buffer** ppBuffer)
 {
 	HRESULT hr;
