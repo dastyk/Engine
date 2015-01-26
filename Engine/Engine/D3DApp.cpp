@@ -33,7 +33,6 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 
 	mEnable4xMsaa = false;
 
-	defferedBuffer = nullptr;
 
 }
 
@@ -62,18 +61,8 @@ bool D3DApp::Init()
 		return false;
 	}
 
-	defferedBuffer = new DefferedBufferClass();
-	if (!defferedBuffer)
-	{
-		return false;
-	}
 
-	defferedBuffer->Init(mDevice, mClientWidth, mClientHeight);
-	if (!defferedBuffer)
-	{
-		MessageBox(0, L"Failed init defferedBuffer", 0, 0);
-		return false;
-	}
+	
 
 	return true;
 }
@@ -143,11 +132,7 @@ D3DApp::~D3DApp()
 		mInput = 0;
 	}
 
-	if (defferedBuffer)
-	{
-		delete defferedBuffer;
-		defferedBuffer = 0;
-	}
+
 }
 
 

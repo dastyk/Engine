@@ -13,7 +13,6 @@
 #include <sstream>
 #include "GameTimer.h"
 #include "InputClass.h"
-#include "DefferedBufferClass.h"
 
 
 using namespace DirectX;
@@ -79,7 +78,7 @@ protected:
 	UINT m4xMsaaQuality; // Quality level of 4x MSAA
 
 	GameTimer mTimer;
-	DefferedBufferClass* defferedBuffer;
+	
 
 
 

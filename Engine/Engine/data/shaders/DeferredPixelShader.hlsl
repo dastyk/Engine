@@ -15,20 +15,15 @@ struct PS_OUT
 };
 
 
-PS_OUT PSMain(PS_IN input)
+PS_OUT PSMain(PS_IN input) : SV_TARGET
 {
 	PS_OUT output;
-	float4 textureColor;
-
-	// Sample texture
-	textureColor = shaderTexture.Sample(SampleType, input.Tex);
-
 
 	float3 N = normalize(input.Normal);
 
 	output.Normal_Depth = float4(N, input.Pos.z);
 		
-	output.DiffuseColor = textureColor;
+	output.DiffuseColor = shaderTexture.Sample(SampleType, input.Tex);
 
 
 	

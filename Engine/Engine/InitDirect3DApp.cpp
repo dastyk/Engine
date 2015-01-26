@@ -40,12 +40,16 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 
 	mCamera = 0;
 
-	
+
+	mDeferredBuffer = nullptr;
+	mDeferredShader = nullptr;
 
 	mEnable4xMsaa = true;
 	m4xMsaaQuality = 1;
 
 	srand(time(NULL));
+
+
 }
 
 
@@ -121,6 +125,16 @@ InitDirect3DApp::~InitDirect3DApp()
 		delete mSnow;
 		mSnow = 0;
 	}
+	if (mDeferredBuffer)
+	{
+		delete mDeferredBuffer;
+		mDeferredBuffer = 0;
+	}
+	if (mDeferredShader)
+	{
+		delete mDeferredShader;
+		mDeferredShader = 0;
+	}
 }
 
 bool InitDirect3DApp::Init()
@@ -135,7 +149,7 @@ bool InitDirect3DApp::Init()
 		return false;
 
 	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
-	XMFLOAT3  pos(128.0f, 80, 130.0f);// pos(0.0f, 0.0f, 0.0f);
+	XMFLOAT3  pos(0, 0, -5.0f);// pos(0.0f, 0.0f, 0.0f);
 	mCamera->SetPosition(pos);
 	mCamera->SetMoveSpeed(10);
 
@@ -229,9 +243,31 @@ bool InitDirect3DApp::Init()
 	result = mSnow->Init(mDevice);
 	if (!result)
 		return false;
-	return true;
-
 	
+	mDeferredBuffer = new DeferredBufferClass();
+	if (!mDeferredBuffer)
+		return false;
+
+	mDeferredBuffer->Init(mDevice, mClientWidth, mClientHeight);
+	if (!mDeferredBuffer)
+	{
+		MessageBox(0, L"Failed init defferedBuffer", 0, 0);
+		return false;
+	}
+
+	mDeferredShader = new DeferredShaderClass();
+	if (!mDeferredShader)
+		return false;
+
+	mDeferredShader->Init(mDevice);
+	if (!mDeferredShader)
+	{
+		MessageBox(0, L"Failed init defferedBuffer", 0, 0);
+		return false;
+	}
+
+
+	return true;
 
 }
 
@@ -257,7 +293,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 
 	pos = mCamera->GetPosition();
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
-	mCamera->SetPosition(pos);
+	//mCamera->SetPosition(pos);
 
 	/*std::wostringstream outs;
 	outs.precision(6);
@@ -299,15 +335,29 @@ void InitDirect3DApp::DrawScene()
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
+	mDeferredBuffer->SetRenderTargets(mDeviceContext);
+
+	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
+
+	mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 	// Clear back buffer blue.
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
-	
+
 
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
+
+
+	
+
+	
 
 	/*if (mTerrain->SetAsObjectToBeDrawn(mDeviceContext, mCamera->GetBoundingFrustrum()))
 	{
@@ -330,7 +380,7 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}*/
 
-	mSnow->render(mDeviceContext);
+	/*mSnow->render(mDeviceContext);
 
 	result = mParticleShader->Render(mDeviceContext, mSnow, mCamera);
 	if (!result)
@@ -355,21 +405,21 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 
-	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
-	//result = mLightShader->Render(
-	//	mDeviceContext,
-	//	mObject,
-	//	mCamera,
-	//	mSun,
-	//	mObject->GetMaterial(),
-	//	mDrawDistFog);
+	result = mLightShader->Render(
+		mDeviceContext,
+		mObject,
+		mCamera,
+		mSun,
+		mObject->GetMaterial(),
+		mDrawDistFog);
 
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
-	}
+	}*/
 	
 	// Present the back buffer to the screen
 	hr = mSwapChain->Present(0, 0);

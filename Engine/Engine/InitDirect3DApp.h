@@ -26,6 +26,11 @@
 #include "SnowEffect.h"
 
 #include <time.h>
+
+
+#include "DeferredBufferClass.h"
+#include "DeferredShaderClass.h"
+
 class InitDirect3DApp : public D3DApp
 {
 public:
@@ -69,6 +74,10 @@ private:
 	CameraClass* mCamera;
 
 	POINT mLastMousePos;
+
+
+	DeferredBufferClass* mDeferredBuffer;
+	DeferredShaderClass* mDeferredShader;
 
 };
 

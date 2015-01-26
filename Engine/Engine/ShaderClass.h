@@ -47,6 +47,13 @@ protected:
 	bool createPixelShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint);
 	bool createGeometryShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint);
 	bool createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC *vertexDesc, ID3D10Blob* pVertexShaderBuffer, int numElements);
+
+	bool createVertexShaderAndInputLayout(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, D3D11_INPUT_ELEMENT_DESC *vertexDesc, int numElements, ID3D11VertexShader**, ID3D11InputLayout** );
+	bool createPixelShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11PixelShader**);
+	bool createGeometryShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11GeometryShader**);
+	bool createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC *vertexDesc, ID3D10Blob* pVertexShaderBuffer, int numElements, ID3D11InputLayout** );
+
+	
 	bool createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState);
 	bool createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState, D3D11_SAMPLER_DESC* samplerDesc);
 	bool createConstantBuffer(ID3D11Device*, UINT, ID3D11Buffer**);

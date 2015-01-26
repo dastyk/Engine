@@ -42,9 +42,6 @@
     <ClCompile Include="InputClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LightClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LightObjectClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -111,10 +108,13 @@
     <ClCompile Include="SnowEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DefferedShaderClass.cpp">
+    <ClCompile Include="DeferredShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DefferedBufferClass.cpp">
+    <ClCompile Include="DeferredBufferClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LightClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,9 +150,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InputClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LightClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LightObjectClass.h">
@@ -233,10 +230,13 @@
     <ClInclude Include="MemoryHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DefferedShaderClass.h">
+    <ClInclude Include="DeferredShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DefferedBufferClass.h">
+    <ClInclude Include="DeferredBufferClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -470,3 +470,177 @@ bool ShaderClass::createConstantBuffer(ID3D11Device* pDevice, UINT byteWidth, ID
 	return true;
 }
 
+
+
+
+bool ShaderClass::createVertexShaderAndInputLayout(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, D3D11_INPUT_ELEMENT_DESC *vertexDesc, int numElements, ID3D11VertexShader** ppVshader, ID3D11InputLayout** ppLayout)
+{
+	HRESULT hr;
+	bool result;
+	// Initialize the vertex shader
+	ID3D10Blob* vertexShaderBuffer;
+	ID3D10Blob* errorMessages;
+
+	hr = D3DCompileFromFile(
+		fileName,
+		NULL,
+		NULL,
+		EntryPoint,
+		"vs_5_0",
+		0,
+		0,
+		&vertexShaderBuffer,
+		&errorMessages);
+
+	if (FAILED(hr))
+	{
+		// If the shader failed to compile it should have writen something to the error message.
+		if (errorMessages)
+		{
+			OutputShaderErrorMessage(errorMessages, fileName);
+			return false;
+		}
+		// If there was nothing in the error message then it simply could not find the shader file itself.
+		else
+		{
+			MessageBox(0, fileName, L"Missing Shader File", MB_OK);
+			return false;
+		}
+	}
+
+	// Create the vertex shader from the buffer.
+	hr = pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, ppVshader);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Failed to create vertex shader", 0, MB_OK);
+		return false;
+	}
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Could not create VertexShader.", 0, 0);
+		return false;
+	}
+
+	result = createInputLayout(pDevice, vertexDesc, vertexShaderBuffer, numElements, ppLayout);
+	if (!result)
+	{
+		return false;
+	}
+
+	vertexShaderBuffer->Release();
+	return true;
+}
+bool ShaderClass::createPixelShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11PixelShader** ppPShader)
+{
+	HRESULT hr;
+	// Initialie Pixel shader
+	ID3D10Blob* pixelShaderBuffer;
+	ID3D10Blob* errorMessages;
+	hr = D3DCompileFromFile(
+		fileName,
+		NULL,
+		NULL,
+		EntryPoint,
+		"ps_5_0",
+		0,
+		0,
+		&pixelShaderBuffer,
+		&errorMessages);
+
+	if (FAILED(hr))
+	{
+		// If the shader failed to compile it should have writen something to the error message.
+		if (errorMessages)
+		{
+			OutputShaderErrorMessage(errorMessages, fileName);
+			return false;
+		}
+		// If there was nothing in the error message then it simply could not find the shader file itself.
+		else
+		{
+			MessageBox(0, fileName, L"Missing Shader File", MB_OK);
+			return false;
+		}
+	}
+
+	// Create the pixel shader from the buffer.
+	hr = pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, ppPShader);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Failed to create pixel shader", 0, MB_OK);
+		return false;
+	}
+
+	pixelShaderBuffer->Release();
+
+	return true;
+}
+
+
+bool ShaderClass::createGeometryShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11GeometryShader** ppGShader)
+{
+
+	HRESULT hr;
+	// Initialie Geometry shader
+	ID3D10Blob* geometryShaderBuffer;
+	ID3D10Blob* errorMessages;
+	hr = D3DCompileFromFile(
+		fileName,
+		NULL,
+		NULL,
+		EntryPoint,
+		"gs_5_0",
+		0,
+		0,
+		&geometryShaderBuffer,
+		&errorMessages);
+
+	if (FAILED(hr))
+	{
+		// If the shader failed to compile it should have writen something to the error message.
+		if (errorMessages)
+		{
+			OutputShaderErrorMessage(errorMessages, fileName);
+			return false;
+		}
+		// If there was nothing in the error message then it simply could not find the shader file itself.
+		else
+		{
+			MessageBox(0, fileName, L"Missing Shader File", MB_OK);
+			return false;
+		}
+	}
+
+	// Create the geometry shader from the buffer.
+	hr = pDevice->CreateGeometryShader(geometryShaderBuffer->GetBufferPointer(), geometryShaderBuffer->GetBufferSize(), NULL, ppGShader);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Failed to create geometry shader", 0, MB_OK);
+		return false;
+	}
+
+	geometryShaderBuffer->Release();
+
+	return true;
+}
+
+
+bool ShaderClass::createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC *vertexDesc, ID3D10Blob* pVertexShaderBuffer, int numElements, ID3D11InputLayout** ppLayout)
+{
+	HRESULT hr;
+
+	hr = pDevice->CreateInputLayout(
+		vertexDesc,
+		numElements,
+		pVertexShaderBuffer->GetBufferPointer(),
+		pVertexShaderBuffer->GetBufferSize(),
+		ppLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Could not create input layout.", 0, 0);
+		return false;
+	}
+	return true;
+}

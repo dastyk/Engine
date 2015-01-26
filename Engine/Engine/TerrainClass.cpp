@@ -312,7 +312,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			XMVECTOR vec1 = pos2 - pos1;
 			XMVECTOR vec2 = pos3 - pos1;
 			
-			XMVECTOR norm = XMVector3Cross(vec1, vec2);
+			XMVECTOR norm = XMVector3Normalize(XMVector3Cross(vec1, vec2));
 
 			for (int k = 0; k < 3; k++)
 			{
@@ -326,7 +326,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			vec1 = pos4 - pos3;
 			vec2 = pos2 - pos3;
 
-			norm = XMVector3Cross(vec1, vec2);
+			norm = XMVector3Normalize(XMVector3Cross(vec1, vec2));
 
 			for (int k = 3; k < 6; k++)
 			{
