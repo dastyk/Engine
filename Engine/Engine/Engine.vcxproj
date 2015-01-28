@@ -34,6 +34,7 @@
     <ClCompile Include="ParticleShaderClass.cpp" />
     <ClCompile Include="ParticleSystemClass.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="PointLightClass.cpp" />
     <ClCompile Include="PositionClass.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="ParticleSystemClass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlatformHelpers.h" />
+    <ClInclude Include="PointLightClass.h" />
     <ClInclude Include="PositionClass.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="ShaderClass.h" />

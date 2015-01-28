@@ -305,8 +305,8 @@ void InitDirect3DApp::UpdateScene(float dt)
 	
 	//mFirework->Update(dt);
 
-	mSnow->SetPlayerPos(mCamera->GetPosition());
-	mSnow->Update(dt);
+	/*mSnow->SetPlayerPos(mCamera->GetPosition());
+	mSnow->Update(dt);*/
 
 	mCamera->CalcViewMatrix();
 
@@ -335,12 +335,12 @@ void InitDirect3DApp::DrawScene()
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
-	mDeferredBuffer->SetRenderTargets(mDeviceContext);
+	//mDeferredBuffer->SetRenderTargets(mDeviceContext);
 
-	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
+	//mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
 
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	//mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
@@ -352,7 +352,7 @@ void InitDirect3DApp::DrawScene()
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
+	//mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
 
 
 	
@@ -388,8 +388,8 @@ void InitDirect3DApp::DrawScene()
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
 	}
-
-	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	*/
+	/*mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 	
 	result = mTerrainShader->Render(
 		mDeviceContext,
@@ -404,7 +404,7 @@ void InitDirect3DApp::DrawScene()
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
 	}
-
+	*/
 	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
 	result = mLightShader->Render(
@@ -419,7 +419,7 @@ void InitDirect3DApp::DrawScene()
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
-	}*/
+	}
 	
 	// Present the back buffer to the screen
 	hr = mSwapChain->Present(0, 0);
