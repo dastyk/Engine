@@ -185,7 +185,7 @@ bool result;
 
 	
 	// Create Vertex Buffer
-	mVertexCount = 24;
+	/*mVertexCount = 24;
 	Vertex vertices[] =
 	{
 		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0, 2.0), XMFLOAT3(0,0,-1)},
@@ -218,7 +218,11 @@ bool result;
 		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(2.0, 0.0), XMFLOAT3(0, -1, 0) },
 		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(2.0, 2.0), XMFLOAT3(0, -1, 0) }
 
-	};
+	};*/
+
+	Vertex* vertices;
+	unsigned int* indices;
+	LoadModel("data/resources/altair.obj", mVertexCount, &vertices, mIndexCount, &indices);
 
 
 	D3D11_SUBRESOURCE_DATA vinitData;
@@ -232,7 +236,7 @@ bool result;
 		return false;
 	}
 
-	mIndexCount = 36;
+	/*mIndexCount = 36;
 	unsigned long indices[]
 	{
 		0, 1, 2,
@@ -252,7 +256,7 @@ bool result;
 
 			20, 22, 21,
 			20, 23, 22
-	};
+	};*/
 
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = indices;
@@ -260,12 +264,14 @@ bool result;
 	iinitData.SysMemSlicePitch = 0;
 
 
-	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount);
+	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned int)*mIndexCount);
 	if (!result)
 	{
 		return false;
 	}
 
+	delete[] vertices;
+	delete[] indices;
 
 	mTexture = new TextureClass();
 	if (!mTexture)

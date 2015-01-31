@@ -30,6 +30,7 @@
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="OBB.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
+    <ClCompile Include="OBJ_Loader.cpp" />
     <ClCompile Include="ParticleClass.cpp" />
     <ClCompile Include="ParticleShaderClass.cpp" />
     <ClCompile Include="ParticleSystemClass.cpp" />
@@ -72,6 +73,7 @@
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="OBB.h" />
     <ClInclude Include="ObjectClass.h" />
+    <ClInclude Include="OBJ_Loader.h" />
     <ClInclude Include="ParticleClass.h" />
     <ClInclude Include="ParticleShaderClass.h" />
     <ClInclude Include="ParticleSystemClass.h" />

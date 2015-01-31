@@ -6,16 +6,10 @@
 #include <DirectXMath.h>
 #include "TextureClass.h"
 #include <DirectXCollision.h>
-
+#include "OBJ_Loader.h"
 
 using namespace DirectX;
 
-struct Vertex
-{
-	XMFLOAT3 Pos;
-	XMFLOAT2 texCoord;
-	XMFLOAT3 Normal;
-};
 
 class ModelClass
 {

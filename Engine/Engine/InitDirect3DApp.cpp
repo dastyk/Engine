@@ -286,7 +286,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 	XMFLOAT3 pos = temp->GetPosition();
 	//pos.y = 2;
 	rot.y -= dt * 25;
-	//rot.x += dt * 25;
+	rot.x = 90;
 	//rot.z += dt * 25;
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);
@@ -335,12 +335,12 @@ void InitDirect3DApp::DrawScene()
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
-	//mDeferredBuffer->SetRenderTargets(mDeviceContext);
+	/*mDeferredBuffer->SetRenderTargets(mDeviceContext);
 
-	//mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
+	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
 
-	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
-	//mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+	mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);*/
 
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 

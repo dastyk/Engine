@@ -83,9 +83,6 @@ bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBu
 	bufferNumber = 0;
 
 
-	//result = SetConstantBufferParameters(pDeviceContext, pSunLightObject, pMaterial, pDrawDistFog);
-
-
 	ID3D11ShaderResourceView** tex = pBuffer->GetShaderResourceView();
 
 	// Set shader texture resource in the pixel shader.
