@@ -181,7 +181,7 @@ bool InitDirect3DApp::Init()
 	if (!mModel)
 		return false;
 
-	result = mModel->createModel(mDevice,L"data/resources/BTH_ny.jpg");
+	result = mModel->createModel(mDevice,"data/resources/R2D2.smf",L"data/resources/BTH_ny.jpg");
 	if (!result)
 		return false;
 
@@ -286,7 +286,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 	XMFLOAT3 pos = temp->GetPosition();
 	//pos.y = 2;
 	rot.y -= dt * 25;
-	rot.x = 90;
+	//rot.x = 90;
 	//rot.z += dt * 25;
 	temp->SetRotation(rot);
 	temp->SetPosition(pos);

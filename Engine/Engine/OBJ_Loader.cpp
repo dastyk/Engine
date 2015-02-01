@@ -1,15 +1,48 @@
 #include "OBJ_Loader.h"
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned int** ppIndexArray)
+std::string GetExtension(const std::string& filename)
 {
-	int vCount, tCount, nCount, fCount;
+	std::string::size_type idx;
 
-	if (!ReadFileCounts(filename, vCount, tCount, nCount, fCount))
-		return false;
+	idx = filename.rfind('.');
 
-	if (!LoadDataStructures(filename, vCount, tCount, nCount, fCount,vertexCount,ppVertexArray,indexCount,ppIndexArray))
-		return false;
+	if (idx != std::string::npos)
+	{
+		return filename.substr(idx + 1);
+	}
+	else
+	{
+		// No extension found
+	}
+}
 
+std::string removeExtension(const std::string& filename) {
+	size_t lastdot = filename.find_last_of(".");
+	if (lastdot == std::string::npos) return filename;
+	return filename.substr(0, lastdot);
+}
+
+bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray)
+{
+	
+
+	string ext = GetExtension(string(filename));
+
+	if (ext == "smf")
+	{
+		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray))
+			return false;	
+	}
+	else if (ext == "obj")
+	{
+		int vCount, tCount, nCount, fCount;
+
+		if (!ReadFileCounts(filename, vCount, tCount, nCount, fCount))
+			return false;
+
+		if (!LoadDataStructures(filename, vCount, tCount, nCount, fCount, vertexCount, ppVertexArray, indexCount, ppIndexArray))
+			return false;
+	}
 	return true;
 }
 
@@ -70,7 +103,7 @@ bool ReadFileCounts(char* filename, int& vertexCount, int& textureCount, int& no
 	return true;
 }
 
-bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned int** ppIndexArray)
+bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray)
 {
 	VertexType *vertices, *texcoords, *normals;
 	FaceType *faces;
@@ -202,7 +235,7 @@ bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int n
 	fin.close();
 
 	(*ppVertexArray) = new Vertex[vertexCounts];
-	(*ppIndexArray) = new unsigned int[indexCount];
+	(*ppIndexArray) = new unsigned long[indexCount];
 
 	int vI = 0;
 	int iIndex = 0;
@@ -324,4 +357,27 @@ void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexTyp
 	pVertex->Normal.x = pNorm->x;
 	pVertex->Normal.y = pNorm->y;
 	pVertex->Normal.z = pNorm->z;
+}
+
+bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray)
+{
+	FILE* filePtr;
+	SmfHeader head;
+	int error = fopen_s(&filePtr, filename, "rb");
+	if (error != 0)
+	{
+		return -3;
+	}
+
+	fread(&head, sizeof(SmfHeader), 1, filePtr);
+
+	vertexCount = head.VertexCount;
+	indexCount = head.IndexCount;
+
+	(*ppVertexArray) = new Vertex[vertexCount];
+	(*ppIndexArray) = new unsigned long[indexCount];
+	fseek(filePtr, head.bfOffBits, SEEK_SET);
+
+	fread((*ppVertexArray), sizeof(Vertex), head.VertexCount, filePtr);
+	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
 }

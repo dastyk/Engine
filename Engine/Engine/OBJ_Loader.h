@@ -7,8 +7,19 @@
 #include <iostream>
 #include <fstream>
 #include <DirectXMath.h>
+#include <string>
+
 using namespace std;
 using namespace DirectX;
+
+struct SmfHeader
+{
+	unsigned long VertexCount;
+	unsigned long IndexCount;
+	unsigned long bfOffBits;
+};
+
+
 
 struct Vertex
 {
@@ -31,13 +42,19 @@ struct FaceType
 };
 
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned int** ppIndexArray);
+bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray);
 
 bool ReadFileCounts(char* filename, int& vertexCount, int& textureCount, int& normalCount, int& faceCount);
-bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned int** ppIndexArray);
+bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray);
+
+bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray);
 
 
 void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexType* pNorm);
 
+
+// String manipulation functions
+std::string GetExtension(const std::string& filename);
+std::string removeExtension(const std::string& filename);
 
 #endif

@@ -29,7 +29,7 @@ public:
 	TextureClass* GetTexture()const;
 
 
-	bool createModel(ID3D11Device*, WCHAR* texFileName);
+	bool createModel(ID3D11Device*,char* modelName, WCHAR* texFileName);
 
 protected:
 	bool createVertexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);

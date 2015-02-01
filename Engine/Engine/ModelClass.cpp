@@ -68,7 +68,7 @@ int ModelClass::GetIndexCount() const
 }
 
 
-bool ModelClass::createModel(ID3D11Device* pDevice, WCHAR* texFileName)
+bool ModelClass::createModel(ID3D11Device* pDevice, char* modelName, WCHAR* texFileName)
 {
 	//bool result;
 
@@ -221,8 +221,8 @@ bool result;
 	};*/
 
 	Vertex* vertices;
-	unsigned int* indices;
-	LoadModel("data/resources/altair.obj", mVertexCount, &vertices, mIndexCount, &indices);
+	unsigned long* indices;
+	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices);
 
 
 	D3D11_SUBRESOURCE_DATA vinitData;
@@ -264,7 +264,7 @@ bool result;
 	iinitData.SysMemSlicePitch = 0;
 
 
-	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned int)*mIndexCount);
+	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount);
 	if (!result)
 	{
 		return false;
