@@ -12,13 +12,37 @@
 using namespace std;
 using namespace DirectX;
 
+typedef unsigned int UINT;
+typedef unsigned long ULONG;
+
+
 struct SmfHeader
 {
 	unsigned long VertexCount;
 	unsigned long IndexCount;
 	unsigned long bfOffBits;
+	unsigned int ObjectCount;
+};
+struct SubsetTableDesc
+{
+	UINT SubsetID;
+	ULONG VertexStart;
+	ULONG VertexCount;
+	ULONG FaceStart;
+	ULONG FaceCount;
 };
 
+struct MatrialDesc
+{
+	XMFLOAT3 Ambient;
+	XMFLOAT3 Diffuse;
+	XMFLOAT3 Specular;
+	float SpecPower;
+	XMFLOAT3 Reflectivity;
+	float AlphaClip;
+	UINT DiffuseSize;
+	UINT NormalSize;
+};
 
 
 struct Vertex
@@ -26,6 +50,7 @@ struct Vertex
 	XMFLOAT3 Pos;
 	XMFLOAT2 texCoord;
 	XMFLOAT3 Normal;
+	unsigned int ID;
 };
 
 struct VertexType
