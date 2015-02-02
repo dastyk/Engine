@@ -4,6 +4,7 @@ struct VS_IN
 	float3 Pos : POSITION;
 	float2 Tex : TEXCOORD;
 	float3 Normal : NORMAL;
+	uint Id : BLENDINDICES;
 };
 struct VS_OUT
 {
@@ -11,6 +12,7 @@ struct VS_OUT
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
+	uint Id : BLENDINDICES;
 };
 
 VS_OUT VSMain(VS_IN input)
@@ -25,6 +27,7 @@ VS_OUT VSMain(VS_IN input)
 	output.Tex = input.Tex;
 	output.Normal = input.Normal;
 	output.PosH = input.Pos;
+	output.Id = input.Id;
 
 	return output;
 }

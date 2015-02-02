@@ -4,7 +4,7 @@
 #pragma once
 
 #include "ShaderClass.h"
-
+#include "MaterialClass.h"
 
 struct TerrainCBufferType
 {

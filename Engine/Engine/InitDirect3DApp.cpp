@@ -47,6 +47,10 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mEnable4xMsaa = true;
 	m4xMsaaQuality = 1;
 
+
+	mPointLight = 0;
+	mLightCount = 0;
+
 	srand(time(NULL));
 
 
@@ -135,6 +139,21 @@ InitDirect3DApp::~InitDirect3DApp()
 		delete mDeferredShader;
 		mDeferredShader = 0;
 	}
+	if (mPointLight)
+	{
+		for (int i = 0; i < mLightCount; i++)
+		{
+			if (mPointLight[i])
+			{
+				delete mPointLight[i];
+				mPointLight[i] = 0;
+}
+		}
+
+		delete[]mPointLight;
+		mPointLight = 0;
+		
+	}
 }
 
 bool InitDirect3DApp::Init()
@@ -181,7 +200,7 @@ bool InitDirect3DApp::Init()
 	if (!mModel)
 		return false;
 
-	result = mModel->createModel(mDevice,"data/resources/R2D2.smf",L"data/resources/BTH_ny.jpg");
+	result = mModel->createModel(mDevice,"data/resources/soldier.smf");
 	if (!result)
 		return false;
 
@@ -266,7 +285,26 @@ bool InitDirect3DApp::Init()
 		return false;
 	}
 
+	//mLightCount = 10;
+	//mPointLight = new PointLightClass*[mLightCount];
+	//if (!mPointLight)
+	//	return false;
 
+	//for (int i = 0; i < mLightCount; i++)
+	//{
+	//	float l = 1; rand() % 10 / 10.0f;
+
+	//	mPointLight[i] = new PointLightClass(XMFLOAT3(l, l, l), XMFLOAT3(rand() % 50 - 25, rand() % 100, rand() % 50 - 25), rand() % 100 + 20);
+	//}
+
+	mLightCount = 2;
+	mPointLight = new PointLightClass*[mLightCount]; 
+	if (!mPointLight)
+		return false;
+
+
+	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
+	mPointLight[1] = new PointLightClass(XMFLOAT3(0.9, 0.9, 0.9), XMFLOAT3(0, 10000, 10000), 50000);
 	return true;
 
 }
@@ -292,6 +330,9 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetPosition(pos);
 
 	pos = mCamera->GetPosition();
+
+	mPointLight[0]->SetLightPos(pos);
+
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
 	//mCamera->SetPosition(pos);
 
@@ -335,14 +376,14 @@ void InitDirect3DApp::DrawScene()
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
-	mDeferredBuffer->SetRenderTargets(mDeviceContext);
+	//mDeferredBuffer->SetRenderTargets(mDeviceContext);
 
-	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
+	//mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
 
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	//mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
-	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
+	//mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 
 	// Clear back buffer blue.
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
@@ -352,7 +393,7 @@ void InitDirect3DApp::DrawScene()
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
+	//mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
 
 
 	
@@ -405,21 +446,21 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 	*/
-	/*mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
 	result = mLightShader->Render(
 		mDeviceContext,
 		mObject,
 		mCamera,
-		mSun,
-		mObject->GetMaterial(),
+		mPointLight,
+		mLightCount,
 		mDrawDistFog);
 
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
-	}*/
+	}
 	
 	// Present the back buffer to the screen
 	hr = mSwapChain->Present(0, 0);

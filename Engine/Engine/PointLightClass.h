@@ -5,7 +5,7 @@
 
 #include "LightClass.h"
 
-class PointLightClass : LightClass
+class PointLightClass : public LightClass
 {
 public:
 	PointLightClass();

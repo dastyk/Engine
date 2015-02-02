@@ -12,6 +12,7 @@ struct GS_IN
 	float2 Tex : TEXCOORD;
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
+	uint Id : BLENDINDICES;
 };
 
 struct GS_OUT
@@ -20,6 +21,7 @@ struct GS_OUT
 	float2 Tex : TEXCOORD;
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
+	uint Id : BLENDINDICES;
 };
 
 
@@ -32,9 +34,10 @@ void outputData(GS_IN v[3], inout TriangleStream<GS_OUT> triStream)
 		output.Pos = mul(v[i].Pos, mWorldViewProj);
 		output.Tex = v[i].Tex;
 		output.Normal = normalize(mul(float4(v[i].Normal, 1), mWorld).xyz);	
-		float4 temp = mul(float4(v[i].PosH, 1), mWorldView);
+		float4 temp = mul(float4(v[i].PosH, 1), mWorld);
 
 			output.PosH = temp.xyz;
+		output.Id = v[i].Id;
 
 		triStream.Append(output);
 	}

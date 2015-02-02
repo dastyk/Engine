@@ -8,6 +8,8 @@ ModelClass::ModelClass()
 	mTexture = 0;
 	mVertexCount = 0;
 	mIndexCount = 0;
+	mObjectCount = 0;
+	mMaterial = 0;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -34,6 +36,11 @@ ModelClass::~ModelClass()
 	{
 		delete mTexture;
 		mIndexBuffer = 0;
+	}
+	if (mMaterial)
+	{
+		delete[] mMaterial;
+		mMaterial = 0;
 	}
 }
 
@@ -68,7 +75,7 @@ int ModelClass::GetIndexCount() const
 }
 
 
-bool ModelClass::createModel(ID3D11Device* pDevice, char* modelName, WCHAR* texFileName)
+bool ModelClass::createModel(ID3D11Device* pDevice, char* modelName)
 {
 	//bool result;
 
@@ -222,7 +229,9 @@ bool result;
 
 	Vertex* vertices = nullptr;
 	unsigned long* indices = nullptr;
-	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices);
+	vector<wstring> tex;
+
+	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial);
 
 
 	D3D11_SUBRESOURCE_DATA vinitData;
@@ -279,8 +288,7 @@ bool result;
 		return false;
 	}
 
-	vector<wstring> tex;
-	tex.push_back(texFileName);
+	
 
 	result = mTexture->Init(pDevice,tex,NULL);
 	if (!result)
@@ -386,4 +394,14 @@ TextureClass* ModelClass::GetTexture()const
 bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
 {
 	return false;
+}
+
+MatrialDesc* ModelClass::GetMaterials()const
+{
+	return mMaterial;
+}
+
+int ModelClass::GetObjectCount()const
+{
+	return mObjectCount;
 }

@@ -30,7 +30,9 @@ private:
 
 private:
 	ID3D11ShaderResourceView** mSRV;
+	ID3D11Texture2D** mTexture;
 	ID3D11ShaderResourceView* mBlendMapSRV;
+
 };
 
 #endif

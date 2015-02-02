@@ -18,7 +18,7 @@ SnowEffect::~SnowEffect()
 
 bool SnowEffect::Init(ID3D11Device* pDevice)
 {
-	ParticleSystemClass::Init(pDevice, L"data/resources/BTH_ny.jpg");
+	ParticleSystemClass::Init(pDevice, L"BTH_ny.jpg");
 
 	mTimer = new GameTimer();
 

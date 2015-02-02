@@ -4,6 +4,7 @@
 TextureClass::TextureClass()
 {
 	mSRV = 0;
+	mTexture = 0;
 	mTextureCount = 0;
 	mUseBlendMap = false;
 }
@@ -12,18 +13,31 @@ TextureClass::TextureClass()
 TextureClass::~TextureClass()
 {
 
-	for (int i = 0; i < mTextureCount; i++)
-	{
-		if (mSRV[i])
-		{
-			mSRV[i]->Release();
-			mSRV[i] = 0;
-		}
-	}
 	if (mSRV)
 	{
+		for (int i = 0; i < mTextureCount; i++)
+		{
+			if (mSRV[i])
+			{
+				mSRV[i]->Release();
+				mSRV[i] = 0;
+			}
+		}
 		delete[]mSRV;
 		mSRV = 0;
+	}
+	if (mTexture)
+	{
+		for (int i = 0; i < mTextureCount; i++)
+		{
+			if (mTexture[i])
+			{
+				mTexture[i]->Release();
+				mTexture[i] = 0;
+			}
+		}
+		delete[]mTexture;
+		mTexture = 0;
 	}
 	if (mBlendMapSRV)
 	{
@@ -59,17 +73,55 @@ bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* 
 
 	for (int i = 0; i < mTextureCount; i++)
 	{
+		mSRV[i] = 0;
+	}
 
-		hr = DirectX::CreateWICTextureFromFile(pDevice, (WCHAR*)fileName[i].c_str(), 0, &mSRV[i], NULL);
+
+	mTexture = new ID3D11Texture2D*[mTextureCount];
+	if (!mTexture)
+		return false;
+
+	for (int i = 0; i < mTextureCount; i++)
+	{
+		mTexture[i] = 0;
+	}
+
+	for (int i = 0; i < mTextureCount; i++)
+	{
+		fileName[i] = L"data/resources/" + fileName[i];
+		hr = DirectX::CreateWICTextureFromFileEx(pDevice, (WCHAR*)fileName[i].c_str(), NULL, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, (ID3D11Resource**)&mTexture[i], NULL);//DirectX::CreateWICTextureFromFile(pDevice, (WCHAR*)fileName[i].c_str(), (ID3D11Resource**)&mTexture[i], NULL, NULL);
 		if (FAILED(hr))
 		{
-			mTextureCount = i;
 			MessageBox(0, L"Failed to load texture.", fileName[i].c_str(), MB_OK);
 			return false;
 		}
+		
+		D3D11_TEXTURE2D_DESC tDesc;
+		ZeroMemory(&tDesc, sizeof(tDesc));
+		mTexture[i]->GetDesc(&tDesc);
+
+
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+		ZeroMemory(&srvd, sizeof(srvd));
+
+		srvd.Format = tDesc.Format;
+		srvd.Texture2D.MipLevels = tDesc.MipLevels;
+		srvd.Texture2D.MostDetailedMip = 0;
+		srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+
+		hr = pDevice->CreateShaderResourceView(mTexture[i], &srvd, &mSRV[i]);
+
+		if (FAILED(hr))
+		{
+			MessageBox(0, L"Failed to create SRV.", fileName[i].c_str(), MB_OK);
+			return false;
+		}
+
 	}
 	
-	
+
+
 	/*D3D11_TEXTURE2D_DESC tDesc;
 	ZeroMemory(&tDesc, sizeof(tDesc));
 

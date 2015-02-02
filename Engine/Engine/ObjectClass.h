@@ -4,7 +4,6 @@
 #pragma once
 
 #include "ModelClass.h"
-#include "MaterialClass.h"
 #include "TransformationClass.h"
 
 class ObjectClass
@@ -14,7 +13,6 @@ public:
 	ObjectClass(const ObjectClass& other);
 	ObjectClass(ModelClass* pModel);
 	ObjectClass(ModelClass* pModel, TransformationClass* pTransform);
-	ObjectClass(ModelClass* pModel, TransformationClass* pTransform, MaterialClass* pMaterial);
 	virtual ~ObjectClass();
 
 public:
@@ -27,14 +25,15 @@ public:
 	XMFLOAT4X4 GetWorldMatrix()const;
 	int GetIndexCount()const;
 	TransformationClass* GetTransformation()const;
-	MaterialClass* GetMaterial()const;
+
+	MatrialDesc* GetMaterials()const;
+	ModelClass* GetModel()const;
 
 	TextureClass* GetTexture()const;
 
 protected:
 
 	TransformationClass* mTransform;
-	MaterialClass* mMaterial;
 	ModelClass* mModel;
 };
 

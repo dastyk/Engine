@@ -22,7 +22,7 @@ std::string removeExtension(const std::string& filename) {
 	return filename.substr(0, lastdot);
 }
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray)
+bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName, MatrialDesc** ppMaterials)
 {
 	
 
@@ -30,7 +30,7 @@ bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& in
 
 	if (ext == "smf")
 	{
-		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray))
+		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray, objectCount, fileName, ppMaterials))
 			return false;	
 	}
 	else if (ext == "obj")
@@ -359,7 +359,7 @@ void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexTyp
 	pVertex->Normal.z = pNorm->z;
 }
 
-bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray)
+bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName, MatrialDesc** ppMaterials)
 {
 	FILE* filePtr;
 	SmfHeader head;
@@ -373,14 +373,41 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 
 	vertexCount = head.VertexCount;
 	indexCount = head.IndexCount;
-	
+	objectCount = head.ObjectCount;
+
+
 	(*ppVertexArray) = new Vertex[vertexCount];
 	(*ppIndexArray) = new unsigned long[indexCount];
+	UINT* textureSize = new UINT[objectCount];
+	char** textureArray = new char*[objectCount];
+	(*ppMaterials) = new MatrialDesc[objectCount];
+
 	fseek(filePtr, head.bfOffBits, SEEK_SET);
 
+	fread((*ppMaterials), sizeof(MatrialDesc), head.ObjectCount, filePtr);
 	fread((*ppVertexArray), sizeof(Vertex), head.VertexCount, filePtr);
 	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
+	fread(textureSize, sizeof(UINT), head.ObjectCount, filePtr);
 
+	for (UINT i = 0; i < objectCount; i++)
+	{
+		textureArray[i] = new char[textureSize[i]];
+		fread(textureArray[i], textureSize[i], 1, filePtr);
 
+		size_t newsize = textureSize[i] + 1;
+
+		wchar_t * wcstring = new wchar_t[newsize];
+
+		// Convert char* string to a wchar_t* string.
+		size_t convertedChars = 0;
+		mbstowcs_s(&convertedChars, wcstring, newsize, textureArray[i], _TRUNCATE);
+
+		fileName.push_back(wcstring);
+		delete wcstring;
+		delete textureArray[i];
+	}
+
+	delete[]textureArray;
+	delete[]textureSize;
 
 }
