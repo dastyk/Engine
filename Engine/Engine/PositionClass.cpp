@@ -5,7 +5,7 @@ PositionClass::PositionClass()
 {
 	mPosition = XMFLOAT3(0.0, 0.0, 0.0);
 	mRotation = XMFLOAT3(0.0, 0.0, 0.0);
-	mUpVector = XMVectorSet(0, 1, 0, 0);
+	mUpVector = XMVectorSet(0.0, 1.0, 0.0, 0.0);
 	mForward = XMVectorSet(0.0, 0.0, 1.0, 0.0);
 	mRightVector = XMVectorSet(1.0, 0.0, 0.0, 0.0);
 	mMoveSpeed = 50;

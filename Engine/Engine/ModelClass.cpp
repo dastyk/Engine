@@ -220,8 +220,8 @@ bool result;
 
 	};*/
 
-	Vertex* vertices;
-	unsigned long* indices;
+	Vertex* vertices = nullptr;
+	unsigned long* indices = nullptr;
 	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices);
 
 

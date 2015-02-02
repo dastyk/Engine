@@ -373,11 +373,14 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 
 	vertexCount = head.VertexCount;
 	indexCount = head.IndexCount;
-
+	
 	(*ppVertexArray) = new Vertex[vertexCount];
 	(*ppIndexArray) = new unsigned long[indexCount];
 	fseek(filePtr, head.bfOffBits, SEEK_SET);
 
 	fread((*ppVertexArray), sizeof(Vertex), head.VertexCount, filePtr);
 	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
+
+
+
 }
