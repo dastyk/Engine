@@ -359,7 +359,7 @@ void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexTyp
 	pVertex->Normal.z = pNorm->z;
 }
 
-bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount)
+bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> fileName)
 {
 	FILE* filePtr;
 	SmfHeader head;
@@ -378,13 +378,24 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 
 	(*ppVertexArray) = new Vertex[vertexCount];
 	(*ppIndexArray) = new unsigned long[indexCount];
-	UINT* textureSize;
+	UINT* textureSize = new UINT[objectCount];
+	char** textureArray = new char*[objectCount];
 
 	fseek(filePtr, head.bfOffBits, SEEK_SET);
 
 	fread((*ppVertexArray), sizeof(Vertex), head.VertexCount, filePtr);
 	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
+	fread(textureSize, sizeof(UINT), head.ObjectCount, filePtr);
 
+	for (UINT i = 0; i < objectCount; i++)
+	{
+		textureArray[i] = new char[textureSize[i]];
+		fread(textureArray[i], textureSize[i], 1, filePtr);
+		fileName.push_back((wchar_t*)textureArray[i]);
+		delete textureArray[i];
+	}
 
+	delete[]textureArray;
+	delete[]textureSize;
 
 }

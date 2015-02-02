@@ -222,6 +222,8 @@ bool result;
 
 	Vertex* vertices = nullptr;
 	unsigned long* indices = nullptr;
+	vector<wstring> tex;
+
 	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices);
 
 
@@ -279,8 +281,7 @@ bool result;
 		return false;
 	}
 
-	vector<wstring> tex;
-	tex.push_back(texFileName);
+	
 
 	result = mTexture->Init(pDevice,tex,NULL);
 	if (!result)
