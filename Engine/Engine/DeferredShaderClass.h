@@ -15,7 +15,7 @@ struct DeferredVertexStruct
 	XMFLOAT2 Tex;
 };
 
-struct PointLight
+struct CPointLight
 {
 	XMFLOAT3 Pos;
 	float pad1;
@@ -51,7 +51,7 @@ struct DeferredLightConstantBuffer
 	XMFLOAT3 CamPos;
 	float pad2;
 
-	PointLight lights[MAX_ACTIVE_LIGHTS];
+	CPointLight lights[MAX_ACTIVE_LIGHTS];
 };
 
 

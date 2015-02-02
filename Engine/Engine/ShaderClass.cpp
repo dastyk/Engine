@@ -265,7 +265,7 @@ bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XM
 	return true;
 }
 
-bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog)
+bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog)
 {
 	return true;
 }

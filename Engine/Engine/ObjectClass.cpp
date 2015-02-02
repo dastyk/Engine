@@ -5,7 +5,6 @@ ObjectClass::ObjectClass()
 {
 	mModel = nullptr;
 	mTransform = nullptr;
-	mMaterial = nullptr;
 }
 
 
@@ -13,29 +12,20 @@ ObjectClass::ObjectClass(const ObjectClass& other)
 {
 	this->mModel = other.mModel;
 	this->mTransform = new TransformationClass(other.mTransform);
-	this->mMaterial = new MaterialClass(other.mMaterial);
 }
 
 ObjectClass::ObjectClass(ModelClass* pModel)
 {
 	mModel = pModel;
 	mTransform = new TransformationClass();
-	mMaterial = new MaterialClass();
 }
 
 ObjectClass::ObjectClass(ModelClass* pModel, TransformationClass* pTransform)
 {
 	mModel = pModel;
 	mTransform = pTransform;
-	mMaterial = new MaterialClass();
 }
 
-ObjectClass::ObjectClass(ModelClass* pModel, TransformationClass* pTransform, MaterialClass* pMaterial)
-{
-	mModel = pModel;
-	mTransform = pTransform;
-	mMaterial = pMaterial;
-}
 
 ObjectClass::~ObjectClass()
 {
@@ -43,11 +33,6 @@ ObjectClass::~ObjectClass()
 	{
 		delete mTransform;
 		mTransform = 0;
-	}
-	if (mMaterial)
-	{
-		delete mMaterial;
-		mMaterial = 0;
 	}
 }
 
@@ -87,10 +72,6 @@ TransformationClass* ObjectClass::GetTransformation()const
 	return mTransform;
 }
 
-MaterialClass* ObjectClass::GetMaterial()const
-{
-	return mMaterial;
-}
 
 TextureClass* ObjectClass::GetTexture()const
 {
@@ -100,4 +81,14 @@ TextureClass* ObjectClass::GetTexture()const
 void ObjectClass::SetModel(ModelClass* pModel)
 {
 	mModel = pModel;
+}
+
+MatrialDesc* ObjectClass::GetMaterials()const
+{
+	return mModel->GetMaterials();
+}
+
+ModelClass* ObjectClass::GetModel()const
+{
+	return mModel;
 }

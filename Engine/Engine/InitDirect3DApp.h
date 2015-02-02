@@ -15,6 +15,8 @@
 #include "LightShaderClass.h"
 
 #include "LightObjectClass.h"
+#include "PointLightClass.h"
+
 
 #include "FogClass.h"
 
@@ -79,6 +81,8 @@ private:
 	DeferredBufferClass* mDeferredBuffer;
 	DeferredShaderClass* mDeferredShader;
 
+	PointLightClass** mPointLight;
+	UINT mLightCount;
 };
 
 #endif

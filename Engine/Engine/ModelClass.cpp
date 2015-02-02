@@ -9,6 +9,7 @@ ModelClass::ModelClass()
 	mVertexCount = 0;
 	mIndexCount = 0;
 	mObjectCount = 0;
+	mMaterial = 0;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -35,6 +36,11 @@ ModelClass::~ModelClass()
 	{
 		delete mTexture;
 		mIndexBuffer = 0;
+	}
+	if (mMaterial)
+	{
+		delete[] mMaterial;
+		mMaterial = 0;
 	}
 }
 
@@ -225,7 +231,7 @@ bool result;
 	unsigned long* indices = nullptr;
 	vector<wstring> tex;
 
-	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex);
+	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial);
 
 
 	D3D11_SUBRESOURCE_DATA vinitData;
@@ -388,4 +394,14 @@ TextureClass* ModelClass::GetTexture()const
 bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
 {
 	return false;
+}
+
+MatrialDesc* ModelClass::GetMaterials()const
+{
+	return mMaterial;
+}
+
+int ModelClass::GetObjectCount()const
+{
+	return mObjectCount;
 }

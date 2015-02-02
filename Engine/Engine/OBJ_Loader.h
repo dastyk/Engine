@@ -24,15 +24,6 @@ struct SmfHeader
 	unsigned long bfOffBits;
 	unsigned int ObjectCount;
 };
-struct SubsetTableDesc
-{
-	UINT SubsetID;
-	ULONG VertexStart;
-	ULONG VertexCount;
-	ULONG FaceStart;
-	ULONG FaceCount;
-};
-
 struct MatrialDesc
 {
 	XMFLOAT3 Ambient;
@@ -41,11 +32,22 @@ struct MatrialDesc
 	float SpecPower;
 	XMFLOAT3 Reflectivity;
 	float AlphaClip;
-	UINT DiffuseSize;
-	UINT NormalSize;
 };
 
+struct MatrialDescPadded
+{
+	XMFLOAT3 Ambient;
+	float pad1;
+	XMFLOAT3 Diffuse;
+	float pad2;
+	XMFLOAT3 Specular;
+	float pad3;
 
+	XMFLOAT3 Reflectivity;
+	float pad4;
+	
+	XMFLOAT4 SpecPower_AlphaClip_Unused_Unused;
+};
 struct Vertex
 {
 	XMFLOAT3 Pos;
@@ -68,12 +70,12 @@ struct FaceType
 };
 
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> &fileName);
+bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> &fileName,MatrialDesc** ppMaterials);
 
 bool ReadFileCounts(char* filename, int& vertexCount, int& textureCount, int& normalCount, int& faceCount);
 bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray);
 
-bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> &fileName);
+bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> &fileName,MatrialDesc** ppMaterials);
 
 
 void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexType* pNorm);

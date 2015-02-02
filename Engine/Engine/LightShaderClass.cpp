@@ -64,7 +64,7 @@ bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, sizeof(LightCBufferType), &mLightBuffer);
+	result = createConstantBuffer(pDevice, 16 * 3 + sizeof(PointLight)*MAX_ACTIVE_LIGHTS + sizeof(MatrialDescPadded)*MAX_MATERIAL_COUNT, &mLightBuffer);
 	if (!result)
 	{
 		return false;
@@ -75,7 +75,7 @@ bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 }
 
 
-bool LightShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog)
+bool LightShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog)
 {
 	bool result;
 	unsigned int bufferNumber;
@@ -93,7 +93,7 @@ bool LightShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* 
 	// Set the constant buffer in the vertex shader with the updated values.
 	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
 
-	result = SetConstantBufferParameters(pDeviceContext,pSunLightObject,pMaterial,pDrawDistFog);
+	result = SetConstantBufferParameters(pDeviceContext, ppLights, NrOfLights, pObject, pDrawDistFog, pCamera);
 	if (!result)
 	{
 		return false;
@@ -121,11 +121,11 @@ void LightShaderClass::RenderShader(ID3D11DeviceContext* pDeviceContext, int ind
 	ShaderClass::RenderShader(pDeviceContext, indexCount);
 }
 
-bool LightShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog)
+bool LightShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, PointLightClass** ppLights, UINT NrOfLights, ObjectClass* pObject, FogClass* pDrawDistFog, CameraClass* pCamera)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	LightCBufferType* dataPtr;
+	LightConstantBuffer* dataPtr;
 	unsigned int bufferNumber;
 
 	// Lock the constant buffer so it can be written to.
@@ -136,29 +136,32 @@ bool LightShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceC
 	}
 
 	// Get a pointer to the data in the constant buffer.
-	dataPtr = (LightCBufferType*)mappedResource.pData;
+	dataPtr = (LightConstantBuffer*)mappedResource.pData;
 
-	
+	ModelClass* pModel = pObject->GetModel();
+	MatrialDesc *pMaterials = pModel->GetMaterials();
+	int oCount = pModel->GetObjectCount();
 
-	// Copy the matrices into the constant buffer.
-	dataPtr->ambientColor = pSunLightObject->GetAmbientLight()->GetLightColor();
-	dataPtr->ambientReflection = pMaterial->GetAmbientReflection();
-
-	LightClass* temp = pSunLightObject->GetDiffuseLight();
-
-	dataPtr->diffDir = temp->GetLightDir();
-	dataPtr->diffColor = temp->GetLightColor();
-	dataPtr->diffReflection = pMaterial->GetDiffuseReflection();
-
-	temp = pSunLightObject->GetSpecularLight();
-
-	dataPtr->specDir = temp->GetLightDir();
-	dataPtr->specColor = temp->GetLightColor();
-	dataPtr->specReflection = pMaterial->GetSpecularReflection();
-	dataPtr->specShinyPower = pMaterial->GetSpecularShinyPower();
-	
+	dataPtr->LightCount_FogRange_ObjectCount_Unused = XMFLOAT4(NrOfLights, pDrawDistFog->GetRange(), oCount, 0);
 	dataPtr->fogColor = pDrawDistFog->GetColor();
-	dataPtr->fogRange = pDrawDistFog->GetRange();
+	dataPtr->CamPos = pCamera->GetPosition();
+
+	for (int i = 0; i < NrOfLights; i++)
+	{
+		dataPtr->lights[i].Pos = ppLights[i]->GetLightPos();
+		XMFLOAT3 color = ppLights[i]->GetLightColor();
+		dataPtr->lights[i].Color_LightRange = XMFLOAT4(color.x, color.y, color.z, ppLights[i]->GetRadius());
+	}
+	
+	for (int i = 0; i < oCount; i++)
+	{
+		dataPtr->materials[i].Ambient = pMaterials[i].Ambient;
+		dataPtr->materials[i].Diffuse = pMaterials[i].Diffuse;
+		dataPtr->materials[i].Specular = pMaterials[i].Specular;
+		dataPtr->materials[i].Reflectivity = pMaterials[i].Reflectivity;
+
+		dataPtr->materials[i].SpecPower_AlphaClip_Unused_Unused = XMFLOAT4(pMaterials[i].SpecPower, pMaterials[i].AlphaClip, 0, 0);
+	}
 
 	// Unlock the constant buffer.
 	pDeviceContext->Unmap(mLightBuffer, 0);

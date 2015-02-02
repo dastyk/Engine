@@ -22,7 +22,7 @@ std::string removeExtension(const std::string& filename) {
 	return filename.substr(0, lastdot);
 }
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName)
+bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName, MatrialDesc** ppMaterials)
 {
 	
 
@@ -30,7 +30,7 @@ bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& in
 
 	if (ext == "smf")
 	{
-		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray, objectCount, fileName))
+		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray, objectCount, fileName, ppMaterials))
 			return false;	
 	}
 	else if (ext == "obj")
@@ -359,7 +359,7 @@ void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexTyp
 	pVertex->Normal.z = pNorm->z;
 }
 
-bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName)
+bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName, MatrialDesc** ppMaterials)
 {
 	FILE* filePtr;
 	SmfHeader head;
@@ -380,9 +380,11 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 	(*ppIndexArray) = new unsigned long[indexCount];
 	UINT* textureSize = new UINT[objectCount];
 	char** textureArray = new char*[objectCount];
+	(*ppMaterials) = new MatrialDesc[objectCount];
 
 	fseek(filePtr, head.bfOffBits, SEEK_SET);
 
+	fread((*ppMaterials), sizeof(MatrialDesc), head.ObjectCount, filePtr);
 	fread((*ppVertexArray), sizeof(Vertex), head.VertexCount, filePtr);
 	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
 	fread(textureSize, sizeof(UINT), head.ObjectCount, filePtr);

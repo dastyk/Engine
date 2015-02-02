@@ -18,6 +18,7 @@ using namespace DirectX;
 #include "ObjectClass.h"
 #include "CameraClass.h"
 #include "ParticleSystemClass.h"
+#include "PointLightClass.h"
 
 struct MatrixBufferType
 {
@@ -36,7 +37,7 @@ public:
 	virtual bool Render(ID3D11DeviceContext* pDeviceContext, ParticleSystemClass* mParticleS, CameraClass* pCamera);
 	virtual bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix);
 	virtual bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, ID3D11ShaderResourceView* pTexture);
-	virtual bool Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog);
+	virtual bool Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog);
 
 protected:
 	void OutputShaderErrorMessage(ID3D10Blob*, WCHAR*);

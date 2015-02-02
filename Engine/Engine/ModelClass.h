@@ -27,7 +27,9 @@ public:
 	virtual int GetIndexCount()const;
 
 	TextureClass* GetTexture()const;
+	MatrialDesc* GetMaterials()const;
 
+	int GetObjectCount()const;
 
 	bool createModel(ID3D11Device*,char* modelName);
 
@@ -42,6 +44,7 @@ protected:
 	ID3D11Buffer* mVertexBuffer, *mIndexBuffer;
 	int mVertexCount, mIndexCount, mObjectCount;
 	unsigned int mStride;
+	MatrialDesc* mMaterial;
 };
 
 #endif

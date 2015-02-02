@@ -47,6 +47,10 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mEnable4xMsaa = true;
 	m4xMsaaQuality = 1;
 
+
+	mPointLight = 0;
+	mLightCount = 0;
+
 	srand(time(NULL));
 
 
@@ -134,6 +138,21 @@ InitDirect3DApp::~InitDirect3DApp()
 	{
 		delete mDeferredShader;
 		mDeferredShader = 0;
+	}
+	if (mPointLight)
+	{
+		for (int i = 0; i < mLightCount; i++)
+		{
+			if (mPointLight[i])
+			{
+				delete mPointLight[i];
+				mPointLight[i] = 0;
+			}
+		}
+
+		delete[]mPointLight;
+		mPointLight = 0;
+		
 	}
 }
 
@@ -266,7 +285,26 @@ bool InitDirect3DApp::Init()
 		return false;
 	}
 
+	//mLightCount = 10;
+	//mPointLight = new PointLightClass*[mLightCount];
+	//if (!mPointLight)
+	//	return false;
 
+	//for (int i = 0; i < mLightCount; i++)
+	//{
+	//	float l = 1; rand() % 10 / 10.0f;
+
+	//	mPointLight[i] = new PointLightClass(XMFLOAT3(l, l, l), XMFLOAT3(rand() % 50 - 25, rand() % 100, rand() % 50 - 25), rand() % 100 + 20);
+	//}
+
+	mLightCount = 2;
+	mPointLight = new PointLightClass*[mLightCount]; 
+	if (!mPointLight)
+		return false;
+
+
+	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
+	mPointLight[1] = new PointLightClass(XMFLOAT3(0.9, 0.9, 0.9), XMFLOAT3(0, 10000, 10000), 50000);
 	return true;
 
 }
@@ -292,6 +330,9 @@ void InitDirect3DApp::UpdateScene(float dt)
 	temp->SetPosition(pos);
 
 	pos = mCamera->GetPosition();
+
+	mPointLight[0]->SetLightPos(pos);
+
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
 	//mCamera->SetPosition(pos);
 
@@ -411,8 +452,8 @@ void InitDirect3DApp::DrawScene()
 		mDeviceContext,
 		mObject,
 		mCamera,
-		mSun,
-		mObject->GetMaterial(),
+		mPointLight,
+		mLightCount,
 		mDrawDistFog);
 
 	if (!result)
