@@ -22,7 +22,7 @@ std::string removeExtension(const std::string& filename) {
 	return filename.substr(0, lastdot);
 }
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray)
+bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName)
 {
 	
 
@@ -30,7 +30,7 @@ bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& in
 
 	if (ext == "smf")
 	{
-		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray))
+		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray, objectCount, fileName))
 			return false;	
 	}
 	else if (ext == "obj")
@@ -359,7 +359,7 @@ void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexTyp
 	pVertex->Normal.z = pNorm->z;
 }
 
-bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> fileName)
+bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName)
 {
 	FILE* filePtr;
 	SmfHeader head;
@@ -391,7 +391,17 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 	{
 		textureArray[i] = new char[textureSize[i]];
 		fread(textureArray[i], textureSize[i], 1, filePtr);
-		fileName.push_back((wchar_t*)textureArray[i]);
+
+		size_t newsize = textureSize[i] + 1;
+
+		wchar_t * wcstring = new wchar_t[newsize];
+
+		// Convert char* string to a wchar_t* string.
+		size_t convertedChars = 0;
+		mbstowcs_s(&convertedChars, wcstring, newsize, textureArray[i], _TRUNCATE);
+
+		fileName.push_back(wcstring);
+		delete wcstring;
 		delete textureArray[i];
 	}
 

@@ -17,7 +17,7 @@ cbuffer LightBuffer : register(cb0)
 	float fogRange;
 };
 
-Texture2D shaderTexture;
+Texture2D shaderTexture[9];
 SamplerState SampleType;
 
 struct PS_IN
@@ -26,6 +26,7 @@ struct PS_IN
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
+	uint Id : BLENDINDICES;
 };
 
 float4 PSMain(PS_IN input) : SV_TARGET
@@ -34,7 +35,37 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	float  D = length(input.PosH);
 
 	// Sample texture
-	textureColor = shaderTexture.Sample(SampleType, input.Tex);
+	switch (input.Id)
+	{
+	case 0:
+		textureColor = shaderTexture[0].Sample(SampleType, input.Tex);
+		break;
+	case 1:
+		textureColor = shaderTexture[1].Sample(SampleType, input.Tex);
+		break;
+	case 2:
+		textureColor = shaderTexture[2].Sample(SampleType, input.Tex);
+		break;
+	case 3:
+		textureColor = shaderTexture[3].Sample(SampleType, input.Tex);
+		break;
+	case 4:
+		textureColor = shaderTexture[4].Sample(SampleType, input.Tex);
+		break;
+	case 5:
+		textureColor = shaderTexture[5].Sample(SampleType, input.Tex);
+		break;
+	case 6:
+		textureColor = shaderTexture[6].Sample(SampleType, input.Tex);
+		break;
+	case 7:
+		textureColor = shaderTexture[7].Sample(SampleType, input.Tex);
+		break;
+	case 8:
+		textureColor = shaderTexture[8].Sample(SampleType, input.Tex);
+		break;
+	}
+	
 
 	// set ambient contrib.
 	float3 color = ambientReflection*ambientColor;

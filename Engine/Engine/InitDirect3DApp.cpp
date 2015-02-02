@@ -181,7 +181,7 @@ bool InitDirect3DApp::Init()
 	if (!mModel)
 		return false;
 
-	result = mModel->createModel(mDevice,"data/resources/R2D2.smf",L"data/resources/BTH_ny.jpg");
+	result = mModel->createModel(mDevice,"data/resources/soldier.smf");
 	if (!result)
 		return false;
 

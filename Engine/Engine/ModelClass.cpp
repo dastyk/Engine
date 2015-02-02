@@ -8,6 +8,7 @@ ModelClass::ModelClass()
 	mTexture = 0;
 	mVertexCount = 0;
 	mIndexCount = 0;
+	mObjectCount = 0;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -68,7 +69,7 @@ int ModelClass::GetIndexCount() const
 }
 
 
-bool ModelClass::createModel(ID3D11Device* pDevice, char* modelName, WCHAR* texFileName)
+bool ModelClass::createModel(ID3D11Device* pDevice, char* modelName)
 {
 	//bool result;
 
@@ -224,7 +225,7 @@ bool result;
 	unsigned long* indices = nullptr;
 	vector<wstring> tex;
 
-	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices);
+	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex);
 
 
 	D3D11_SUBRESOURCE_DATA vinitData;
