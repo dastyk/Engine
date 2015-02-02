@@ -440,7 +440,7 @@ bool D3DApp::createDepthStencilBufferView()
 
 
 
-
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 	/*
 	// Create depth/stencil buffer and view

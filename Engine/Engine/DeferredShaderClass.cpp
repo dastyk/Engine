@@ -5,6 +5,11 @@ DeferredShaderClass::DeferredShaderClass() : ShaderClass()
 {
 	mSampleState = 0;
 	mLightBuffer = 0;
+	for (int i = 0; i < BUFFER_COUNT; i++)
+	{
+		unbindSrv[i] = nullptr;
+	}
+
 }
 
 
@@ -92,6 +97,10 @@ bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBu
 
 	pDeviceContext->PSSetSamplers(0, 1, &mSampleStateRenderTarget);
 
+	// Set the vertex input layout.
+	pDeviceContext->IASetInputLayout(mLayout2);
+
+
 	// Set the vertex and pixel shaders that will be used to render this triangle.
 	pDeviceContext->VSSetShader(mVertexShaderRenderTarget, nullptr, 0);
 	pDeviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -102,6 +111,7 @@ bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBu
 	// Render mesh stored in active buffers
 	pDeviceContext->Draw(6, 0);
 
+	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, unbindSrv);
 
 	return true;
 }
@@ -140,7 +150,7 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 	// Get a count of the elements in the layout.
 	numElements = sizeof(vertexDesc2) / sizeof(vertexDesc2[0]);
 
-	result = createVertexShaderAndInputLayout(pDevice, vertex, "VSMain", vertexDesc2, numElements, &mVertexShaderRenderTarget, &mLayout);
+	result = createVertexShaderAndInputLayout(pDevice, vertex, "VSMain", vertexDesc2, numElements, &mVertexShaderRenderTarget, &mLayout2);
 	if (!result)
 	{
 		return false;

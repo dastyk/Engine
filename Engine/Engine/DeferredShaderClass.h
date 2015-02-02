@@ -87,6 +87,10 @@ private:
 	TextureClass* mTexture;
 
 	ID3D11Buffer* mLightBuffer;
+
+	ID3D11InputLayout* mLayout2;
+
+	ID3D11ShaderResourceView* unbindSrv[BUFFER_COUNT];
 };
 
 #endif

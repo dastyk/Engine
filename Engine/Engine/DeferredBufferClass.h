@@ -15,6 +15,7 @@ public:
 	bool Init(ID3D11Device*, int, int);
 
 	void SetRenderTargets(ID3D11DeviceContext*);
+	void UnsetRenderTargets(ID3D11DeviceContext*);
 	void ClearRenderTargets(ID3D11DeviceContext*, float, float, float, float);
 
 	ID3D11ShaderResourceView* GetShaderResourceView(int);
@@ -26,6 +27,9 @@ private:
 	ID3D11Texture2D* mDepthStencilBuffer;
 	ID3D11DepthStencilView* mDepthStencilView;
 	D3D11_VIEWPORT mViewport;
+
+	ID3D11DepthStencilView* prevDSV = nullptr;
+	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
 };
 
 #endif
