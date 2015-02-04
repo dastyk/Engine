@@ -21,7 +21,7 @@ std::string removeExtension(const std::string& filename) {
 	return filename.substr(0, lastdot);
 }
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName, MatrialDesc** ppMaterials)
+bool LoadModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips)
 {
 	
 
@@ -29,18 +29,18 @@ bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& in
 
 	if (ext == "smf")
 	{
-		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray, objectCount, fileName, ppMaterials))
+		if (!LoadSmfModel(filename, vertexCount, ppVertexArray, indexCount, ppIndexArray, objectCount, fileName, ppMaterials, ppBones, boneCount, ppAnimClip, animClips))
 			return false;	
 	}
 	else if (ext == "obj")
 	{
-		int vCount, tCount, nCount, fCount;
+		/*int vCount, tCount, nCount, fCount;
 
 		if (!ReadFileCounts(filename, vCount, tCount, nCount, fCount))
 			return false;
 
 		if (!LoadDataStructures(filename, vCount, tCount, nCount, fCount, vertexCount, ppVertexArray, indexCount, ppIndexArray))
-			return false;
+			return false;*/
 	}
 	return true;
 }
@@ -358,7 +358,7 @@ void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexTyp
 	pVertex->Normal.z = pNorm->z;
 }
 
-bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring>& fileName, MatrialDesc** ppMaterials)
+bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips)
 {
 	FILE* filePtr;
 	SmfHeader head;
@@ -373,13 +373,20 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 	vertexCount = head.VertexCount;
 	indexCount = head.IndexCount;
 	objectCount = head.ObjectCount;
-
+	boneCount = head.BoneCount;
+	animClips = head.AnimationClips;
 
 	(*ppVertexArray) = new Vertex[vertexCount];
 	(*ppIndexArray) = new unsigned long[indexCount];
 	UINT* textureSize = new UINT[objectCount];
 	char** textureArray = new char*[objectCount];
 	(*ppMaterials) = new MatrialDesc[objectCount];
+	(*ppBones) = new BoneRead[boneCount];
+	(*ppAnimClip) = new AnimClipRead[animClips];
+	for (UINT i = 0; i < animClips; i++)
+	{
+		(*ppAnimClip)[i].bones = new BoneFrame[boneCount];
+	}
 
 	fseek(filePtr, head.bfOffBits, SEEK_SET);
 
@@ -405,6 +412,21 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 		delete wcstring;
 		delete textureArray[i];
 	}
+
+	fread((*ppBones), sizeof(BoneRead), head.BoneCount, filePtr);
+
+	for (UINT i = 0; i < animClips; i++)
+	{
+		for (UINT j = 0; j < boneCount; j++)
+		{
+			BoneFrame& b = (*ppAnimClip)[i].bones[j];
+			fread(&b.frameCount, sizeof(UINT), 1, filePtr);
+
+			b.Frames = new Frame[b.frameCount];
+			fread(b.Frames, sizeof(Frame), b.frameCount, filePtr);
+		}
+	}
+
 
 	delete[]textureArray;
 	delete[]textureSize;

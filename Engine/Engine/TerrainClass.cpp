@@ -492,7 +492,7 @@ bool TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, Boun
 	}
 }
 
-int TerrainClass::GetIndexCount() const
+UINT TerrainClass::GetIndexCount() const
 {
 	return (int)mIndexCount;
 }

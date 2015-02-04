@@ -56,7 +56,7 @@ public:
 private:
 	ShaderClass* mColorShader;
 	ShaderClass* mTexShader;
-	ShaderClass* mLightShader;
+	LightShaderClass* mLightShader;
 	ShaderClass* mTerrainShader;
 
 	ModelClass* mModel;

@@ -35,7 +35,7 @@ public:
 	XMFLOAT3 GetVectorAtPoint(const XMFLOAT3&)const;
 
 	bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
-	int GetIndexCount()const;
+	UINT GetIndexCount()const;
 
 
 private:

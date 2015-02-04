@@ -5,6 +5,7 @@
 
 #include "ModelClass.h"
 #include "TransformationClass.h"
+#include "GameTimer.h"
 
 class ObjectClass
 {
@@ -35,6 +36,7 @@ protected:
 
 	TransformationClass* mTransform;
 	ModelClass* mModel;
+	GameTimer* mTime;
 };
 
 #endif

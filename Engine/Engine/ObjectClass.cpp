@@ -5,6 +5,7 @@ ObjectClass::ObjectClass()
 {
 	mModel = nullptr;
 	mTransform = nullptr;
+	mTime = 0;
 }
 
 
@@ -12,18 +13,27 @@ ObjectClass::ObjectClass(const ObjectClass& other)
 {
 	this->mModel = other.mModel;
 	this->mTransform = new TransformationClass(other.mTransform);
+	this->mTime = new GameTimer();
+	mTime->Reset();
+	mTime->Start();
 }
 
 ObjectClass::ObjectClass(ModelClass* pModel)
 {
 	mModel = pModel;
 	mTransform = new TransformationClass();
+	this->mTime = new GameTimer();
+	mTime->Reset();
+	mTime->Start();
 }
 
 ObjectClass::ObjectClass(ModelClass* pModel, TransformationClass* pTransform)
 {
 	mModel = pModel;
 	mTransform = pTransform;
+	this->mTime = new GameTimer();
+	mTime->Reset();
+	mTime->Start();
 }
 
 
@@ -34,12 +44,17 @@ ObjectClass::~ObjectClass()
 		delete mTransform;
 		mTransform = 0;
 	}
+	if (mTime)
+	{
+		delete mTime;
+		mTime = 0;
+	}
 }
 
 
 void ObjectClass::Update()
 {
-
+	mTime->Tick();
 }
 
 

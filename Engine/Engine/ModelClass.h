@@ -24,12 +24,12 @@ public:
 	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
 
 
-	virtual int GetIndexCount()const;
+	virtual UINT GetIndexCount()const;
 
 	TextureClass* GetTexture()const;
 	MatrialDesc* GetMaterials()const;
 
-	int GetObjectCount()const;
+	UINT GetObjectCount()const;
 
 	bool createModel(ID3D11Device*,char* modelName);
 
@@ -42,9 +42,11 @@ protected:
 protected:
 	TextureClass *mTexture;
 	ID3D11Buffer* mVertexBuffer, *mIndexBuffer;
-	int mVertexCount, mIndexCount, mObjectCount;
-	unsigned int mStride;
+	UINT mVertexCount, mIndexCount, mObjectCount, mBoneCount, mAnimationClipCount;
+	UINT mStride;
 	MatrialDesc* mMaterial;
+	Bone* mBones;
+	AnimClipRead* mAnimationClips;
 };
 
 #endif

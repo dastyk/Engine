@@ -10,6 +10,10 @@ ModelClass::ModelClass()
 	mIndexCount = 0;
 	mObjectCount = 0;
 	mMaterial = 0;
+	mBoneCount = 0;
+	mAnimationClipCount = 0;
+	mBones = 0;
+	mAnimationClips = 0;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -42,6 +46,32 @@ ModelClass::~ModelClass()
 		delete[] mMaterial;
 		mMaterial = 0;
 	}
+	if (mBones)
+	{
+		delete[] mBones;
+		mBones = 0;
+	}
+	if (mAnimationClips)
+	{
+		for (UINT i = 0; i < mAnimationClipCount; i++)
+		{
+			if (mAnimationClips[i].bones)
+			{
+				for (UINT j = 0; j < mBoneCount; j++)
+				{
+					if (mAnimationClips[i].bones[j].Frames)
+					{
+						delete[] mAnimationClips[i].bones[j].Frames;
+						mAnimationClips[i].bones[j].Frames = 0;
+					}
+				}
+				delete[]mAnimationClips[i].bones;
+				mAnimationClips[i].bones = 0;
+			}
+		}
+		delete[] mAnimationClips;
+		mAnimationClips = 0;
+	}
 }
 
 
@@ -69,119 +99,14 @@ void ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext)
 
 
 
-int ModelClass::GetIndexCount() const
+UINT ModelClass::GetIndexCount() const
 {
-	return (int)mIndexCount;
+	return (UINT)mIndexCount;
 }
 
 
 bool ModelClass::createModel(ID3D11Device* pDevice, char* modelName)
 {
-	//bool result;
-
-	//struct Vertex
-	//{
-	//	XMFLOAT3 Pos;
-	//	XMFLOAT2 texCoord;
-	//};
-
-	//mStride = sizeof(Vertex);
-
-	//
-	//// Create Vertex Buffer
-	//mVertexCount = 24;
-	//Vertex vertices[] =
-	//{
-	//	{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0, 1.0) },
-	//	{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(0.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(1.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(1.0, 1.0) },
-
-	//	{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(1.0, 1.0) },
-	//	{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(1.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(0.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(0.0, 1.0) },
-
-	//	{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0, 1.0) },
-	//	{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0, 0.0) },
-	//	{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(1.0, 0.0) },
-	//	{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(1.0, 1.0) },
-
-	//	{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(0.0, 1.0) },
-	//	{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(0.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(1.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(1.0, 1.0) },
-
-	//	{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(0.0, 1.0) },
-	//	{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(1.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(1.0, 1.0) },
-
-	//	{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0, 1.0) },
-	//	{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(1.0, 0.0) },
-	//	{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(1.0, 1.0) }
-
-	//};
-
-
-	//D3D11_SUBRESOURCE_DATA vinitData;
-	//vinitData.pSysMem = vertices;
-	//vinitData.SysMemPitch = 0;
-	//vinitData.SysMemSlicePitch = 0;
-
-	//result = createVertexBuffer(pDevice, &vinitData, mStride * mVertexCount);
-	//if (!result)
-	//{
-	//	return false;
-	//}
-
-	//mIndexCount = 36;
-	//unsigned long indices[]
-	//{
-	//	0, 1, 2,
-	//		0, 2, 3,
-
-	//		4, 6, 5,
-	//		4, 7, 6,
-
-	//		8, 9, 10,
-	//		8, 10, 11,
-
-	//		12, 13, 14,
-	//		12, 14, 15,
-
-	//		16, 17, 18,
-	//		16, 18, 19,
-
-	//		20, 22, 21,
-	//		20, 23, 22
-	//};
-
-	//D3D11_SUBRESOURCE_DATA iinitData;
-	//iinitData.pSysMem = indices;
-	//iinitData.SysMemPitch = 0;
-	//iinitData.SysMemSlicePitch = 0;
-
-
-	//result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount);
-	//if (!result)
-	//{
-	//	return false;
-	//}
-
-
-	//mTexture = new TextureClass();
-	//if (!mTexture)
-	//{
-	//	return false;
-	//}
-
-	//result = mTexture->Init(pDevice,texFileName);
-	//if (!result)
-	//{
-	//	return false;
-	//}
 
 
 bool result;
@@ -191,48 +116,32 @@ bool result;
 	mStride = sizeof(Vertex);
 
 	
-	// Create Vertex Buffer
-	/*mVertexCount = 24;
-	Vertex vertices[] =
-	{
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0, 2.0), XMFLOAT3(0,0,-1)},
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(0.0, 0.0), XMFLOAT3(0, 0, -1) },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(2.0, 0.0), XMFLOAT3(0, 0, -1) },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(2.0, 2.0), XMFLOAT3(0, 0, -1) },
-
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(2.0, 2.0), XMFLOAT3(0, 0, 1) },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(2.0, 0.0), XMFLOAT3(0, 0, 1) },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(0.0, 0.0), XMFLOAT3(0, 0, 1) },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(0.0, 2.0), XMFLOAT3(0, 0, 1) },
-
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0, 2.0), XMFLOAT3(-1, 0, 0) },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0, 0.0), XMFLOAT3(-1, 0, 0) },
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(2.0, 0.0), XMFLOAT3(-1, 0, 0) },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(2.0, 2.0), XMFLOAT3(-1, 0, 0) },
-
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(0.0, 2.0), XMFLOAT3(1, 0, 0) },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(0.0, 0.0), XMFLOAT3(1, 0, 0) },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(2.0, 0.0), XMFLOAT3(1, 0, 0) },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(2.0, 2.0), XMFLOAT3(1, 0, 0) },
-
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(0.0, 2.0), XMFLOAT3(0, 1, 0) },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0, 0.0), XMFLOAT3(0, 1, 0) },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(2.0, 0.0), XMFLOAT3(0, 1, 0) },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(2.0, 2.0), XMFLOAT3(0, 1, 0) },
-
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0, 2.0), XMFLOAT3(0, -1, 0) },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0, 0.0), XMFLOAT3(0, -1, 0) },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(2.0, 0.0), XMFLOAT3(0, -1, 0) },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(2.0, 2.0), XMFLOAT3(0, -1, 0) }
-
-	};*/
-
 	Vertex* vertices = nullptr;
 	unsigned long* indices = nullptr;
 	vector<wstring> tex;
+	BoneRead* bones;
 
-	LoadModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial);
 
+	LoadSmfModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial, &bones, mBoneCount, &mAnimationClips, mAnimationClipCount);
+
+	if (mBoneCount > 0)
+	{
+		mBones = new Bone[mBoneCount];
+		mBones[0].ParentBone = bones[0].ParentBone;
+		mBones[0].localOffset = mBones[0].globalOffset = bones[0].localOffset;		
+		for (UINT i = 0; i < mBoneCount; i++)
+		{
+			Bone& b = mBones[i];
+			BoneRead& r = bones[i];
+			b.ParentBone = r.ParentBone;
+			b.localOffset = r.localOffset;
+			XMMATRIX Pg = XMLoadFloat4x4(&mBones[b.ParentBone].globalOffset);
+			XMMATRIX g = XMLoadFloat4x4(&b.localOffset);
+			XMStoreFloat4x4(&b.globalOffset, Pg*g);
+			
+		}
+
+	}
 
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = vertices;
@@ -245,27 +154,7 @@ bool result;
 		return false;
 	}
 
-	/*mIndexCount = 36;
-	unsigned long indices[]
-	{
-		0, 1, 2,
-			0, 2, 3,
 
-			4, 6, 5,
-			4, 7, 6,
-
-			8, 9, 10,
-			8, 10, 11,
-
-			12, 13, 14,
-			12, 14, 15,
-
-			16, 17, 18,
-			16, 18, 19,
-
-			20, 22, 21,
-			20, 23, 22
-	};*/
 
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = indices;
@@ -278,7 +167,7 @@ bool result;
 	{
 		return false;
 	}
-
+	delete[]bones;
 	delete[] vertices;
 	delete[] indices;
 
@@ -401,7 +290,7 @@ MatrialDesc* ModelClass::GetMaterials()const
 	return mMaterial;
 }
 
-int ModelClass::GetObjectCount()const
+UINT ModelClass::GetObjectCount()const
 {
 	return mObjectCount;
 }

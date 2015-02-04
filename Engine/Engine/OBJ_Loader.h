@@ -16,6 +16,38 @@ using namespace DirectX;
 typedef unsigned int UINT;
 typedef unsigned long ULONG;
 
+struct BoneRead
+{
+	XMFLOAT4X4 localOffset;
+	int ParentBone;
+};
+
+struct Bone
+{
+	XMFLOAT4X4 localOffset;
+	int ParentBone;
+	XMFLOAT4X4 globalOffset;
+};
+
+struct Frame
+{
+	float time;
+	XMFLOAT3 Pos;
+	XMFLOAT3 Scale;
+	XMFLOAT4 Quat;
+};
+
+struct BoneFrame
+{
+	UINT frameCount;
+	Frame* Frames;
+};
+
+struct AnimClipRead
+{
+	BoneFrame* bones;
+};
+
 
 struct SmfHeader
 {
@@ -23,7 +55,10 @@ struct SmfHeader
 	unsigned long IndexCount;
 	unsigned long bfOffBits;
 	unsigned int ObjectCount;
+	UINT BoneCount;
+	UINT AnimationClips;
 };
+
 struct MatrialDesc
 {
 	XMFLOAT3 Ambient;
@@ -53,6 +88,8 @@ struct Vertex
 	XMFLOAT3 Pos;
 	XMFLOAT2 texCoord;
 	XMFLOAT3 Normal;
+	XMFLOAT4 BlendWeights;
+	XMINT4 BlendIndices;
 	unsigned int ID;
 };
 
@@ -70,12 +107,12 @@ struct FaceType
 };
 
 
-bool LoadModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> &fileName,MatrialDesc** ppMaterials);
+bool LoadModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips);
 
 bool ReadFileCounts(char* filename, int& vertexCount, int& textureCount, int& normalCount, int& faceCount);
 bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray);
 
-bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray, int& objectCount, vector<wstring> &fileName,MatrialDesc** ppMaterials);
+bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips);
 
 
 void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexType* pNorm);
