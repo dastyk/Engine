@@ -66,7 +66,7 @@ PS_OUT PSMain(PS_IN input) : SV_TARGET
 		
 	output.DiffuseColor = textureColor;
 
-	output.Position = input.PosH/input.PosH.w;
+	output.Position = input.PosH;
 	
 	return output;
 }

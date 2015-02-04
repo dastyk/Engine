@@ -1,8 +1,3 @@
-cbuffer MatrixBuffer
-{
-	float4x4 mWorldViewProj;
-	float4x4 mWorldView;
-};
 
 Texture2D shaderTexture;
 SamplerState SampleType;
@@ -11,6 +6,8 @@ struct PS_IN
 {
 	float4 Pos : SV_POSITION;
 	float2 Tex : TEXCOORD0;
+	float3 Normal : NORMAL;
+	uint Id : BLENDINDICES;
 };
 
 

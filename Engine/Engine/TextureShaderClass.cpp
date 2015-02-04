@@ -22,7 +22,7 @@ bool TextureShaderClass::Init(ID3D11Device* pDevice)
 
 
 	// Initialize the vertex and pixel shaders.
-	result = InitShader(pDevice, L"data/shaders/TexVertexShader.hlsl", L"data/shaders/TexPixelShader.hlsl", L"data/shaders/TexGeometryShader.hlsl");
+	result = InitShader(pDevice, L"data/shaders/TexVertexShader.hlsl", L"data/shaders/TexPixelShader.hlsl", NULL);
 	if (!result)
 	{
 		return false;
@@ -39,7 +39,9 @@ bool TextureShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32_UINT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	// Get a count of the elements in the layout.
@@ -74,6 +76,8 @@ bool TextureShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCo
 	{
 		return false;
 	}
+
+	pDeviceContext->VSSetConstantBuffers(0, 1, &mMatrixBuffer);
 
 	// Set shader texture resource in the pixel shader.
 	pDeviceContext->PSSetShaderResources(0, 1, &pTexture);

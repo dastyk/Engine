@@ -60,6 +60,9 @@ private:
 	ShaderClass* mTerrainShader;
 
 	ModelClass* mModel;
+	ModelClass* mQuadModel;
+	ObjectClass* mRTQ[BUFFER_COUNT];
+
 	ObjectClass* mObject;
 
 	LightObjectClass* mSun;

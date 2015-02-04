@@ -89,10 +89,10 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	float3 V = normalize(CamPos - input.PosH);
 		float3 N = normalize(input.Normal);
 
-	float3 color = float3(0, 0, 0);
+		float3 color = float3(0, 0, 0);
 
-		for (uint i = 0; i < LightCount_FogRange_ObjectCount_Unused.x; i++)
-		{
+	for (uint i = 0; i < LightCount_FogRange_ObjectCount_Unused.x; i++)
+	{
 
 		float3 S = lights[i].Pos - input.PosH;
 			float dist = length(S);
@@ -108,11 +108,8 @@ float4 PSMain(PS_IN input) : SV_TARGET
 			float3 am = materials[input.Id].Ambient*range*lights[i].Color_LightRange.xyz*0.2;
 			color = saturate(color + am);
 
-		
 
-		
-
-			// Calculate diffuse Light contrib.
+		// Calculate diffuse Light contrib.
 		float3 Ld = range*materials[input.Id].Diffuse* lights[i].Color_LightRange.xyz*max(dot(S, N), 0);
 
 			// Add diffuse contrib. to color.
@@ -123,7 +120,7 @@ float4 PSMain(PS_IN input) : SV_TARGET
 
 			// Add specular contrib. to color.
 			color = saturate(color + Ls);
-		}
+	}
 	// Calculate draw distance fog
 	float fogEnd = 490;
 	float fogFactor = 1 - saturate((fogEnd - D) / (fogEnd - LightCount_FogRange_ObjectCount_Unused.y));
@@ -135,6 +132,12 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	textureColor = textureColor * float4(color, 1) + float4(fogColor*fogFactor, 1);
 
 
-	return textureColor;
+	float3 K = float3(0, 50, -5) - input.PosH;
+		float di = length(K);
+	float en = 50;
+
+	float ran = saturate((en - di) / en);
+
+	return float4(ran, ran, ran, 1);
 }
 

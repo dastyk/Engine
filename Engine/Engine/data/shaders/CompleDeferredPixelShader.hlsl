@@ -94,11 +94,6 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	
 	finColor = Color * float4(LightCont, 1.0f) + float4(fogColor*fogFactor, 1.0f);
 
-	float3 K = lights[0].Pos - Pos.xyz;
-		float di = length(K);
-	float en = lights[0].Color_LightRange.w;
 
-	float ran = saturate((en - di) / en);
-
-	return float4(ran, ran, ran, 1);
+	return finColor;
 }

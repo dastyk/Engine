@@ -30,13 +30,13 @@ void CopyTriangle(GS_IN inVerts[3], out GS_IN outVerts[9])
 
 }
 
-void outputData(GS_IN v[9], inout TriangleStream<GS_IN> triStream)
+void outputData(GS_IN v[3], inout TriangleStream<GS_IN> triStream)
 {
 	uint i;
 	GS_IN output = (GS_IN)0;
 	for ( i = 0; i < 3; i++)
 	{
-		output.Pos = mul(v[i].Pos, mWorldViewProj);
+		output.Pos = v[i].Pos;
 		output.Tex = v[i].Tex;
 		triStream.Append(output);
 	}
@@ -66,13 +66,13 @@ void outputData(GS_IN v[9], inout TriangleStream<GS_IN> triStream)
 [maxvertexcount(3)]
 void GSMain(triangle GS_IN input[3], inout TriangleStream<GS_IN> OutputStream)
 {
-	GS_IN v[9];
-	GS_OUT output[3];
+	//GS_IN v[9];
+	//GS_OUT output[3];
 
-	CopyTriangle(input, v);
+	//CopyTriangle(input, v);
 
 
-	outputData(v, OutputStream);
+	outputData(input, OutputStream);
 
 	
 	
