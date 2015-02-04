@@ -33,10 +33,13 @@ void outputData(GS_IN v[3], inout TriangleStream<GS_OUT> triStream)
 	{
 		output.Pos = mul(v[i].Pos, mWorldViewProj);
 		output.Tex = v[i].Tex;
-		output.Normal = normalize(mul(float4(v[i].Normal, 1), mWorld).xyz);	
+		
 		float4 temp = mul(float4(v[i].PosH, 1), mWorld);
 
-			output.PosH = temp.xyz;
+			output.PosH = temp.xyz / temp.w;
+		temp = mul(float4(v[i].Normal, 1), mWorld);
+		output.Normal = normalize(temp.xyz/temp.w);
+
 		output.Id = v[i].Id;
 
 		triStream.Append(output);

@@ -24,6 +24,7 @@ private:
 private:
 	ID3D11SamplerState* mSampleState;
 
+	ID3D11ShaderResourceView* mNullSRW = nullptr;
 };
 
 #endif

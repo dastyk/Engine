@@ -344,7 +344,7 @@ bool InitDirect3DApp::Init()
 		mRTQ[i] = new ObjectClass(mQuadModel);
 		TransformationClass* t = mRTQ[i]->GetTransformation();	
 		t->SetPosition(XMFLOAT3(-0.666666 + 0.666666*i, -0.666666f, 0));
-		t->SetRotation(XMFLOAT3(0, 0, -90));
+		//t->SetRotation(XMFLOAT3(0, 0, -90));
 	}
 
 
@@ -421,7 +421,7 @@ void InitDirect3DApp::DrawScene()
 
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 
-	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.4f, 0.4f, 0.9f, 1.0f);
+	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
@@ -434,14 +434,14 @@ void InitDirect3DApp::DrawScene()
 
 
 
-	mDeferredShader->Render(
-		mDeviceContext, 
-		mDeferredBuffer,
-		mObject,
-		mCamera,
-		mPointLight,
-		mLightCount,
-		mDrawDistFog);
+	//mDeferredShader->Render(
+	//	mDeviceContext, 
+	//	mDeferredBuffer,
+	//	mObject,
+	//	mCamera,
+	//	mPointLight,
+	//	mLightCount,
+	//	mDrawDistFog);
 
 
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
@@ -498,23 +498,21 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 	*/
-	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
-	//result = mLightShader->Render(
-	//	mDeviceContext,
-	//	mObject,
-	//	mCamera,
-	//	mPointLight,
-	//	mLightCount,
-	//	mDrawDistFog);
+	result = mLightShader->Render(
+		mDeviceContext,
+		mObject,
+		mCamera,
+		mPointLight,
+		mLightCount,
+		mDrawDistFog);
 
-	//if (!result)
-	//{
-	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
-	//	return;
-	//}
-	//
-	// Present the back buffer to the screen
+	if (!result)
+	{
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
+	}
 
 
 	for (int i = 0; i < BUFFER_COUNT; i++)
@@ -522,6 +520,8 @@ void InitDirect3DApp::DrawScene()
 		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext);
 		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mDeferredBuffer->GetShaderResourceView(i));
 	}
+
+	// Present the back buffer to the screen
 
 
 	hr = mSwapChain->Present(0, 0);

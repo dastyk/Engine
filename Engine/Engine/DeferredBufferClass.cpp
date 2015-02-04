@@ -174,6 +174,11 @@ bool DeferredBufferClass::Init(ID3D11Device* device, int textureWidth, int textu
 
 void DeferredBufferClass::SetRenderTargets(ID3D11DeviceContext* deviceContext)
 {
+	for (int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		prevRTV[i] = nullptr;
+	}
+
 	deviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
 
 	// Bind the render target view array and depth stencil buffer to the output render pipeline.

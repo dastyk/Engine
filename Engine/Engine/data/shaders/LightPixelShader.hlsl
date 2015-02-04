@@ -138,6 +138,6 @@ float4 PSMain(PS_IN input) : SV_TARGET
 
 	float ran = saturate((en - di) / en);
 
-	return float4(ran, ran, ran, 1);
+	return textureColor;
 }
 

@@ -8,7 +8,7 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
-	float4 PosH : POSITION;
+	float3 PosH : POSITION;
 	uint Id : BLENDINDICES;
 };
 
@@ -66,7 +66,7 @@ PS_OUT PSMain(PS_IN input) : SV_TARGET
 		
 	output.DiffuseColor = textureColor;
 
-	output.Position = input.PosH;
+	output.Position = float4(input.PosH,1);
 	
 	return output;
 }

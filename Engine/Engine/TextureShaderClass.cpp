@@ -85,6 +85,8 @@ bool TextureShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCo
 	// Now render the prepared buffers with the shader.
 	RenderShader(pDeviceContext, indexCount);
 
+	pDeviceContext->PSSetShaderResources(0, 1, &mNullSRW);
+
 	return true;
 }
 
