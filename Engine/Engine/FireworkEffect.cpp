@@ -56,7 +56,7 @@ void FireworkEffect::CreateEmitterInUpdate(ParticleClass* pParticle)
 
 	for (int i = 0; i < 500; i++)
 	{
-		XMVECTOR dir = XMVectorSet(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50, 0);
+		XMVECTOR dir = XMVectorSet(rand() % 100 - 50.0f, rand() % 100 - 50.0f, rand() % 100 - 50.0f, 0.0f);
 		dir = XMVector3Normalize(dir);
 		XMFLOAT3 fDir;
 		XMStoreFloat3(&fDir, dir);

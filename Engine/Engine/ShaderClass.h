@@ -1,6 +1,9 @@
 #ifndef _SHADERCLASS_H_
 #define _SHADERCLASS_H_
 
+#define MAX_ACTIVE_LIGHTS 10
+#define MAX_MATERIAL_COUNT 10
+
 #pragma once
 
 #include <fstream>
@@ -19,6 +22,30 @@ using namespace DirectX;
 #include "CameraClass.h"
 #include "ParticleSystemClass.h"
 #include "PointLightClass.h"
+
+struct PointLight
+{
+	XMFLOAT3 Pos;
+	float pad1;
+
+	XMFLOAT4 Color_LightRange;
+};
+
+
+
+struct LightConstantBuffer
+{
+	XMFLOAT4 LightCount_FogRange_ObjectCount_Unused;
+
+	XMFLOAT3 fogColor;
+	float pad1;
+
+	XMFLOAT3 CamPos;
+	float pad2;
+
+	PointLight lights[MAX_ACTIVE_LIGHTS];
+	MatrialDescPadded materials[MAX_MATERIAL_COUNT];
+};
 
 struct MatrixBufferType
 {

@@ -4,6 +4,7 @@
 DeferredShaderClass::DeferredShaderClass() : ShaderClass()
 {
 	mSampleState = 0;
+	mSampleStateRenderTarget = 0;
 	mLightBuffer = 0;
 	for (int i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -19,6 +20,11 @@ DeferredShaderClass::~DeferredShaderClass()
 	{
 		mSampleState->Release();
 		mSampleState = 0;
+	}
+	if (mSampleStateRenderTarget)
+	{
+		mSampleStateRenderTarget->Release();
+		mSampleStateRenderTarget = 0;
 	}
 	if (mLightBuffer)
 	{
@@ -61,6 +67,7 @@ bool DeferredShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Ob
 	// Set the constant buffer in the vertex shader with the updated values.
 	pDeviceContext->VSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
 
+
 	TextureClass* pTexture = pObject->GetTexture();
 	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
 
@@ -73,7 +80,7 @@ bool DeferredShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Ob
 	return true;
 }
 
-bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer)
+bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog)
 {
 	bool result;
 	unsigned int bufferNumber;
@@ -88,14 +95,23 @@ bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBu
 	bufferNumber = 0;
 
 
+
+	result = SetConstantBufferParameters(pDeviceContext, ppLights, NrOfLights, pObject, pDrawDistFog, pCamera);
+	if (!result)
+	{
+		return false;
+	}
+
 	ID3D11ShaderResourceView** tex = pBuffer->GetShaderResourceView();
 
 	// Set shader texture resource in the pixel shader.
 	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, tex);
 
-	
-
 	pDeviceContext->PSSetSamplers(0, 1, &mSampleStateRenderTarget);
+
+
+
+
 
 	// Set the vertex input layout.
 	pDeviceContext->IASetInputLayout(mLayout2);
@@ -127,7 +143,8 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32_UINT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	// Get a count of the elements in the layout.
@@ -228,7 +245,7 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 	}
 
 
-	result = createConstantBuffer(pDevice, sizeof(DeferredLightConstantBuffer), &mLightBuffer);
+	result = createConstantBuffer(pDevice, 16 * 3 + sizeof(PointLight)*MAX_ACTIVE_LIGHTS + sizeof(MatrialDescPadded)*MAX_MATERIAL_COUNT, &mLightBuffer);
 	if (!result)
 	{
 		return false;
@@ -249,49 +266,56 @@ void DeferredShaderClass::RenderShader(ID3D11DeviceContext* pDeviceContext, int 
 }
 
 
-//bool DeferredShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, PointLightClass** ppLights, int LightCount, MaterialClass* pMaterial, FogClass* pDrawDistFog)
-//{
-//	HRESULT result;
-//	D3D11_MAPPED_SUBRESOURCE mappedResource;
-//	DeferredLightConstantBuffer* dataPtr;
-//	unsigned int bufferNumber;
-//
-//	// Lock the constant buffer so it can be written to.
-//	result = pDeviceContext->Map(mLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-//	if (FAILED(result))
-//	{
-//		return false;
-//	}
-//
-//	// Get a pointer to the data in the constant buffer.
-//	dataPtr = (DeferredLightConstantBuffer*)mappedResource.pData;
-//
-//	XMFLOAT4 values = XMFLOAT4(LightCount, pDrawDistFog->GetRange(), pMaterial->GetSpecularShinyPower(), 0);
-//	dataPtr->LightCount_FogRange_ShinyPower_Unused = values;
-//
-//	dataPtr->ambientReflection = pMaterial->GetAmbientReflection();
-//
-//	dataPtr->diffReflection = pMaterial->GetDiffuseReflection();
-//
-//	dataPtr->specReflection = pMaterial->GetSpecularReflection();
-//
-//	dataPtr->fogColor = pDrawDistFog->GetColor();
-//
-//	dataPtr->CamPos = pCamera->GetPosition();
-//
-//	for (int i = 0; i < values.x; i++)
-//	{
-//		dataPtr->lights[i].ambientColor = ppLights[i]->GetAmbientColor;
-//	}
-//
-//	// Unlock the constant buffer.
-//	pDeviceContext->Unmap(mLightBuffer, 0);
-//
-//	// Set the position of the constant buffer in the vertex shader.
-//	bufferNumber = 0;
-//
-//	// Set the constant buffer in the shader with the updated values.
-//	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mLightBuffer);
-//
-//	return true;
-//}
+bool DeferredShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, PointLightClass** ppLights, UINT NrOfLights, ObjectClass* pObject, FogClass* pDrawDistFog, CameraClass* pCamera)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	LightConstantBuffer* dataPtr;
+	unsigned int bufferNumber;
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (LightConstantBuffer*)mappedResource.pData;
+
+	ModelClass* pModel = pObject->GetModel();
+	MatrialDesc *pMaterials = pModel->GetMaterials();
+	int oCount = pModel->GetObjectCount();
+
+	dataPtr->LightCount_FogRange_ObjectCount_Unused = XMFLOAT4((float)NrOfLights, (float)pDrawDistFog->GetRange(), (float)oCount, 0.0f);
+	dataPtr->fogColor = pDrawDistFog->GetColor();
+	dataPtr->CamPos = pCamera->GetPosition();
+
+	for (UINT i = 0; i < NrOfLights; i++)
+	{
+		dataPtr->lights[i].Pos = ppLights[i]->GetLightPos();
+		XMFLOAT3 color = ppLights[i]->GetLightColor();
+		dataPtr->lights[i].Color_LightRange = XMFLOAT4(color.x, color.y, color.z, ppLights[i]->GetRadius());
+	}
+
+	for (int i = 0; i < oCount; i++)
+	{
+		dataPtr->materials[i].Ambient = pMaterials[i].Ambient;
+		dataPtr->materials[i].Diffuse = pMaterials[i].Diffuse;
+		dataPtr->materials[i].Specular = pMaterials[i].Specular;
+		dataPtr->materials[i].Reflectivity = pMaterials[i].Reflectivity;
+
+		dataPtr->materials[i].SpecPower_AlphaClip_Unused_Unused = XMFLOAT4(pMaterials[i].SpecPower, pMaterials[i].AlphaClip, 0, 0);
+	}
+
+	// Unlock the constant buffer.
+	pDeviceContext->Unmap(mLightBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Set the constant buffer in the shader with the updated values.
+	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mLightBuffer);
+
+	return true;
+}

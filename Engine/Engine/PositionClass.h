@@ -13,22 +13,22 @@ class PositionClass
 public:
 	PositionClass();
 	PositionClass(const PositionClass* other);
-	PositionClass(XMFLOAT3& Position, XMFLOAT3& Rotation);
-	PositionClass(XMFLOAT3& Position, XMFLOAT3& Rotation, float moveSpeed);
+	PositionClass(const XMFLOAT3& Position, const XMFLOAT3& Rotation);
+	PositionClass(const XMFLOAT3& Position, const XMFLOAT3& Rotation, const float moveSpeed);
 	virtual ~PositionClass();
 
 public:
-	void SetPosition(XMFLOAT3& pos);
-	void SetPosition(XMVECTOR& pos);
-	virtual void SetRotation(XMFLOAT3& rot);
+	void SetPosition(const XMFLOAT3& pos);
+	void SetPosition(const XMVECTOR& pos);
+	virtual void SetRotation(const XMFLOAT3& rot);
 	
 	XMFLOAT3 GetPosition()const;
 	XMFLOAT3 GetRotation()const;
 
 	float GetAvgPosY()const;
 
-	void SetUpdateTime(float dt);
-	void SetMoveSpeed(float speed);
+	void SetUpdateTime(const float dt);
+	void SetMoveSpeed(const float speed);
 
 	void MoveForward(bool);
 	void MoveBackward(bool);
@@ -36,7 +36,7 @@ public:
 	void MoveDownward(bool);
 	void MoveRight(bool);
 	void MoveLeft(bool);
-	void MoveAlongVector(XMVECTOR* dir);
+	void MoveAlongVector(const XMFLOAT3& dir);
 
 
 	void TurnLeft(bool);
@@ -48,9 +48,9 @@ public:
 protected:
 	XMFLOAT3 mPosition;
 	XMFLOAT3 mRotation;
-	XMVECTOR mForward;
-	XMVECTOR mUpVector;
-	XMVECTOR mRightVector;
+	XMFLOAT3 mForward;
+	XMFLOAT3 mUpVector;
+	XMFLOAT3 mRightVector;
 
 	XMFLOAT3 mLastPos[SAMPLES_POSITION];
 	int mLastPosIndex;

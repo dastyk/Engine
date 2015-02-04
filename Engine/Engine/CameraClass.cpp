@@ -16,7 +16,7 @@ CameraClass::~CameraClass()
 
 void CameraClass::CalcViewMatrix() 
 {
-	XMVECTOR position, lookAt;
+	XMVECTOR position, lookAt, f, up;
 	XMMATRIX rotationMatrix;
 
 	// Calculate forward vector and up vector
@@ -25,11 +25,14 @@ void CameraClass::CalcViewMatrix()
 	// Setup the position of the camera in the world.
 	position = XMLoadFloat3(&mPosition);
 
+	f = XMLoadFloat3(&mForward);
+	up = XMLoadFloat3(&mUpVector);
+
 	// Translate the rotated camera position to the location of the viewer.
-	lookAt = position + mForward;
+	lookAt = position + f;
 
 	// Finally create the view matrix from the three updated vectors.
-	XMMATRIX viewMatrix = XMMatrixLookAtLH(position, lookAt, mUpVector);
+	XMMATRIX viewMatrix = XMMatrixLookAtLH(position, lookAt, up);
 	XMStoreFloat4x4(&mViewMatrix, viewMatrix);
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(mFoV, mAspectRatio, mNearPlane, mFarPlane);

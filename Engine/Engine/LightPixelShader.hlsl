@@ -50,7 +50,7 @@ struct PS_IN
 float4 PSMain(PS_IN input) : SV_TARGET
 {
 	float4 textureColor;
-	float  D = length(CamPos - input.PosH);
+	
 
 	// Sample texture
 	switch (input.Id)
@@ -86,10 +86,13 @@ float4 PSMain(PS_IN input) : SV_TARGET
 		textureColor = shaderTexture[9].Sample(SampleType, input.Tex);
 		break;
 	}
-	float3 V = normalize(CamPos - input.PosH);
+
+	float3 V = CamPos - input.PosH;
+		float  D = length(V);
+	V = normalize(V);
 		float3 N = normalize(input.Normal);
 
-	float3 color = float3(0, 0, 0);
+	float3 color = float3(0.5, 0.5, 0.5);
 
 		for (uint i = 0; i < LightCount_FogRange_ObjectCount_Unused.x; i++)
 		{
@@ -103,10 +106,8 @@ float4 PSMain(PS_IN input) : SV_TARGET
 
 		float3 R = reflect(-S, N);
 
-			// set ambient contrib.
-
-			float3 am = materials[input.Id].Ambient*range*lights[i].Color_LightRange.xyz*0.2;
-			color = saturate(color + am);
+		// set ambient contrib.
+		color *= materials[input.Id].Ambient*range*lights[i].Color_LightRange.xyz;
 
 		
 
@@ -125,7 +126,7 @@ float4 PSMain(PS_IN input) : SV_TARGET
 			color = saturate(color + Ls);
 		}
 	// Calculate draw distance fog
-	float fogEnd = 490;
+	float fogEnd = 990;
 	float fogFactor = 1 - saturate((fogEnd - D) / (fogEnd - LightCount_FogRange_ObjectCount_Unused.y));
 
 	// Factor in the fog to the final light

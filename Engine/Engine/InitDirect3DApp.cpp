@@ -141,7 +141,7 @@ InitDirect3DApp::~InitDirect3DApp()
 	}
 	if (mPointLight)
 	{
-		for (int i = 0; i < mLightCount; i++)
+		for (UINT i = 0; i < mLightCount; i++)
 		{
 			if (mPointLight[i])
 			{
@@ -170,7 +170,7 @@ bool InitDirect3DApp::Init()
 	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 	XMFLOAT3  pos(0, 0, -5.0f);// pos(0.0f, 0.0f, 0.0f);
 	mCamera->SetPosition(pos);
-	mCamera->SetMoveSpeed(10);
+	mCamera->SetMoveSpeed(50);
 
 	mTexShader = new TextureShaderClass();
 	if (!mTexShader)
@@ -303,8 +303,8 @@ bool InitDirect3DApp::Init()
 		return false;
 
 
-	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
-	mPointLight[1] = new PointLightClass(XMFLOAT3(0.9, 0.9, 0.9), XMFLOAT3(0, 10000, 10000), 50000);
+	mPointLight[0] = new PointLightClass(XMFLOAT3(1, 0, 0), XMFLOAT3(0, 0, 0), 50);
+	mPointLight[1] = new PointLightClass(XMFLOAT3(0, 1, 0), XMFLOAT3(0, 10000, 10000), 50000);
 	return true;
 
 }
@@ -323,7 +323,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 	XMFLOAT3 rot = temp->GetRotation();
 	XMFLOAT3 pos = temp->GetPosition();
 	//pos.y = 2;
-	rot.y -= dt * 25;
+	//rot.y -= dt * 25;
 	//rot.x = 90;
 	//rot.z += dt * 25;
 	temp->SetRotation(rot);
@@ -393,7 +393,14 @@ void InitDirect3DApp::DrawScene()
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	//mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
+	//mDeferredShader->Render(
+	//	mDeviceContext, 
+	//	mDeferredBuffer,
+	//	mObject,
+	//	mCamera,
+	//	mPointLight,
+	//	mLightCount,
+	//	mDrawDistFog);
 
 
 	
@@ -461,7 +468,7 @@ void InitDirect3DApp::DrawScene()
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
 	}
-	
+	//
 	// Present the back buffer to the screen
 	hr = mSwapChain->Present(0, 0);
 	if (FAILED(hr))

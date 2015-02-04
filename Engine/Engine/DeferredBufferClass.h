@@ -2,7 +2,7 @@
 #define _DEFERREDBUFFERCLASS_H_
 #pragma once
 
-const int BUFFER_COUNT = 2;
+const int BUFFER_COUNT = 3;
 
 #include <d3d11.h>
 

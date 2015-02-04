@@ -79,9 +79,7 @@ void ParticleClass::Update(float dt)
 	if (mTravelDirection.x || mTravelDirection.y || mTravelDirection.z)
 	{
 		mTransform->SetUpdateTime(dt);
-
-		XMVECTOR dir = XMLoadFloat3(&mTravelDirection);
-		mTransform->MoveAlongVector(&dir);
+		mTransform->MoveAlongVector(mTravelDirection);
 	}
 	if (mMaxLifeTime)
 	{

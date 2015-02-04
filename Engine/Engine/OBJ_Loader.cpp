@@ -10,10 +10,9 @@ std::string GetExtension(const std::string& filename)
 	{
 		return filename.substr(idx + 1);
 	}
-	else
-	{
-		// No extension found
-	}
+	
+	return "";
+
 }
 
 std::string removeExtension(const std::string& filename) {
@@ -209,7 +208,7 @@ bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int n
 				if (input == ' ')
 				{
 
-					faces[faceIndex].vIndex1 == input2;
+					faces[faceIndex].vIndex1 = input2;
 					fin >> input2 >> faces[faceIndex].tIndex1 >> input2 >> faces[faceIndex].nIndex1;
 					faces[faceIndex].Count = 4;
 					vertexCounts += 4;
@@ -366,7 +365,7 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 	int error = fopen_s(&filePtr, filename, "rb");
 	if (error != 0)
 	{
-		return -3;
+		return false;
 	}
 
 	fread(&head, sizeof(SmfHeader), 1, filePtr);
@@ -389,7 +388,7 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
 	fread(textureSize, sizeof(UINT), head.ObjectCount, filePtr);
 
-	for (UINT i = 0; i < objectCount; i++)
+	for (int i = 0; i < objectCount; i++)
 	{
 		textureArray[i] = new char[textureSize[i]];
 		fread(textureArray[i], textureSize[i], 1, filePtr);
@@ -410,4 +409,6 @@ bool LoadSmfModel(char* filename, int& vertexCount, Vertex** ppVertexArray, int&
 	delete[]textureArray;
 	delete[]textureSize;
 
+
+	return true;
 }

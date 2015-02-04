@@ -38,7 +38,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 
 	bool result;
 
-	result = loadRAW(257, 257, "data/resources/Heightmap.raw", 0.7, 0);
+	result = loadRAW(257, 257, "data/resources/Heightmap.raw", 0.7f, 0);
 	if (!result)
 	{
 		return false;
@@ -110,7 +110,7 @@ bool TerrainClass::loadBitmap(char* fileName, float heightScale, float heightOff
 	unsigned int count;
 	BITMAPFILEHEADER bitmapFileHeader;
 	BITMAPINFOHEADER bitmapInfoHeader;
-	int imageSize, i, j, k, index;
+	int imageSize, i, j, k;
 	unsigned char* bitmapImage;
 
 	mHeightScale = heightScale;
@@ -272,8 +272,8 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	float dx = 4.0f;
 	float dz = 4.0f;
 
-	float width = (mWidth - 1) / 2;
-	float depth = (mHeight - 1) / 2;
+	float width = (mWidth - 1) / 2.0f;
+	float depth = (mHeight - 1) / 2.0f;
 
 	for (int j = 0; j < mHeight; j++)
 	{
@@ -281,7 +281,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		{
 			int index = j*mWidth + i;
 			//mHeightMap[i][j] = i;
-			vertices[index].Pos = XMFLOAT3(i, mHeightMap[i][j], j);
+			vertices[index].Pos = XMFLOAT3((float)i, (float)mHeightMap[i][j], (float)j);
 			pPoints[index] = vertices[index].Pos;
 			vertices[index].texCoord = XMFLOAT2(i / width  * dx, j / depth * dz);
 			vertices[index].TexCoord2 = XMFLOAT2(i / (float)mWidth, j/(float)mHeight);
@@ -444,7 +444,6 @@ bool TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, Boun
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned long* dataPtr;
-	unsigned int bufferNumber;
 
 	// Lock the constant buffer so it can be written to.
 	result = pDeviceContext->Map(mDynIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
