@@ -5,6 +5,8 @@ LightShaderClass::LightShaderClass() : ShaderClass()
 {
 	mSampleState = 0;
 	mLightBuffer = 0;
+	mBoneTBuffer = 0;
+	mBoneSRV = 0;
 }
 
 
@@ -19,6 +21,16 @@ LightShaderClass::~LightShaderClass()
 	{
 		mLightBuffer->Release();
 		mLightBuffer = 0;
+	}
+	if (mBoneTBuffer)
+	{
+		mBoneTBuffer->Release();
+		mBoneTBuffer = 0;
+	}
+	if (mBoneSRV)
+	{
+		mBoneSRV->Release();
+		mBoneSRV = 0;
 	}
 }
 
@@ -46,9 +58,10 @@ bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDINDICES", 0, DXGI_FORMAT_R32_UINT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 1, DXGI_FORMAT_R32_UINT, 0, 64, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-
 	// Get a count of the elements in the layout.
 	int numElements = sizeof(vertexDesc) / sizeof(vertexDesc[0]);
 
@@ -64,11 +77,25 @@ bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, 16 * 3 + sizeof(PointLight)*MAX_ACTIVE_LIGHTS + sizeof(MatrialDescPadded)*MAX_MATERIAL_COUNT, &mLightBuffer);
+	result = createConstantBuffer(pDevice, 16 * 3 + sizeof(PointLight)*MAX_ACTIVE_LIGHTS + sizeof(MatrialDescPadded)*MAX_MATERIAL_COUNT, &mLightBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
 		return false;
 	}
+
+	result = createConstantBuffer(pDevice, sizeof(XMFLOAT4X4)*MAX_BONE_COUNT, &mBoneTBuffer, D3D11_BIND_SHADER_RESOURCE);
+	if (!result)
+	{
+		return false;
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvD;
+	srvD.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	srvD.Buffer.FirstElement = 0;
+	srvD.Buffer.NumElements = MAX_BONE_COUNT;
+	
+	pDevice->CreateShaderResourceView(mBoneTBuffer, &srvD, &mBoneSRV);
+
 
 
 	return true;

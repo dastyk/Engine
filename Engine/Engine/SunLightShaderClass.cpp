@@ -63,7 +63,7 @@ bool SunLightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WC
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, sizeof(LightCBufferType), &mLightBuffer);
+	result = createConstantBuffer(pDevice, sizeof(LightCBufferType), &mLightBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
 		return false;

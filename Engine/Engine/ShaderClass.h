@@ -3,7 +3,7 @@
 
 #define MAX_ACTIVE_LIGHTS 10
 #define MAX_MATERIAL_COUNT 10
-
+#define MAX_BONE_COUNT 100
 #pragma once
 
 #include <fstream>
@@ -84,7 +84,7 @@ protected:
 	
 	bool createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState);
 	bool createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState, D3D11_SAMPLER_DESC* samplerDesc);
-	bool createConstantBuffer(ID3D11Device*, UINT, ID3D11Buffer**);
+	bool createConstantBuffer(ID3D11Device*, UINT, ID3D11Buffer**, UINT );
 
 	virtual void RenderShader(ID3D11DeviceContext*, int);
 	virtual bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*, D3D11_INPUT_ELEMENT_DESC *vertexDesc, int numElements);

@@ -434,14 +434,14 @@ void InitDirect3DApp::DrawScene()
 
 
 
-	//mDeferredShader->Render(
-	//	mDeviceContext, 
-	//	mDeferredBuffer,
-	//	mObject,
-	//	mCamera,
-	//	mPointLight,
-	//	mLightCount,
-	//	mDrawDistFog);
+	mDeferredShader->Render(
+		mDeviceContext, 
+		mDeferredBuffer,
+		mObject,
+		mCamera,
+		mPointLight,
+		mLightCount,
+		mDrawDistFog);
 
 
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
@@ -498,21 +498,21 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 	*/
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
-	result = mLightShader->Render(
-		mDeviceContext,
-		mObject,
-		mCamera,
-		mPointLight,
-		mLightCount,
-		mDrawDistFog);
+	//result = mLightShader->Render(
+	//	mDeviceContext,
+	//	mObject,
+	//	mCamera,
+	//	mPointLight,
+	//	mLightCount,
+	//	mDrawDistFog);
 
-	if (!result)
-	{
-		MessageBox(0, L"Failed to Render Shaders", 0, 0);
-		return;
-	}
+	//if (!result)
+	//{
+	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
+	//	return;
+	//}
 
 
 	for (int i = 0; i < BUFFER_COUNT; i++)

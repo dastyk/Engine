@@ -26,6 +26,8 @@ private:
 	ID3D11SamplerState* mSampleState;
 
 	ID3D11Buffer* mLightBuffer;
+	ID3D11Buffer* mBoneTBuffer;
+	ID3D11ShaderResourceView* mBoneSRV;
 };
 
 #endif

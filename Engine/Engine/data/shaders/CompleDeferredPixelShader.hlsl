@@ -53,10 +53,10 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	float4 Pos = shaderTexture[2].Sample(SampleType, input.Tex);
 
 	float4 finColor;
-
-	float D = length(CamPos - Pos.xyz);
-
-	float3 V = normalize(CamPos - Pos.xyz);
+	float3 V = CamPos - Pos.xyz;
+	float D = length(V);
+	V = normalize(V);
+	
 		float3 N = Normal_Depth.xyz;
 
 		float3 LightCont = float3(0, 0, 0);
@@ -89,18 +89,13 @@ float4 PSMain(PS_IN input) : SV_TARGET
 		}
 
 	// Calculate draw distance fog
-	float fogEnd = 990;
+	float fogEnd = 490;
 	float fogFactor = 1 - saturate((fogEnd - D) / (fogEnd - LightCount_FogRange_ObjectCount_Unused.y));
 	
-	finColor = Color * float4(LightCont, 1.0f) + float4(fogColor*fogFactor, 1.0f);
+	float e=   length(Normal_Depth.xyz);
 
+	finColor = e * (Color * float4(LightCont, 1.0f) + float4(fogColor*fogFactor, 1.0f));
 
-
-	float3 K = lights[0].Pos - Pos.xyz;
-	float di = length(K);
-	float en = 50;
-
-	float ran = saturate((en - di) / en);
 
 	return finColor;
 }

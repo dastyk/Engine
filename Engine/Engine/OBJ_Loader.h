@@ -83,13 +83,18 @@ struct MatrialDescPadded
 	
 	XMFLOAT4 SpecPower_AlphaClip_Unused_Unused;
 };
+struct UINT4
+{
+	UINT x, y, z, w;
+};
+
 struct Vertex
 {
 	XMFLOAT3 Pos;
 	XMFLOAT2 texCoord;
 	XMFLOAT3 Normal;
 	XMFLOAT4 BlendWeights;
-	XMINT4 BlendIndices;
+	UINT4 BlendIndices;
 	unsigned int ID;
 };
 

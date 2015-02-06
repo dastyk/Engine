@@ -344,7 +344,7 @@ bool ShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR* pFi
 	}
 	
 
-	result = createConstantBuffer(pDevice, sizeof(MatrixBufferType), &mMatrixBuffer);
+	result = createConstantBuffer(pDevice, sizeof(MatrixBufferType), &mMatrixBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
 		return false;
@@ -446,7 +446,7 @@ bool ShaderClass::createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState**
 	return true;
 }
 
-bool ShaderClass::createConstantBuffer(ID3D11Device* pDevice, UINT byteWidth, ID3D11Buffer** ppBuffer)
+bool ShaderClass::createConstantBuffer(ID3D11Device* pDevice, UINT byteWidth, ID3D11Buffer** ppBuffer, UINT bindFlags)
 {
 	HRESULT hr;
 
@@ -454,7 +454,7 @@ bool ShaderClass::createConstantBuffer(ID3D11Device* pDevice, UINT byteWidth, ID
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = byteWidth;
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	matrixBufferDesc.BindFlags = bindFlags;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;

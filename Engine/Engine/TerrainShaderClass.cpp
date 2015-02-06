@@ -101,7 +101,7 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, sizeof(TerrainCBufferType), &mLightBuffer);
+	result = createConstantBuffer(pDevice, sizeof(TerrainCBufferType), &mLightBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
 		return false;

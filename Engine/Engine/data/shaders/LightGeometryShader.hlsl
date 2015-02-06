@@ -9,19 +9,23 @@ cbuffer MatrixBuffer : register(cb0)
 struct GS_IN
 {
 	float4 Pos : SV_POSITION;
-	float2 Tex : TEXCOORD;
+	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
+	float4 BlendWeights : BLENDWEIGHT;
+	uint4 BlendIndices : BLENDINDICES0;
+	uint Id : BLENDINDICES1;
 	float3 PosH : POSITION;
-	uint Id : BLENDINDICES;
 };
 
 struct GS_OUT
 {
 	float4 Pos : SV_POSITION;
-	float2 Tex : TEXCOORD;
+	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
+	float4 BlendWeights : BLENDWEIGHT;
+	uint4 BlendIndices : BLENDINDICES0;
+	uint Id : BLENDINDICES1;
 	float3 PosH : POSITION;
-	uint Id : BLENDINDICES;
 };
 
 
@@ -39,7 +43,8 @@ void outputData(GS_IN v[3], inout TriangleStream<GS_OUT> triStream)
 			output.PosH = temp.xyz / temp.w;
 		temp = mul(float4(v[i].Normal, 1), mWorld);
 		output.Normal = normalize(temp.xyz/temp.w);
-
+		output.BlendWeights = v[i].BlendWeights;
+		output.BlendIndices = v[i].BlendIndices;
 		output.Id = v[i].Id;
 
 		triStream.Append(output);

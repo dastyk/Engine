@@ -4,15 +4,19 @@ struct VS_IN
 	float3 Pos : POSITION;
 	float2 Tex : TEXCOORD;
 	float3 Normal : NORMAL;
-	uint Id : BLENDINDICES;
+	float4 BlendWeights : BLENDWEIGHT;
+	uint4 BlendIndices : BLENDINDICES0;
+	uint Id : BLENDINDICES1;
 };
 struct VS_OUT
 {
 	float4 Pos : SV_POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
+	float4 BlendWeights : BLENDWEIGHT;
+	uint4 BlendIndices : BLENDINDICES0;
+	uint Id : BLENDINDICES1;
 	float3 PosH : POSITION;
-	uint Id : BLENDINDICES;
 };
 
 VS_OUT VSMain(VS_IN input)
@@ -27,6 +31,8 @@ VS_OUT VSMain(VS_IN input)
 	output.Tex = input.Tex;
 	output.Normal = input.Normal;
 	output.PosH = input.Pos;
+	output.BlendWeights = input.BlendWeights;
+	output.BlendIndices = input.BlendIndices;
 	output.Id = input.Id;
 
 	return output;

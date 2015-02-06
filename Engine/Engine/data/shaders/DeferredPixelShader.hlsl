@@ -8,8 +8,10 @@ struct PS_IN
 	float4 Pos : SV_POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
+	float4 BlendWeights : BLENDWEIGHT;
+	uint4 BlendIndices : BLENDINDICES0;
+	uint Id : BLENDINDICES1;
 	float3 PosH : POSITION;
-	uint Id : BLENDINDICES;
 };
 
 struct PS_OUT
