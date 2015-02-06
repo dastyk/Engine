@@ -29,7 +29,13 @@ public:
 	TextureClass* GetTexture()const;
 	MatrialDesc* GetMaterials()const;
 
+
+
 	UINT GetObjectCount()const;
+	UINT GetBoneCount()const;
+	Bone* GetBones()const;
+	UINT GetAnimationClipCount()const;
+	AnimClipRead* GetAnimationClips()const;
 
 	bool createModel(ID3D11Device*,char* modelName);
 
@@ -38,6 +44,8 @@ protected:
 	bool createVertexBuffer(ID3D11Device* pDevice, ID3D11Buffer **ppBuffer, UINT byteWidth);
 	bool createIndexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
 	bool createIndexBuffer(ID3D11Device*, ID3D11Buffer**, UINT);
+
+	
 
 protected:
 	TextureClass *mTexture;

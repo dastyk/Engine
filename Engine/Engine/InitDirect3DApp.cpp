@@ -327,7 +327,7 @@ bool InitDirect3DApp::Init()
 
 
 	mPointLight[0] = new PointLightClass(XMFLOAT3(1, 0, 0), XMFLOAT3(0, 0, 0), 50);
-	mPointLight[1] = new PointLightClass(XMFLOAT3(0, 1, 0), XMFLOAT3(0, 10000, 10000), 50000);
+	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5,0.5), XMFLOAT3(0, 10000, 10000), 50000);
 
 
 	mQuadModel = new ModelClass();
@@ -344,7 +344,6 @@ bool InitDirect3DApp::Init()
 		mRTQ[i] = new ObjectClass(mQuadModel);
 		TransformationClass* t = mRTQ[i]->GetTransformation();	
 		t->SetPosition(XMFLOAT3(-0.666666 + 0.666666*i, -0.666666f, 0));
-		//t->SetRotation(XMFLOAT3(0, 0, -90));
 	}
 
 
@@ -394,7 +393,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 
 	mCamera->CalcViewMatrix();
 
-
+	mObject->Update();
 }
 
 void InitDirect3DApp::handleInput()
@@ -419,14 +418,14 @@ void InitDirect3DApp::DrawScene()
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
-	mDeferredBuffer->SetRenderTargets(mDeviceContext);
+	//mDeferredBuffer->SetRenderTargets(mDeviceContext);
 
-	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
+	//mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	//mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
-	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
+	//mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 
 	// Clear back buffer blue.
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
@@ -434,14 +433,14 @@ void InitDirect3DApp::DrawScene()
 
 
 
-	mDeferredShader->Render(
-		mDeviceContext, 
-		mDeferredBuffer,
-		mObject,
-		mCamera,
-		mPointLight,
-		mLightCount,
-		mDrawDistFog);
+	//mDeferredShader->Render(
+	//	mDeviceContext, 
+	//	mDeferredBuffer,
+	//	mObject,
+	//	mCamera,
+	//	mPointLight,
+	//	mLightCount,
+	//	mDrawDistFog);
 
 
 	// Clear depth buffer to 1.0f and stencil buffer to 0.
@@ -498,7 +497,7 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 	*/
-	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	mObject->SetAsObjectToBeDrawn(mDeviceContext);
 
 	//result = mLightShader->Render(
 	//	mDeviceContext,
@@ -507,19 +506,27 @@ void InitDirect3DApp::DrawScene()
 	//	mPointLight,
 	//	mLightCount,
 	//	mDrawDistFog);
+	result = mLightShader->RenderAnimated(
+			mDeviceContext,
+			mObject,
+			mCamera,
+			mPointLight,
+			mLightCount,
+			mDrawDistFog);
 
-	//if (!result)
-	//{
-	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
-	//	return;
-	//}
 
-
-	for (int i = 0; i < BUFFER_COUNT; i++)
+	if (!result)
 	{
-		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext);
-		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mDeferredBuffer->GetShaderResourceView(i));
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
 	}
+
+
+	//for (int i = 0; i < BUFFER_COUNT; i++)
+	//{
+	//	mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext);
+	//	mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mDeferredBuffer->GetShaderResourceView(i));
+	//}
 
 	// Present the back buffer to the screen
 

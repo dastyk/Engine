@@ -32,11 +32,20 @@ public:
 
 	TextureClass* GetTexture()const;
 
+	void Animate(XMFLOAT4X4** mBL);
+
+protected:
+	void interpolateFrames(Frame* f1, Frame* f2, XMFLOAT4X4* m);
+
+
 protected:
 
 	TransformationClass* mTransform;
 	ModelClass* mModel;
 	GameTimer* mTime;
+
+	UINT mDCount;
+	int mNrOfFrames;
 };
 
 #endif

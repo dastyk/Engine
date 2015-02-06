@@ -27,6 +27,7 @@ struct Bone
 	XMFLOAT4X4 localOffset;
 	int ParentBone;
 	XMFLOAT4X4 globalOffset;
+	XMFLOAT4X4 invBindPose;
 };
 
 struct Frame

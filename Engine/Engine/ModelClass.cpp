@@ -128,8 +128,11 @@ bool result;
 	{
 		mBones = new Bone[mBoneCount];
 		mBones[0].ParentBone = bones[0].ParentBone;
-		mBones[0].localOffset = mBones[0].globalOffset = bones[0].localOffset;		
-		for (UINT i = 0; i < mBoneCount; i++)
+		mBones[0].localOffset = mBones[0].globalOffset = bones[0].localOffset;			
+		XMMATRIX m = XMLoadFloat4x4(&mBones[0].globalOffset);
+		XMStoreFloat4x4(&mBones[0].invBindPose, XMMatrixInverse(&XMVectorSet(0,0,0,0),m));
+
+		for (UINT i = 1; i < mBoneCount; i++)
 		{
 			Bone& b = mBones[i];
 			BoneRead& r = bones[i];
@@ -137,7 +140,9 @@ bool result;
 			b.localOffset = r.localOffset;
 			XMMATRIX Pg = XMLoadFloat4x4(&mBones[b.ParentBone].globalOffset);
 			XMMATRIX g = XMLoadFloat4x4(&b.localOffset);
-			XMStoreFloat4x4(&b.globalOffset, Pg*g);
+			XMStoreFloat4x4(&b.globalOffset, g*Pg);
+			XMMATRIX m = XMLoadFloat4x4(&mBones[i].globalOffset);
+			XMStoreFloat4x4(&mBones[i].invBindPose, XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), m));
 			
 		}
 
@@ -293,4 +298,24 @@ MatrialDesc* ModelClass::GetMaterials()const
 UINT ModelClass::GetObjectCount()const
 {
 	return mObjectCount;
+}
+
+UINT ModelClass::GetBoneCount()const
+{
+	return mBoneCount;
+}
+
+Bone* ModelClass::GetBones()const
+{
+	return mBones;
+}
+
+UINT ModelClass::GetAnimationClipCount()const
+{
+	return mAnimationClipCount;
+}
+
+AnimClipRead* ModelClass::GetAnimationClips()const
+{
+	return mAnimationClips;
 }

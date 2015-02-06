@@ -86,6 +86,9 @@ float4 PSMain(PS_IN input) : SV_TARGET
 
 				// Add specular contrib. to color.
 				LightCont = saturate(LightCont + Ls);
+
+			
+
 		}
 
 	// Calculate draw distance fog
@@ -94,8 +97,8 @@ float4 PSMain(PS_IN input) : SV_TARGET
 	
 	float e=   length(Normal_Depth.xyz);
 
-	finColor = e * (Color * float4(LightCont, 1.0f) + float4(fogColor*fogFactor, 1.0f));
+	finColor = e * (Color * float4(LightCont, 1.0f));// +float4(fogColor*fogFactor, 1.0f));
 
 
-	return finColor;
+		return finColor;
 }

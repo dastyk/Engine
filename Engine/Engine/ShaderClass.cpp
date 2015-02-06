@@ -459,8 +459,17 @@ bool ShaderClass::createConstantBuffer(ID3D11Device* pDevice, UINT byteWidth, ID
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
+	D3D11_SUBRESOURCE_DATA sub;
+	XMFLOAT4X4 d;
+	XMStoreFloat4x4(&d, XMMatrixIdentity());
+	sub.pSysMem = (void*)&d;
+
+	sub.SysMemPitch = 0;
+
+	sub.SysMemSlicePitch = 0;
+
 	// Create the constant buffer pointer so we can access the constant buffer from within this class.
-	hr = pDevice->CreateBuffer(&matrixBufferDesc, NULL, ppBuffer);
+	hr = pDevice->CreateBuffer(&matrixBufferDesc, &sub, ppBuffer);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L"Could not create constant buffer.", 0, 0);

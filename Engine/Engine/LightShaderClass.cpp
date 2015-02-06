@@ -83,7 +83,7 @@ bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, sizeof(XMFLOAT4X4)*MAX_BONE_COUNT, &mBoneTBuffer, D3D11_BIND_SHADER_RESOURCE);
+	result = createConstantBuffer(pDevice, sizeof(XMFLOAT4X4)* 3 + sizeof(XMFLOAT4X4)*MAX_BONE_COUNT, &mBoneTBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
 		return false;
@@ -96,6 +96,12 @@ bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 	
 	pDevice->CreateShaderResourceView(mBoneTBuffer, &srvD, &mBoneSRV);
 
+
+	result = createGeometryShader(pDevice, L"data/shaders/AnimatedLightGeometryShader.hlsl", "GSMain", &mAniGS);
+	if (!result)
+	{
+		return false;
+	}
 
 
 	return true;
@@ -114,6 +120,7 @@ bool LightShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* 
 	{
 		return false;
 	}
+
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 
@@ -198,6 +205,112 @@ bool LightShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceC
 
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mLightBuffer);
+
+	return true;
+}
+
+bool LightShaderClass::RenderAnimated(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog)
+{
+	bool result;
+	unsigned int bufferNumber;
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	result = SetTbufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix(), pObject);
+	if (!result)
+	{
+		return false;
+	}
+	pDeviceContext->GSSetConstantBuffers(0, 1, &mBoneTBuffer);
+
+	result = SetConstantBufferParameters(pDeviceContext, ppLights, NrOfLights, pObject, pDrawDistFog, pCamera);
+	if (!result)
+	{
+		return false;
+	}
+
+	
+
+	TextureClass* pTexture = pObject->GetTexture();
+	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(0, pTexture->GetTextureCount(), tex);
+
+	// Now render the prepared buffers with the shader.
+	pDeviceContext->PSSetSamplers(0, 1, &mSampleState);
+
+	// Set the vertex input layout.
+	pDeviceContext->IASetInputLayout(mLayout);
+
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	pDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
+	pDeviceContext->HSSetShader(mHullShader, nullptr, 0);
+	pDeviceContext->DSSetShader(mDomainShader, nullptr, 0);
+	pDeviceContext->GSSetShader(mAniGS, nullptr, 0);
+	pDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
+
+	// Render mesh stored in active buffers
+	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
+
+	return true;
+}
+
+bool LightShaderClass::SetTbufferParameters(ID3D11DeviceContext* pDeviceContext, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, ObjectClass* pObject)
+{
+
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	LMatrixBufferType* dataPtr;
+
+
+	XMMATRIX world = XMLoadFloat4x4(&worldMatrix);
+	XMMATRIX view = XMLoadFloat4x4(&viewMatrix);
+	XMMATRIX proj = XMLoadFloat4x4(&projMatrix);
+
+
+	XMMATRIX mWorldViewProj = world*view*proj;
+	XMMATRIX mWorld = world;
+	XMMATRIX mWorldView = world*view;
+
+	mWorldViewProj = XMMatrixTranspose(mWorldViewProj);
+	mWorld = XMMatrixTranspose(mWorld);
+	mWorldView = XMMatrixTranspose(mWorldView);
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mBoneTBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (LMatrixBufferType*)mappedResource.pData;
+
+	// Copy the matrices into the constant buffer.
+
+	XMStoreFloat4x4(&dataPtr->mWorldViewProj, mWorldViewProj);
+	XMStoreFloat4x4(&dataPtr->mWorld, mWorld);
+	XMStoreFloat4x4(&dataPtr->mWorldView, mWorldView);
+
+	XMFLOAT4X4* m;
+	pObject->Animate(&m);
+	UINT count = pObject->GetModel()->GetBoneCount();
+
+	for (UINT i = 0; i < count; i++)
+	{
+		//XMStoreFloat4x4(&dataPtr->mBones[i], XMMatrixIdentity());
+		dataPtr->mBones[i] = m[i];
+	}
+	
+
+	// Unlock the constant buffer.
+	pDeviceContext->Unmap(mBoneTBuffer, 0);
+
+
+	delete[] m;
 
 	return true;
 }
