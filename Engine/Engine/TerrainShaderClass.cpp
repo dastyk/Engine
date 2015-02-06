@@ -5,6 +5,7 @@ TerrainShaderClass::TerrainShaderClass() : ShaderClass()
 {
 	mSampleState = 0;
 	mLightBuffer = 0;
+	mDeferredPS = 0;
 }
 
 
@@ -20,7 +21,11 @@ TerrainShaderClass::~TerrainShaderClass()
 		mLightBuffer->Release();
 		mLightBuffer = 0;
 	}
-
+	if (mDeferredPS)
+	{
+		mDeferredPS->Release();
+		mDeferredPS = 0;
+	}
 }
 
 bool TerrainShaderClass::Init(ID3D11Device* pDevice)
@@ -107,12 +112,18 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 		return false;
 	}
 
+	result = createPixelShader(pDevice, L"data/shaders/DeferredTerrainPixelShader.hlsl", "PSMain", &mDeferredPS);
+	if (!result)
+	{
+		return false;
+	}
+
 
 	return true;
 }
 
 
-bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog)
+bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog)
 {
 	bool result;
 	unsigned int bufferNumber;
@@ -136,7 +147,7 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 
 	TextureClass* pTexture = pObject->GetTexture();
 
-	result = SetConstantBufferParameters(pDeviceContext, pSunLightObject, pMaterial, pDrawDistFog);
+	result = SetConstantBufferParameters(pDeviceContext, pSunLightObject, pDrawDistFog);
 	if (!result)
 	{
 		return false;
@@ -171,7 +182,7 @@ void TerrainShaderClass::RenderShader(ID3D11DeviceContext* pDeviceContext, int i
 	ShaderClass::RenderShader(pDeviceContext, indexCount);
 }
 
-bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog)
+bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -193,26 +204,26 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 	// Copy the matrices into the constant buffer.
 	dataPtr->ambientColor = pSunLightObject->GetAmbientLight()->GetLightColor();
 	
-	dataPtr->ambientReflection = pMaterial->GetAmbientReflection();
+	dataPtr->ambientReflection = XMFLOAT3(0.1, 0.1, 0.1);
 
 
 	LightClass* temp = pSunLightObject->GetDiffuseLight();
 
 	dataPtr->diffDir = temp->GetLightDir();
 	dataPtr->diffColor = temp->GetLightColor();
-	dataPtr->diffReflection = pMaterial->GetDiffuseReflection();
+	dataPtr->diffReflection = XMFLOAT3(1, 1, 1);
 
 	temp = pSunLightObject->GetSpecularLight();
 
 	dataPtr->specDir = temp->GetLightDir();
 	dataPtr->specColor = temp->GetLightColor();
-	dataPtr->specReflection = pMaterial->GetSpecularReflection();
+	dataPtr->specReflection = XMFLOAT3(1, 1, 1);
 	//dataPtr->specShinyPower = pMaterial->GetSpecularShinyPower();
 
 	dataPtr->fogColor = pDrawDistFog->GetColor();
 	//dataPtr->fogRange = pDrawDistFog->GetRange();
 
-	XMFLOAT4 values = XMFLOAT4(2, 1.0f, pMaterial->GetSpecularShinyPower(), pDrawDistFog->GetRange());
+	XMFLOAT4 values = XMFLOAT4(2, 1.0f, 1, pDrawDistFog->GetRange());
 	dataPtr->TCBMSPFR = values;
 
 	// Unlock the constant buffer.
@@ -223,6 +234,70 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mLightBuffer);
+
+	return true;
+}
+
+
+
+bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog)
+{
+	bool result;
+	unsigned int bufferNumber;
+
+
+
+	// Set the shader parameters that it will use for rendering.
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix());
+	if (!result)
+	{
+		return false;
+	}
+
+
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Set the constant buffer in the vertex shader with the updated values.
+	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
+
+	TextureClass* pTexture = pObject->GetTexture();
+
+	result = SetConstantBufferParameters(pDeviceContext, pSunLightObject, pDrawDistFog);
+	if (!result)
+	{
+		return false;
+	}
+
+
+	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(0, pTexture->GetTextureCount(), tex);
+
+	if (pTexture->blendEnabled())
+	{
+		ID3D11ShaderResourceView* tex2 = pTexture->GetBlendMapShaderResourceView();
+		pDeviceContext->PSSetShaderResources(3, 1, &tex2);
+	}
+
+
+	// Now render the prepared buffers with the shader.
+	pDeviceContext->PSSetSamplers(0, 1, &mSampleState);
+
+	// Set the vertex input layout.
+	pDeviceContext->IASetInputLayout(mLayout);
+
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	pDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
+	pDeviceContext->HSSetShader(mHullShader, nullptr, 0);
+	pDeviceContext->DSSetShader(mDomainShader, nullptr, 0);
+	pDeviceContext->GSSetShader(mGeometryShader, nullptr, 0);
+	pDeviceContext->PSSetShader(mDeferredPS, nullptr, 0);
+
+	// Render mesh stored in active buffers
+	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
 
 	return true;
 }

@@ -31,12 +31,14 @@ VS_OUT VSMain(VS_IN input)
 
 	output.Tex = input.Tex;
 	output.Pos = mul(float4(input.Pos, 1.0f), mWorldViewProj);
+
 	float4 temp = mul(float4(input.Pos, 1.0f), mWorld);
 	output.PosH = temp.xyz / temp.w;
-	temp = mul(float4(input.Normal, 1), mWorld);
+	temp = mul(float4(input.Normal, 0), mWorld);
+	output.Normal = normalize(temp.xyz);
+
 	output.BlendWeights = input.BlendWeights;
 	output.BlendIndices = input.BlendIndices;
-	output.Normal = normalize(temp.xyz/temp.w);
 	output.Id = input.Id;
 
 	return output;

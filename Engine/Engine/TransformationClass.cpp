@@ -38,6 +38,22 @@ XMFLOAT4X4 TransformationClass::GetWorldMatrix() const
 
 }
 
+XMFLOAT4X4 TransformationClass::GetNormalMatrix() const
+{
+	XMMATRIX rotX = XMMatrixRotationX(XMConvertToRadians(mRotation.x));
+	XMMATRIX rotY = XMMatrixRotationY(XMConvertToRadians(mRotation.y));
+	XMMATRIX rotZ = XMMatrixRotationZ(XMConvertToRadians(mRotation.z));
+	XMMATRIX scale = XMMatrixScaling(mScale.x, mScale.y, mScale.z);
+
+	XMMATRIX transform = scale*rotX*rotY*rotZ;
+
+	XMFLOAT4X4 fTransform;
+	XMStoreFloat4x4(&fTransform, transform);
+
+	return fTransform;
+
+}
+
 XMFLOAT3 TransformationClass::GetScale()const
 {
 	return mScale;

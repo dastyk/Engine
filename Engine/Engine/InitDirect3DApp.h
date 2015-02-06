@@ -57,7 +57,7 @@ private:
 	ShaderClass* mColorShader;
 	ShaderClass* mTexShader;
 	LightShaderClass* mLightShader;
-	ShaderClass* mTerrainShader;
+	TerrainShaderClass* mTerrainShader;
 
 	ModelClass* mModel;
 	ModelClass* mQuadModel;

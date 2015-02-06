@@ -24,6 +24,7 @@ public:
 	bool SetAsObjectToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
 
 	XMFLOAT4X4 GetWorldMatrix()const;
+	XMFLOAT4X4 GetNormalMatrix()const;
 	int GetIndexCount()const;
 	TransformationClass* GetTransformation()const;
 

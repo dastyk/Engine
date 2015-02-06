@@ -19,7 +19,7 @@ public:
 	XMFLOAT3 GetScale()const;
 
 	XMFLOAT4X4 GetWorldMatrix()const;
-
+	XMFLOAT4X4 GetNormalMatrix()const;
 protected:
 
 	XMFLOAT3 mScale;

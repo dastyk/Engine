@@ -64,7 +64,7 @@ PS_OUT PSMain(PS_IN input) : SV_TARGET
 
 	float3 N = normalize(input.Normal);
 
-	output.Normal_Depth = float4(N, input.Pos.z);
+	output.Normal_Depth = float4(N, 0);
 		
 	output.DiffuseColor = textureColor;
 

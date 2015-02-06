@@ -41,8 +41,8 @@ void outputData(GS_IN v[3], inout TriangleStream<GS_OUT> triStream)
 		float4 temp = mul(float4(v[i].PosH, 1), mWorld);
 
 			output.PosH = temp.xyz / temp.w;
-		temp = mul(float4(v[i].Normal, 1), mWorld);
-		output.Normal = normalize(temp.xyz/temp.w);
+		temp = mul(float4(v[i].Normal, 0), mWorld);
+		output.Normal = normalize(temp.xyz);
 		output.BlendWeights = v[i].BlendWeights;
 		output.BlendIndices = v[i].BlendIndices;
 		output.Id = v[i].Id;

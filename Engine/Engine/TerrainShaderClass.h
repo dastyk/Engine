@@ -40,11 +40,12 @@ public:
 	~TerrainShaderClass();
 
 	bool Init(ID3D11Device* pDevice);
-	bool Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog);
+	bool Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog);
+	bool RenderDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog);
 
 private:
 	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
-	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, MaterialClass* pMaterial, FogClass* pDrawDistFog);
+	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog);
 	bool SetTextureConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, TextureClass* pTexture);
 	void RenderShader(ID3D11DeviceContext*, int);
 
@@ -52,6 +53,7 @@ private:
 	ID3D11SamplerState* mSampleState;
 
 	ID3D11Buffer* mLightBuffer;
+	ID3D11PixelShader* mDeferredPS;
 };
 
 #endif

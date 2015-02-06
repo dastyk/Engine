@@ -46,7 +46,13 @@ ObjectClass::ObjectClass(ModelClass* pModel, TransformationClass* pTransform)
 	this->mTime = new GameTimer();
 	mTime->Reset();
 	mTime->Start();
-	mNrOfFrames = 0;
+	if (pModel->GetBoneCount() > 0)
+	{
+		BoneFrame& b = pModel->GetAnimationClips()[0].bones[0];
+		mNrOfFrames = b.frameCount;
+	}
+	else
+		mNrOfFrames = 0;
 	mDCount = 0;
 }
 
@@ -90,6 +96,11 @@ XMFLOAT4X4 ObjectClass::GetWorldMatrix() const
 	return mTransform->GetWorldMatrix();
 }
 
+XMFLOAT4X4 ObjectClass::GetNormalMatrix() const
+{
+	return mTransform->GetNormalMatrix();
+}
+
 int ObjectClass::GetIndexCount()const
 {
 	return mModel->GetIndexCount();
@@ -129,7 +140,7 @@ void ObjectClass::interpolateFrames(Frame* f1, Frame* f2, XMFLOAT4X4* m)
 	float t2 = f2->time;
 	
 
-	float lT = (mTime->TotalTime() - t1) / (t2 - t1);
+	float lT = 1;// (mTime->TotalTime() - t1) / (t2 - t1);
 
 	XMVECTOR lerpedT;
 	XMVECTOR lerpedS;
@@ -164,42 +175,46 @@ void ObjectClass::Animate(XMFLOAT4X4** mBL)
 	XMFLOAT4X4*& m = (*mBL) = new XMFLOAT4X4[mModel->GetBoneCount()];
 	Bone* bones = mModel->GetBones();
 	UINT count = mModel->GetBoneCount();
-
-	//XMMATRIX w = XMMatrixTranslationFromVector(XMVectorSet(mTime->TotalTime(), 0, 0, 0));
-	//XMMATRIX l = XMLoadFloat4x4(&bones[0].localOffset);
-	//XMStoreFloat4x4(&bones[0].globalOffset, l*w);
-	//for (UINT i = 1; i < count; i++)
-	//{
-	//	XMMATRIX w = XMLoadFloat4x4(&bones[bones[i].ParentBone].globalOffset);
-	//	XMMATRIX l = XMLoadFloat4x4(&bones[i].localOffset);
-	//	XMStoreFloat4x4(&bones[i].globalOffset, l*w);
-	//}
-
-
 	AnimClipRead* aC = mModel->GetAnimationClips();
-	int time = floorf(mTime->TotalTime());
-
-	if (mTime->TotalTime() >= 1.25f)
-	{
-		mTime->Reset();
-		mTime->Start();
-		mTime->Tick();
-		mDCount = 0;
-	}
-
 	XMFLOAT4X4 mat;
-	interpolateFrames(&aC[0].bones[0].Frames[mDCount], &aC[0].bones[0].Frames[mDCount + 1], &mat);
-	XMMATRIX w = XMLoadFloat4x4(&mat);
+	interpolateFrames(&aC[0].bones[0].Frames[40], &aC[0].bones[0].Frames[40], &mat);
+	
+	XMMATRIX w = XMMatrixRotationX(0); //XMMatrixRotationQuaternion(XMVectorSet(mTime->TotalTime() / 10.f, 0, 0, 0)); //XMLoadFloat4x4(&mat);//XMMatrixTranslationFromVector(XMVectorSet(mTime->TotalTime(), 0, 0, 0));
 	XMMATRIX l = XMLoadFloat4x4(&bones[0].localOffset);
 	XMStoreFloat4x4(&bones[0].globalOffset, l*w);
 
 	for (UINT i = 1; i < count; i++)
 	{
-		//interpolateFrames(&aC[0].bones[0].Frames[time], &aC[0].bones[0].Frames[time + 1], &mat);
-		w = XMLoadFloat4x4(&bones[bones[i].ParentBone].globalOffset); //w = XMLoadFloat4x4(&mat);
+		w = XMLoadFloat4x4(&bones[bones[i].ParentBone].globalOffset);
 		l = XMLoadFloat4x4(&bones[i].localOffset);
 		XMStoreFloat4x4(&bones[i].globalOffset, l*w);
 	}
+
+
+	//AnimClipRead* aC = mModel->GetAnimationClips();
+	//int time = floorf(mTime->TotalTime());
+
+	//if (mTime->TotalTime() >= 1.25f)
+	//{
+	//	mTime->Reset();
+	//	mTime->Start();
+	//	mTime->Tick();
+	//	mDCount = 0;
+	//}
+
+	//XMFLOAT4X4 mat;
+	//interpolateFrames(&aC[0].bones[0].Frames[mDCount], &aC[0].bones[0].Frames[mDCount + 1], &mat);
+	//XMMATRIX w = XMLoadFloat4x4(&mat);
+	//XMMATRIX l = XMLoadFloat4x4(&bones[0].localOffset);
+	//XMStoreFloat4x4(&bones[0].globalOffset, l*w);
+
+	//for (UINT i = 1; i < count; i++)
+	//{
+	//	//interpolateFrames(&aC[0].bones[0].Frames[time], &aC[0].bones[0].Frames[time + 1], &mat);
+	//	w = XMLoadFloat4x4(&bones[bones[i].ParentBone].globalOffset); //w = XMLoadFloat4x4(&mat);
+	//	l = XMLoadFloat4x4(&bones[i].localOffset);
+	//	XMStoreFloat4x4(&bones[i].globalOffset, l*w);
+	//}
 
 
 
