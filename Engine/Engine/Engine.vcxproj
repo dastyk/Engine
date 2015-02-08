@@ -39,6 +39,7 @@
     <ClCompile Include="PositionClass.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
+    <ClCompile Include="ShadowMapClass.cpp" />
     <ClCompile Include="SnowEffect.cpp" />
     <ClCompile Include="SunLightShaderClass.cpp" />
     <ClCompile Include="TerrainClass.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="PositionClass.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="ShaderClass.h" />
+    <ClInclude Include="ShadowMapClass.h" />
     <ClInclude Include="SnowEffect.h" />
     <ClInclude Include="SunLightShaderClass.h" />
     <ClInclude Include="TerrainClass.h" />
