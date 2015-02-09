@@ -181,7 +181,7 @@ void ObjectClass::Animate(XMFLOAT4X4** mBL)
 	
 	XMMATRIX w = XMMatrixRotationX(0); //XMMatrixRotationQuaternion(XMVectorSet(mTime->TotalTime() / 10.f, 0, 0, 0)); //XMLoadFloat4x4(&mat);//XMMatrixTranslationFromVector(XMVectorSet(mTime->TotalTime(), 0, 0, 0));
 	XMMATRIX l = XMLoadFloat4x4(&bones[0].localOffset);
-	XMStoreFloat4x4(&bones[0].globalOffset, l*w);
+	XMStoreFloat4x4(&bones[0].globalOffset, w*l);
 
 	for (UINT i = 1; i < count; i++)
 	{

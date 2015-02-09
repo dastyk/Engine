@@ -430,8 +430,8 @@ void InitDirect3DApp::DrawScene()
 
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+	//mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	//mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
 	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 	result = mTerrainShader->RenderDeferred(
@@ -516,8 +516,8 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 	*/
-	/*mObject->SetAsObjectToBeDrawn(mDeviceContext);
-
+	mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	/*
 	result = mLightShader->Render(
 		mDeviceContext,
 		mObject,
@@ -525,20 +525,20 @@ void InitDirect3DApp::DrawScene()
 		mPointLight,
 		mLightCount,
 		mDrawDistFog);*/
-	//result = mLightShader->RenderAnimated(
-	//		mDeviceContext,
-	//		mObject,
-	//		mCamera,
-	//		mPointLight,
-	//		mLightCount,
-	//		mDrawDistFog);
+	result = mLightShader->RenderAnimated(
+			mDeviceContext,
+			mObject,
+			mCamera,
+			mPointLight,
+			mLightCount,
+			mDrawDistFog);
 
 
-	//if (!result)
-	//{
-	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
-	//	return;
-	//}
+	if (!result)
+	{
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
+	}
 
 
 	for (int i = 0; i < BUFFER_COUNT; i++)
