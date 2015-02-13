@@ -6,6 +6,11 @@ TerrainShaderClass::TerrainShaderClass() : ShaderClass()
 	mSampleState = 0;
 	mLightBuffer = 0;
 	mDeferredPS = 0;
+	mShadowBuffer = 0;
+	mShadowDeferredVS = 0;
+	mShadowDeferredPS = 0;
+	mPointSampleState = 0;
+
 }
 
 
@@ -25,6 +30,26 @@ TerrainShaderClass::~TerrainShaderClass()
 	{
 		mDeferredPS->Release();
 		mDeferredPS = 0;
+	}
+	if (mShadowBuffer)
+	{
+		mShadowBuffer->Release();
+		mShadowBuffer = 0;
+	}
+	if (mShadowDeferredVS)
+	{
+		mShadowDeferredVS->Release();
+		mShadowDeferredVS = 0;
+	}
+	if (mShadowDeferredPS)
+	{
+		mShadowDeferredPS->Release();
+		mShadowDeferredPS = 0;
+	}
+	if (mPointSampleState)
+	{
+		mPointSampleState->Release();
+		mPointSampleState = 0;
 	}
 }
 
@@ -106,6 +131,7 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 		return false;
 	}
 
+	// Deferred init
 	result = createConstantBuffer(pDevice, sizeof(TerrainCBufferType), &mLightBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
@@ -119,6 +145,47 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 	}
 
 
+
+	// Shadow Init
+	result = createConstantBuffer(pDevice, sizeof(ShadowBuffer), &mShadowBuffer, D3D11_BIND_CONSTANT_BUFFER);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = createVertexShader(pDevice, L"data/shaders/ShadowDeferredVS.hlsl", "VSMain", &mShadowDeferredVS);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = createPixelShader(pDevice, L"data/shaders/ShadowDeferredPS.hlsl", "PSMain", &mShadowDeferredPS);
+	if (!result)
+	{
+		return false;
+	}
+
+	D3D11_SAMPLER_DESC samplerDesc;
+	// Create a texture sampler state description.
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;//D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	result = createSamplerState(pDevice, &mPointSampleState, &samplerDesc);
+	if (!result)
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -283,6 +350,90 @@ bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Obj
 
 	// Render mesh stored in active buffers
 	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
+
+	return true;
+}
+
+bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap)
+{
+	bool result;
+	unsigned int bufferNumber;
+
+
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Set the constant buffer in the vertex shader with the updated values.
+	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
+
+	TextureClass* pTexture = pObject->GetTexture();
+
+	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(0, pTexture->GetTextureCount(), tex);
+
+	// Now render the prepared buffers with the shader.
+	pDeviceContext->PSSetSamplers(0, 1, &mSampleState);
+
+	// Set the vertex input layout.
+	pDeviceContext->IASetInputLayout(mLayout);
+
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	pDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
+	pDeviceContext->HSSetShader(mHullShader, nullptr, 0);
+	pDeviceContext->DSSetShader(mDomainShader, nullptr, 0);
+	pDeviceContext->GSSetShader(mGeometryShader, nullptr, 0);
+	pDeviceContext->PSSetShader(mDeferredPS, nullptr, 0);
+
+	// Render mesh stored in active buffers
+	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
+
+	return true;
+}
+
+bool TerrainShaderClass::SetShadowConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pPointLight)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ShadowBuffer* dataPtr;
+	unsigned int bufferNumber;
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mShadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (ShadowBuffer*)mappedResource.pData;
+	
+	XMMATRIX world = XMLoadFloat4x4(&pObject->GetWorldMatrix());
+
+	XMMATRIX view = XMLoadFloat4x4(&pCamera->GetViewMatrix());
+	XMMATRIX proj = XMLoadFloat4x4(&pCamera->GetProjMatrix());
+
+	XMMATRIX lview = XMLoadFloat4x4(&pPointLight->GetViewMatrix());
+	XMMATRIX lproj = XMLoadFloat4x4(&pPointLight->GetProjMatrix());
+
+	XMMATRIX lWVP = XMMatrixTranspose(world*lview*lproj);
+	XMMATRIX WVP = XMMatrixTranspose(world*view*proj);
+
+
+	XMStoreFloat4x4(&dataPtr->worldViewProj, WVP);
+	XMStoreFloat4x4(&dataPtr->world, world);
+	XMStoreFloat4x4(&dataPtr->LightWorldViewProj, lWVP);
+
+	// Unlock the constant buffer.
+	pDeviceContext->Unmap(mShadowBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Set the constant buffer in the shader with the updated values.
+	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mShadowBuffer);
 
 	return true;
 }

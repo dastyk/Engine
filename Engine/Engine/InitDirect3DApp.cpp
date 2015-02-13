@@ -477,15 +477,14 @@ void InitDirect3DApp::DrawScene()
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 
-	mDeferredShader->RenderShadows(
+	mDeferredShader->Render(
 		mDeviceContext, 
 		mDeferredBuffer,
 		mObject,
 		mCamera,
 		mPointLight,
 		mLightCount,
-		mDrawDistFog,
-		mShadowmapShader->GetShaderResourceView());
+		mDrawDistFog);
 
 
 	// Clear depth buffer to 1.0f and stencil buffer to 0.

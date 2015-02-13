@@ -11,12 +11,6 @@ struct DeferredVertexStruct
 	XMFLOAT2 Tex;
 };
 
-struct ShadowBuffer
-{
-	XMFLOAT4X4 LightViewProj;
-	XMFLOAT3 LightPos;
-	float pad;
-};
 
 
 class DeferredShaderClass :
@@ -36,8 +30,7 @@ private:
 	void RenderShader(ID3D11DeviceContext*, int);
 
 	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, PointLightClass** ppLights, UINT NrOfLights, ObjectClass* pObject, FogClass* pDrawDistFog, CameraClass* pCamera);
-	bool SetShadowConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, PointLightClass* pPointLight);
-
+	
 private:
 	ID3D11SamplerState* mSampleState;
 
@@ -50,9 +43,7 @@ private:
 
 	ID3D11Buffer* mLightBuffer;
 
-	ID3D11Buffer* mShadowBuffer;
-	ID3D11VertexShader* mShadowDeferredVS;
-	ID3D11PixelShader* mShadowDeferredPS;
+	
 
 	ID3D11ShaderResourceView* unbindSrv[BUFFER_COUNT];
 };

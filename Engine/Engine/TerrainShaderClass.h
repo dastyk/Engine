@@ -32,6 +32,12 @@ struct TerrainCBufferType
 	float pad9;
 };
 
+struct ShadowBuffer
+{
+	XMFLOAT4X4 worldViewProj;
+	XMFLOAT4X4 world;
+	XMFLOAT4X4 LightWorldViewProj;
+};
 
 class TerrainShaderClass : public ShaderClass
 {
@@ -42,18 +48,26 @@ public:
 	bool Init(ID3D11Device* pDevice);
 	bool Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog);
 	bool RenderDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera);
+	bool RenderShadowsDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap);
 
 private:
 	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog);
 	bool SetTextureConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, TextureClass* pTexture);
 	void RenderShader(ID3D11DeviceContext*, int);
+	bool SetShadowConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pPointLight);
 
 private:
 	ID3D11SamplerState* mSampleState;
 
 	ID3D11Buffer* mLightBuffer;
 	ID3D11PixelShader* mDeferredPS;
+
+
+	ID3D11Buffer* mShadowBuffer;
+	ID3D11VertexShader* mShadowDeferredVS;
+	ID3D11PixelShader* mShadowDeferredPS;
+	ID3D11SamplerState* mPointSampleState;
 };
 
 #endif
