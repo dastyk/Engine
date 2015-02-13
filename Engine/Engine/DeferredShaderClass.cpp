@@ -254,7 +254,23 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 		return false;
 	}
 
+	result = createConstantBuffer(pDevice,sizeof(ShadowBuffer), &mShadowBuffer, D3D11_BIND_CONSTANT_BUFFER);
+	if (!result)
+	{
+		return false;
+	}
 
+	result = createVertexShader(pDevice, L"data/shaders/ShadowDeferredVS.hlsl", "VSMain", &mShadowDeferredVS);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = createPixelShader(pDevice, L"data/shaders/ShadowDeferredPS.hlsl", "PSMain", &mShadowDeferredPS);
+	if (!result)
+	{
+		return false;
+	}
 
 	return true;
 
@@ -301,16 +317,6 @@ bool DeferredShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevi
 		dataPtr->lights[i].Color_LightRange = XMFLOAT4(color.x, color.y, color.z, ppLights[i]->GetRadius());
 	}
 
-	for (int i = 0; i < oCount; i++)
-	{
-		dataPtr->materials[i].Ambient = pMaterials[i].Ambient;
-		dataPtr->materials[i].Diffuse = pMaterials[i].Diffuse;
-		dataPtr->materials[i].Specular = pMaterials[i].Specular;
-		dataPtr->materials[i].Reflectivity = pMaterials[i].Reflectivity;
-
-		dataPtr->materials[i].SpecPower_AlphaClip_Unused_Unused = XMFLOAT4(pMaterials[i].SpecPower, pMaterials[i].AlphaClip, 0, 0);
-	}
-
 	// Unlock the constant buffer.
 	pDeviceContext->Unmap(mLightBuffer, 0);
 
@@ -319,6 +325,98 @@ bool DeferredShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevi
 
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mLightBuffer);
+
+	return true;
+}
+
+bool DeferredShaderClass::RenderShadows(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog, ID3D11ShaderResourceView* pShadowmap)
+{
+	bool result;
+	unsigned int bufferNumber;
+
+	unsigned int stride = sizeof(DeferredVertexStruct);
+	unsigned int offset = 0;
+
+	pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	result = SetShadowConstantBufferParamters(pDeviceContext, ppLights[0]);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = SetConstantBufferParameters(pDeviceContext, ppLights, NrOfLights, pObject, pDrawDistFog, pCamera);
+	if (!result)
+	{
+		return false;
+	}
+
+	ID3D11ShaderResourceView** tex = pBuffer->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, tex);
+
+	pDeviceContext->PSSetSamplers(0, 1, &mSampleStateRenderTarget);
+
+
+
+
+
+	// Set the vertex input layout.
+	pDeviceContext->IASetInputLayout(mLayout2);
+
+
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	pDeviceContext->VSSetShader(mVertexShaderRenderTarget, nullptr, 0);
+	pDeviceContext->HSSetShader(nullptr, nullptr, 0);
+	pDeviceContext->DSSetShader(nullptr, nullptr, 0);
+	pDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	pDeviceContext->PSSetShader(mPixelShaderRenderTarget, nullptr, 0);
+
+	// Render mesh stored in active buffers
+	pDeviceContext->Draw(6, 0);
+
+	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, unbindSrv);
+
+	return true;
+}
+
+bool DeferredShaderClass::SetShadowConstantBufferParamters(ID3D11DeviceContext* pDeviceContext,PointLightClass* pPointLight)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ShadowBuffer* dataPtr;
+	unsigned int bufferNumber;
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mShadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (ShadowBuffer*)mappedResource.pData;
+	
+	XMMATRIX view = XMLoadFloat4x4(&pPointLight->GetViewMatrix());
+	XMMATRIX proj = XMLoadFloat4x4(&pPointLight->GetProjMatrix());
+	XMMATRIX VP = XMMatrixTranspose(view*proj);
+
+	XMStoreFloat4x4(&dataPtr->LightViewProj, VP);
+	dataPtr->LightPos = pPointLight->GetLightPos();
+
+	// Unlock the constant buffer.
+	pDeviceContext->Unmap(mShadowBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Set the constant buffer in the shader with the updated values.
+	pDeviceContext->VSSetConstantBuffers(bufferNumber, 1, &mShadowBuffer);
 
 	return true;
 }

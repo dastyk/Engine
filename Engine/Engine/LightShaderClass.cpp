@@ -6,7 +6,6 @@ LightShaderClass::LightShaderClass() : ShaderClass()
 	mSampleState = 0;
 	mLightBuffer = 0;
 	mBoneTBuffer = 0;
-	mBoneSRV = 0;
 }
 
 
@@ -26,11 +25,6 @@ LightShaderClass::~LightShaderClass()
 	{
 		mBoneTBuffer->Release();
 		mBoneTBuffer = 0;
-	}
-	if (mBoneSRV)
-	{
-		mBoneSRV->Release();
-		mBoneSRV = 0;
 	}
 }
 
@@ -52,6 +46,7 @@ bool LightShaderClass::Init(ID3D11Device* pDevice)
 bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR* pFileName, WCHAR* gFileName)
 {
 	bool result;
+	HRESULT hr;
 
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
@@ -77,24 +72,17 @@ bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, 16 * 3 + sizeof(PointLight)*MAX_ACTIVE_LIGHTS + sizeof(MatrialDescPadded)*MAX_MATERIAL_COUNT, &mLightBuffer, D3D11_BIND_CONSTANT_BUFFER);
+	result = createConstantBuffer(pDevice, sizeof(XMFLOAT4) * 3 + sizeof(PointLight)*MAX_ACTIVE_LIGHTS + sizeof(MatrialDescPadded)*MAX_MATERIAL_COUNT, &mLightBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
 		return false;
 	}
 
-	result = createConstantBuffer(pDevice, sizeof(XMFLOAT4X4)* 3 + sizeof(XMFLOAT4X4)*MAX_BONE_COUNT, &mBoneTBuffer, D3D11_BIND_CONSTANT_BUFFER);
+	result = createConstantBuffer(pDevice, sizeof(XMFLOAT4X4)* 2 + sizeof(XMFLOAT4X4)*MAX_BONE_COUNT, &mBoneTBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
 	{
 		return false;
 	}
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvD;
-	srvD.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	srvD.Buffer.FirstElement = 0;
-	srvD.Buffer.NumElements = MAX_BONE_COUNT;
-	
-	pDevice->CreateShaderResourceView(mBoneTBuffer, &srvD, &mBoneSRV);
 
 
 	result = createGeometryShader(pDevice, L"data/shaders/AnimatedLightGeometryShader.hlsl", "GSMain", &mAniGS);
@@ -272,11 +260,9 @@ bool LightShaderClass::SetTbufferParameters(ID3D11DeviceContext* pDeviceContext,
 
 	XMMATRIX mWorldViewProj = world*view*proj;
 	XMMATRIX mWorld = world;
-	XMMATRIX mWorldView = world*view;
 
 	mWorldViewProj = XMMatrixTranspose(mWorldViewProj);
 	mWorld = XMMatrixTranspose(mWorld);
-	mWorldView = XMMatrixTranspose(mWorldView);
 
 	// Lock the constant buffer so it can be written to.
 	result = pDeviceContext->Map(mBoneTBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -293,7 +279,6 @@ bool LightShaderClass::SetTbufferParameters(ID3D11DeviceContext* pDeviceContext,
 
 	XMStoreFloat4x4(&dataPtr->mWorldViewProj, mWorldViewProj);
 	XMStoreFloat4x4(&dataPtr->mWorld, mWorld);
-	XMStoreFloat4x4(&dataPtr->mWorldView, mWorldView);
 
 	XMFLOAT4X4* m;
 	pObject->Animate(&m);

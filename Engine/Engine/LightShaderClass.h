@@ -9,7 +9,6 @@ struct LMatrixBufferType
 {
 	XMFLOAT4X4 mWorldViewProj;
 	XMFLOAT4X4 mWorld;
-	XMFLOAT4X4 mWorldView;
 	XMFLOAT4X4 mBones[MAX_BONE_COUNT];
 };
 
@@ -36,7 +35,6 @@ private:
 
 	ID3D11Buffer* mLightBuffer;
 	ID3D11Buffer* mBoneTBuffer;
-	ID3D11ShaderResourceView* mBoneSRV;
 
 	ID3D11GeometryShader* mAniGS;
 

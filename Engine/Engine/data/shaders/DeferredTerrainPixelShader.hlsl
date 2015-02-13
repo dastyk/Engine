@@ -1,24 +1,3 @@
-
-cbuffer LightBuffer : register(b0)
-{
-	float4 TCBMSPFR;
-
-	float3 ambientColor;
-	float3 ambientReflection;
-
-	float3 diffDir;
-	float3 diffColor;
-	float3 diffReflection;
-
-	float3 specDir;
-	float3 specColor;
-	float3 specReflection;
-
-
-	float3 fogColor;
-
-};
-
 Texture2D shaderTexture[3] : register(t0);
 Texture2D blendMap : register(t3);
 SamplerState SampleType;
@@ -46,7 +25,7 @@ PS_OUT PSMain(PS_IN input) : SV_TARGET
 	int i = 0;
 
 	// Sample texture
-	for (i = 0; i < TCBMSPFR.x; i++)
+	for (i = 0; i < 2; i++)
 	{
 		textureColor[i] = shaderTexture[i].Sample(SampleType, input.Tex);
 	}

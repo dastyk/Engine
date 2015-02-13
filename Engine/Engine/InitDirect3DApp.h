@@ -33,6 +33,8 @@
 #include "DeferredBufferClass.h"
 #include "DeferredShaderClass.h"
 
+#include "ShadowMapClass.h"
+
 class InitDirect3DApp : public D3DApp
 {
 public:
@@ -86,6 +88,8 @@ private:
 
 	PointLightClass** mPointLight;
 	UINT mLightCount;
+
+	ShadowMapClass* mShadowmapShader;
 };
 
 #endif

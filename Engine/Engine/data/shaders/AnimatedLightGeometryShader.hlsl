@@ -5,7 +5,6 @@ cbuffer MatrixBuffer : register(c0)
 {
 	float4x4 mWorldViewProj;
 	float4x4 mWorld;
-	float4x4 mWorldView;
 	float4x4 boneM[MAX_BONE_COUNT];
 };
 

@@ -51,7 +51,6 @@ struct MatrixBufferType
 {
 	XMFLOAT4X4 mWorldViewProj;
 	XMFLOAT4X4 mWorld;
-	XMFLOAT4X4 mWorldView;
 };
 
 class ShaderClass
@@ -60,7 +59,7 @@ public:
 	ShaderClass();
 	virtual ~ShaderClass();
 
-	virtual bool Init(ID3D11Device* pDevice) = 0;
+	virtual bool Init(ID3D11Device* pDevice);
 	virtual bool Render(ID3D11DeviceContext* pDeviceContext, ParticleSystemClass* mParticleS, CameraClass* pCamera);
 	virtual bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix);
 	virtual bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, ID3D11ShaderResourceView* pTexture);
@@ -77,6 +76,7 @@ protected:
 	bool createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC *vertexDesc, ID3D10Blob* pVertexShaderBuffer, int numElements);
 
 	bool createVertexShaderAndInputLayout(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, D3D11_INPUT_ELEMENT_DESC *vertexDesc, int numElements, ID3D11VertexShader**, ID3D11InputLayout** );
+	bool createVertexShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11VertexShader**);
 	bool createPixelShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11PixelShader**);
 	bool createGeometryShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11GeometryShader**);
 	bool createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC *vertexDesc, ID3D10Blob* pVertexShaderBuffer, int numElements, ID3D11InputLayout** );

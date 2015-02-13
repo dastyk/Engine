@@ -1,7 +1,7 @@
 cbuffer MatrixBuffer
 {
 	float4x4 mWorldViewProj;
-	float4x4 mWorldView;
+	float4x4 mWorld;
 };
 
 struct GS_IN

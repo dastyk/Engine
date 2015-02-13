@@ -137,8 +137,6 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 		return false;
 	}
 
-
-
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 
@@ -158,12 +156,6 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 
 	// Set shader texture resource in the pixel shader.
 	pDeviceContext->PSSetShaderResources(0, pTexture->GetTextureCount(), tex);
-
-	if (pTexture->blendEnabled())
-	{
-		ID3D11ShaderResourceView* tex2 = pTexture->GetBlendMapShaderResourceView();
-		pDeviceContext->PSSetShaderResources(3, 1, &tex2);
-	}
 
 
 	// Now render the prepared buffers with the shader.
@@ -240,7 +232,7 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 
 
 
-bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog)
+bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera)
 {
 	bool result;
 	unsigned int bufferNumber;
@@ -263,13 +255,6 @@ bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Obj
 	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
 
 	TextureClass* pTexture = pObject->GetTexture();
-
-	result = SetConstantBufferParameters(pDeviceContext, pSunLightObject, pDrawDistFog);
-	if (!result)
-	{
-		return false;
-	}
-
 
 	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
 

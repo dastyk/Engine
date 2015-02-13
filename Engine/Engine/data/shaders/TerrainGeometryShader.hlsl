@@ -2,7 +2,6 @@ cbuffer MatrixBuffer : register(cb0)
 {
 	float4x4 mWorldViewProj;
 	float4x4 mWorld;
-	float4x4 mWorldView;
 };
 
 

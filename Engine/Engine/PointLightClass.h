@@ -15,9 +15,17 @@ public:
 	float GetRadius();
 	void SetRadius(float radius);
 
+	XMFLOAT4X4 GetViewMatrix()const;
+	XMFLOAT4X4 GetProjMatrix()const;
+
+	void CalcViewMatrix();
+	void SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP);
 
 private:
 	float mRadius;
+
+	XMFLOAT4X4 mViewMatrix;
+	XMFLOAT4X4 mProjMatrix;
 };
 
 #endif

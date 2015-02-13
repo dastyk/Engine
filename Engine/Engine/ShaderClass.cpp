@@ -102,6 +102,10 @@ void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, WCHAR* shad
 	return;
 }
 
+bool ShaderClass::Init(ID3D11Device* pDevice)
+{
+	return true;
+}
 
 
 void ShaderClass::RenderShader(ID3D11DeviceContext* pDeviceContext, int indexCount)
@@ -284,11 +288,9 @@ bool ShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContex
 
 	XMMATRIX mWorldViewProj = world*view*proj;
 	XMMATRIX mWorld = world;
-	XMMATRIX mWorldView = world*view;
 
 	mWorldViewProj = XMMatrixTranspose(mWorldViewProj);	
 	mWorld = XMMatrixTranspose(mWorld);
-	mWorldView = XMMatrixTranspose(mWorldView);
 
 	// Lock the constant buffer so it can be written to.
 	result = pDeviceContext->Map(mMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -305,7 +307,6 @@ bool ShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContex
 
 	XMStoreFloat4x4(&dataPtr->mWorldViewProj, mWorldViewProj);
 	XMStoreFloat4x4(&dataPtr->mWorld, mWorld);
-	XMStoreFloat4x4(&dataPtr->mWorldView, mWorldView);
 
 
 	// Unlock the constant buffer.
@@ -651,5 +652,51 @@ bool ShaderClass::createInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_D
 		MessageBox(0, L"Could not create input layout.", 0, 0);
 		return false;
 	}
+	return true;
+}
+
+bool ShaderClass::createVertexShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, ID3D11VertexShader** ppVShader)
+{
+	HRESULT hr;
+	// Initialie Pixel shader
+	ID3D10Blob* vertexShaderBuffer;
+	ID3D10Blob* errorMessages;
+	hr = D3DCompileFromFile(
+		fileName,
+		NULL,
+		NULL,
+		EntryPoint,
+		"vs_5_0",
+		0,
+		0,
+		&vertexShaderBuffer,
+		&errorMessages);
+
+	if (FAILED(hr))
+	{
+		// If the shader failed to compile it should have writen something to the error message.
+		if (errorMessages)
+		{
+			OutputShaderErrorMessage(errorMessages, fileName);
+			return false;
+		}
+		// If there was nothing in the error message then it simply could not find the shader file itself.
+		else
+		{
+			MessageBox(0, fileName, L"Missing Shader File", MB_OK);
+			return false;
+		}
+	}
+
+	// Create the pixel shader from the buffer.
+	hr = pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, ppVShader);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Failed to create vertex shader", 0, MB_OK);
+		return false;
+	}
+
+	vertexShaderBuffer->Release();
+
 	return true;
 }

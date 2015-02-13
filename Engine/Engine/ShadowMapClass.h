@@ -10,26 +10,19 @@ public:
 	ShadowMapClass();
 	~ShadowMapClass();
 
-	bool Init(ID3D11Device* pDevice);
-	bool CreateShadowMap(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera);
+	bool Init(ID3D11Device* pDevice, float w, float h);
+	bool CreateShadowMap(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, PointLightClass* pPointLight);
+
+	ID3D11ShaderResourceView* GetShaderResourceView();
 
 private:
-	bool InitShader(ID3D11Device*, WCHAR*);
+	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, float w, float h);
 
 	void RenderShader(ID3D11DeviceContext*, int);
-
-	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, PointLightClass** ppLights, UINT NrOfLights, ObjectClass* pObject, FogClass* pDrawDistFog, CameraClass* pCamera);
-
-private:
-	ID3D11SamplerState* mSampleState;
-
-
-	ID3D11SamplerState* mSampleStateRenderTarget;
-
-	ID3D11Buffer* mLightBuffer;
-
-	ID3D11ShaderResourceView* unbindSrv;
-
+private: 
+	ID3D11RenderTargetView* mRTV;
+	ID3D11ShaderResourceView* mSRV;
+	ID3D11DepthStencilView* mDSV;
 };
 
 #endif

@@ -41,7 +41,7 @@ public:
 
 	bool Init(ID3D11Device* pDevice);
 	bool Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog);
-	bool RenderDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, LightObjectClass* pSunLightObject, FogClass* pDrawDistFog);
+	bool RenderDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera);
 
 private:
 	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
