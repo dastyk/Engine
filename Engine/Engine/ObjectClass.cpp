@@ -172,6 +172,9 @@ void ObjectClass::interpolateFrames(Frame* f1, Frame* f2, XMFLOAT4X4* m)
 
 void ObjectClass::Animate(XMFLOAT4X4** mBL)
 {
+	// LightShaderClass renders the mesh, with the renderAnimated function- in the DrawScene function in initd3dapp class
+
+
 	XMFLOAT4X4*& m = (*mBL) = new XMFLOAT4X4[mModel->GetBoneCount()];
 	Bone* bones = mModel->GetBones();
 	UINT count = mModel->GetBoneCount();
