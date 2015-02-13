@@ -18,7 +18,7 @@ struct PS_OUT
 	float4 Position : SV_TARGET2;
 };
 
-PS_OUT PSMain(PS_IN input) : SV_TARGET
+PS_OUT PSMain(PS_IN input)
 {
 	PS_OUT output;
 	float4 textureColor[3];

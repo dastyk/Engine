@@ -168,9 +168,9 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 	D3D11_SAMPLER_DESC samplerDesc;
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;//D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -364,16 +364,23 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 
-	// Set the constant buffer in the vertex shader with the updated values.
-	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
-
+	result = SetShadowConstantBufferParamters(pDeviceContext, pObject, pCamera, pLights);
+	if (!result)
+	{
+		return false;
+	}
 	TextureClass* pTexture = pObject->GetTexture();
 
 	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
 
-	// Set shader texture resource in the pixel shader.
-	pDeviceContext->PSSetShaderResources(0, pTexture->GetTextureCount(), tex);
+	pDeviceContext->PSSetShaderResources(0, 1, &pShadowmap);
 
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(1, pTexture->GetTextureCount(), tex);
+
+
+
+	pDeviceContext->PSSetSamplers(1, 1, &mPointSampleState);
 	// Now render the prepared buffers with the shader.
 	pDeviceContext->PSSetSamplers(0, 1, &mSampleState);
 
@@ -381,11 +388,11 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	pDeviceContext->IASetInputLayout(mLayout);
 
 	// Set the vertex and pixel shaders that will be used to render this triangle.
-	pDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
+	pDeviceContext->VSSetShader(mShadowDeferredVS, nullptr, 0);
 	pDeviceContext->HSSetShader(mHullShader, nullptr, 0);
 	pDeviceContext->DSSetShader(mDomainShader, nullptr, 0);
-	pDeviceContext->GSSetShader(mGeometryShader, nullptr, 0);
-	pDeviceContext->PSSetShader(mDeferredPS, nullptr, 0);
+	pDeviceContext->GSSetShader(NULL, nullptr, 0);
+	pDeviceContext->PSSetShader(mShadowDeferredPS, nullptr, 0);
 
 	// Render mesh stored in active buffers
 	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
@@ -433,7 +440,7 @@ bool TerrainShaderClass::SetShadowConstantBufferParamters(ID3D11DeviceContext* p
 	bufferNumber = 0;
 
 	// Set the constant buffer in the shader with the updated values.
-	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mShadowBuffer);
+	pDeviceContext->VSSetConstantBuffers(bufferNumber, 1, &mShadowBuffer);
 
 	return true;
 }

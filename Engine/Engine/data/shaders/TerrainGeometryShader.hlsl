@@ -33,7 +33,7 @@ void outputData(GS_IN v[3], inout TriangleStream<GS_OUT> triStream)
 		output.Pos = mul(v[i].Pos, mWorldViewProj);
 		output.Tex = v[i].Tex;
 		output.Tex2 = v[i].Tex2;
-		output.Normal = normalize(mul(float4(v[i].Normal, 1), mWorld).xyz);	
+		output.Normal = normalize(mul(float4(v[i].Normal, 0), mWorld).xyz);	
 		float4 temp = mul(float4(v[i].PosH, 0), mWorld);
 
 			output.PosH = temp.xyz;

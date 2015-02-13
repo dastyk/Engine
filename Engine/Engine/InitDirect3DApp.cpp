@@ -334,7 +334,7 @@ bool InitDirect3DApp::Init()
 
 
 	mPointLight[1] = new PointLightClass(XMFLOAT3(1, 0, 0), XMFLOAT3(0, 0, 0), 50);
-	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(128, 85, 135), 50000);
+	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(128, 115, 155), 50000);
 	mPointLight[0]->SetLightDir(XMFLOAT3(0, -1, -1));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 
@@ -392,6 +392,9 @@ void InitDirect3DApp::UpdateScene(float dt)
 	pos = mCamera->GetPosition();
 
 	mPointLight[1]->SetLightPos(pos);
+	rot = mPointLight[0]->GetLightDir();
+	//rot.y += dt/10;
+	mPointLight[0]->SetLightDir(rot);
 	mPointLight[0]->CalcViewMatrix();
 
 
@@ -460,10 +463,12 @@ void InitDirect3DApp::DrawScene()
 	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
 	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
-	result = mTerrainShader->RenderDeferred(
+	result = mTerrainShader->RenderShadowsDeferred(
 		mDeviceContext,
 		mTerrain,
-		mCamera);
+		mCamera,
+		mPointLight[0],
+		mShadowmapShader->GetShaderResourceView());
 
 	if (!result)
 	{
