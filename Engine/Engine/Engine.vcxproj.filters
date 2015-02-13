@@ -123,7 +123,7 @@
     <ClCompile Include="ShadowMapClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QuadTreeOld.cpp">
+    <ClCompile Include="QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -254,7 +254,7 @@
     <ClInclude Include="ShadowMapClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QuadTreeOld.h">
+    <ClInclude Include="QuadTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

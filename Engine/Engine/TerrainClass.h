@@ -32,8 +32,6 @@ public:
 	float getHeightAtPoint(const XMFLOAT3&)const;
 	XMFLOAT3 GetVectorAtPoint(const XMFLOAT3&)const;
 
-	UINT GetIndexCount()const;
-
 
 private:
 	bool loadRAW(int width, int height, const char* filename, float heightScale, float heightOffset);

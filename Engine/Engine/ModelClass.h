@@ -7,6 +7,7 @@
 #include "TextureClass.h"
 #include <DirectXCollision.h>
 #include "OBJ_Loader.h"
+#include "AABB.h"
 
 using namespace DirectX;
 
@@ -21,7 +22,7 @@ public:
 	
 
 	void SetAsModelToBeDrawn(ID3D11DeviceContext*);
-	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
+	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum, int flag);
 
 
 	virtual UINT GetIndexCount()const;
@@ -54,6 +55,8 @@ protected:
 	MatrialDesc* mMaterial;
 	Bone* mBones;
 	AnimClipRead* mAnimationClips;
+
+	AABB* mBox;
 };
 
 #endif

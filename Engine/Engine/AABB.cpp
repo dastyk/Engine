@@ -10,9 +10,9 @@ AABB::~AABB()
 {
 }
 
-void AABB::createFromPoints(int pointCount, const XMFLOAT3* pPoints)
+void AABB::createFromPoints(int pointCount, const XMFLOAT3* pPoints, size_t stride)
 {
-	BoundingBox::CreateFromPoints(mBox, pointCount, pPoints, sizeof(XMFLOAT3));
+	BoundingBox::CreateFromPoints(mBox, pointCount, pPoints, stride);
 }
 
 void AABB::createFromPoints(XMVECTOR p1, XMVECTOR p2)
@@ -32,5 +32,10 @@ bool AABB::Intersect(const BoundingBox& boundingBox)const
 
 bool AABB::Intersect(const BoundingFrustum& frustum)const
 {
-	return frustum.Contains(mBox);
+	return mBox.Contains(frustum);
+}
+
+BoundingBox AABB::GetBoundingBox()
+{
+	return mBox;
 }

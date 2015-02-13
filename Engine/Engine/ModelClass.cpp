@@ -14,6 +14,7 @@ ModelClass::ModelClass()
 	mAnimationClipCount = 0;
 	mBones = 0;
 	mAnimationClips = 0;
+	mBox = 0;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -24,6 +25,12 @@ ModelClass::ModelClass(const ModelClass& other)
 
 ModelClass::~ModelClass()
 {
+
+	if (mBox)
+	{
+		delete mBox;
+		mBox = 0;
+	}
 	if (mVertexBuffer)
 	{
 		mVertexBuffer->Release();
@@ -123,6 +130,11 @@ bool result;
 
 
 	LoadSmfModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial, &bones, mBoneCount, &mAnimationClips, mAnimationClipCount);
+
+
+	mBox = new AABB;
+	mBox->createFromPoints(mVertexCount, (XMFLOAT3*)vertices, sizeof(Vertex));
+
 
 	if (mBoneCount > 0)
 	{
@@ -285,8 +297,30 @@ TextureClass* ModelClass::GetTexture()const
 }
 
 
-bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
+bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum, int flag)
 {
+
+	if (frustum.Contains(mBox->GetBoundingBox()) > flag)
+	{
+		unsigned int stride;
+		unsigned int offset;
+
+		// Set vertex buffer stride and offset.
+		stride = mStride;
+		offset = 0;
+
+		// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
+
+		pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
+
+		pDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set topology
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		return true;
+	}
+
 	return false;
 }
 

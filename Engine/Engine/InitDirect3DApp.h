@@ -65,7 +65,8 @@ private:
 	ModelClass* mQuadModel;
 	ObjectClass* mRTQ[BUFFER_COUNT];
 
-	ObjectClass* mObject;
+	ObjectClass** mObject;
+	UINT mNRofObjects;
 
 	LightObjectClass* mSun;
 

@@ -6,6 +6,7 @@ LightShaderClass::LightShaderClass() : ShaderClass()
 	mSampleState = 0;
 	mLightBuffer = 0;
 	mBoneTBuffer = 0;
+	mAniGS = 0;
 }
 
 
@@ -25,6 +26,11 @@ LightShaderClass::~LightShaderClass()
 	{
 		mBoneTBuffer->Release();
 		mBoneTBuffer = 0;
+	}
+	if (mAniGS)
+	{
+		mAniGS->Release();
+		mAniGS = 0;
 	}
 }
 
