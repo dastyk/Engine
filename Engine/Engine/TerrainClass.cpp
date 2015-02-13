@@ -3,10 +3,8 @@
 
 TerrainClass::TerrainClass() : ModelClass()
 {
-	mTree = 0;
 	mHeightMap = 0;
-	mDynIndexBuffer = 0;
-	mDynIndexCount = 0;
+
 }
 
 
@@ -21,16 +19,7 @@ TerrainClass::~TerrainClass()
 		delete[]mHeightMap;
 		mHeightMap = 0;
 	}	
-	if (mTree)
-	{
-		delete mTree;
-		mTree = 0;
-	}
-	if (mDynIndexBuffer)
-	{
-		mDynIndexBuffer->Release();
-		mDynIndexBuffer = 0;
-	}
+
 }
 
 bool TerrainClass::Init(ID3D11Device* pDevice)
@@ -342,17 +331,9 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	}
 
 
-	mTree = new QuadTree(mVertexCount, pPoints, mIndexCount, indices, mWidth - 1, mHeight - 1);
-	if (!mTree)
-		return false;
-
+	
 	delete[]pPoints;
 
-	result = createIndexBuffer(pDevice, &mDynIndexBuffer, sizeof(unsigned long)*mIndexCount);
-	if (!result)
-	{
-		return false;
-	}
 
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = vertices;
@@ -435,64 +416,4 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 		fHeight += (fTriY2 - fTriY3) * (1.0f - fSqX);
 	}
 	return fHeight;
-}
-
-bool TerrainClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
-{
-	mDynIndexCount = 0;
-
-	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned long* dataPtr;
-
-	// Lock the constant buffer so it can be written to.
-	result = pDeviceContext->Map(mDynIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Get a pointer to the data in the constant buffer.
-	dataPtr = (unsigned long*)mappedResource.pData;
-
-	if (mTree->GetIndexArray(mDynIndexCount, dataPtr, frustum))
-	{
-
-
-		// Unlock the constant buffer.
-		pDeviceContext->Unmap(mDynIndexBuffer, 0);
-
-		unsigned int stride;
-		unsigned int offset;
-
-		// Set vertex buffer stride and offset.
-		stride = mStride;
-		offset = 0;
-
-		// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-
-		pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
-
-		pDeviceContext->IASetIndexBuffer(mDynIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-		// Set topology
-		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
-		return true;
-	}
-	else
-	{
-
-
-		// Unlock the constant buffer.
-		pDeviceContext->Unmap(mDynIndexBuffer, 0);
-
-		return false;
-	}
-}
-
-UINT TerrainClass::GetIndexCount() const
-{
-	return (int)mIndexCount;
 }

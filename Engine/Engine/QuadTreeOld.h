@@ -4,6 +4,8 @@
 #pragma once
 #define QUAD_SIZE_MIN 98304
 #include "AABB.h"
+#include <d3d11.h>
+#include "ModelClass.h"
 
 class QuadTree : public AABB
 {
@@ -22,7 +24,7 @@ private:
 
 	int mIndexCount;
 	unsigned long* mIndices;
-
+	ID3D11Buffer* mIndexBuffer;
 
 };
 

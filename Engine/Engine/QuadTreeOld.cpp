@@ -1,4 +1,4 @@
-#include "QuadTree.h"
+#include "QuadTreeOld.h"
 
 
 QuadTree::QuadTree(int pointCount, const XMFLOAT3* pPoints, int indexCount, unsigned long* pIndices, int width, int depth)
