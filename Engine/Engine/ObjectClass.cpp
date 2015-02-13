@@ -181,7 +181,14 @@ void ObjectClass::Animate(XMFLOAT4X4** mBL)
 	AnimClipRead* aC = mModel->GetAnimationClips();
 	XMFLOAT4X4 mat;
 
-	UINT frame = mTime->TotalTime() / (1.25 * 76);
+	float time = mTime->TotalTime();
+	UINT frame = (UINT)floorf(mTime->TotalTime() / (1.25 * 76)); // 1.25 is the total time it takes for the animation clip to fully play. 76 is the number of keyframes
+
+	if (frame >= 76)
+	{
+		mTime->Reset();
+		frame = 0;
+	}
 
 	// Interpolate first bone
 	interpolateFrames(&aC[0].bones[0].Frames[frame], &aC[0].bones[0].Frames[frame+1], &mat);
