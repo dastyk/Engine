@@ -550,19 +550,19 @@ void InitDirect3DApp::DrawScene()
 	//	return;
 	//}
 
-	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
-	result = mTerrainShader->RenderShadowsDeferred(
-		mDeviceContext,
-		mTerrain,
-		mCamera,
-		mPointLight[0],
-		mShadowmapShader->GetShaderResourceView());
+	//mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	//result = mTerrainShader->RenderShadowsDeferred(
+	//	mDeviceContext,
+	//	mTerrain,
+	//	mCamera,
+	//	mPointLight[0],
+	//	mShadowmapShader->GetShaderResourceView());
 
-	if (!result)
-	{
-		MessageBox(0, L"Failed to Render Shaders", 0, 0);
-		return;
-	}
+	//if (!result)
+	//{
+	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
+	//	return;
+	//}
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 
