@@ -283,26 +283,21 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	unsigned long* indices = new unsigned long[mIndexCount];
 
+	int w2 = (mWidth - 1) / 2;
+	int w3 = w2 / 2;
 
+	int h2 = (mHeight - 1) / 2;
+	int h3 = h2 / 2;
 
-
-
-
-
-
+	fillIndices(0, 0, mWidth - 1, mHeight - 1, indices);
 
 
 	int index = 0;
+
 	for (int j = 0; j < (mHeight - 1); j++)
 	{
 		for (int i = 0; i < (mWidth - 1); i++)
 		{
-			int d = j*mWidth + i;
-			indices[index] = (unsigned long)d;
-			indices[index + 1] = indices[index + 4] = (unsigned long)mWidth + d;
-			indices[index + 2] = indices[index + 3] = (unsigned long)d + 1;
-			indices[index + 5] = (unsigned long)mWidth + d + 1;
-			
 			XMVECTOR pos1 = XMLoadFloat3(&(vertices[indices[index]].Pos));
 			XMVECTOR pos2 = XMLoadFloat3(&(vertices[indices[index+1]].Pos));
 			XMVECTOR pos3 = XMLoadFloat3(&(vertices[indices[index+2]].Pos));
@@ -425,4 +420,38 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 		fHeight += (fTriY2 - fTriY3) * (1.0f - fSqX);
 	}
 	return fHeight;
+}
+
+void TerrainClass::fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*& indices)
+{
+	if (x > 1 || y > 1)
+	{
+		UINT count = x*y * 6;
+		UINT c2 = (x / 2)*(y / 2) * 6;
+		UINT index = 0;
+		for (UINT j = 0; j < 2; j++)
+		{
+			for (UINT i = 0; i < 2; i++)
+			{
+				unsigned long* Indices = new unsigned long[c2];
+				UINT oW = oX + i*(x / 2);
+				UINT oH = oY + j*(mWidth)*(y/2);
+				fillIndices(oW, oH, x / 2, y / 2, Indices);
+				for (UINT k = 0; k < c2; k++)
+				{
+					indices[index] = Indices[k];
+					index++;
+				}
+				delete[]Indices;
+			}
+		}
+	}
+	else
+	{
+		int d = oY + oX;
+		indices[0] = (unsigned long)d;
+		indices[1] = indices[4] = (unsigned long)mWidth + d;
+		indices[2] = indices[3] = (unsigned long)d + 1;
+		indices[5] = (unsigned long)mWidth + d + 1;
+	}
 }

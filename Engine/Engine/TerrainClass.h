@@ -51,7 +51,7 @@ private:
 
 	float** mHeightMap;
 
-
+	void fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*& indices);
 };
 
 #endif

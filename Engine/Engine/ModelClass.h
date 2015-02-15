@@ -43,6 +43,13 @@ public:
 	
 
 protected:
+	bool createVertexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
+	bool createVertexBuffer(ID3D11Device* pDevice, ID3D11Buffer **ppBuffer, UINT byteWidth);
+	bool createIndexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
+	bool createIndexBuffer(ID3D11Device*, ID3D11Buffer**, UINT);
+	bool createIndexBuffer(ID3D11Device* pDevice, D3D11_SUBRESOURCE_DATA* pData, ID3D11Buffer **ppBuffer, UINT byteWidth);
+
+
 	TextureClass *mTexture;
 	ID3D11Buffer* mVertexBuffer, *mIndexBuffer;
 	UINT mVertexCount, mIndexCount, mObjectCount, mBoneCount, mAnimationClipCount;
@@ -53,10 +60,5 @@ protected:
 
 	AABB* mBox;
 };
-bool createVertexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
-bool createVertexBuffer(ID3D11Device* pDevice, ID3D11Buffer **ppBuffer, UINT byteWidth);
-bool createIndexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
-bool createIndexBuffer(ID3D11Device*, ID3D11Buffer**, UINT);
-bool createIndexBuffer(ID3D11Device* pDevice, D3D11_SUBRESOURCE_DATA* pData, ID3D11Buffer **ppBuffer, UINT byteWidth);
 
 #endif
