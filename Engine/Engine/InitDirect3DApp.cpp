@@ -44,6 +44,8 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 
 	mTerrain = 0;
 	mTerrainModel = 0;
+	mQuadTree = 0;
+
 
 	mDrawDistFog = 0;
 
@@ -115,6 +117,12 @@ InitDirect3DApp::~InitDirect3DApp()
 	{
 		delete mSun;
 		mSun = 0;
+	}
+
+	if (mQuadTree)
+	{
+		delete mQuadTree;
+		mQuadTree = 0;
 	}
 	if (mTerrain)
 	{
@@ -269,7 +277,7 @@ bool InitDirect3DApp::Init()
 	if (!mTerrainModel)
 		return false;
 
-	result = mTerrainModel->Init(mDevice);
+	result = mTerrainModel->Init(mDevice, &mQuadTree);
 	if (!result)
 		return false;
 
@@ -466,7 +474,7 @@ void InitDirect3DApp::handleInput()
 void InitDirect3DApp::DrawScene()
 {
 	HRESULT hr;
-	bool result;
+	int result;
 
 	assert(mDeviceContext);
 	assert(mSwapChain);
@@ -517,25 +525,7 @@ void InitDirect3DApp::DrawScene()
 		}
 	}
 
-	static int frameCnt = 0;
-	static float timeElapsed = 0.0f;
-
-	frameCnt++;
-
-	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
-	{
-		float fps = (float)frameCnt;
-		float mspf = 1000.0f / fps;
-
-		std::wostringstream outs;
-		outs.precision(6);
-		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms"<< " Rendering: " << count << " models";;
-		SetWindowText(mhMainWnd, outs.str().c_str());
-
-
-		frameCnt = 0;
-		timeElapsed += 1.0f;
-	}
+	
 
 	//mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 	//result = mTerrainShader->RenderDeferred(
@@ -549,19 +539,49 @@ void InitDirect3DApp::DrawScene()
 	//	return;
 	//}
 
-	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	/*mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
 	result = mTerrainShader->RenderShadowsDeferred(
 		mDeviceContext,
 		mTerrain,
 		mCamera,
 		mPointLight[0],
+		mShadowmapShader->GetShaderResourceView());*/
+
+	result = mQuadTree->RenderAgainsQuadTree(
+		mDeviceContext,
+		mTerrainShader,
+		mTerrain,
+		mCamera,
+		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
 
-	if (!result)
+	//if (!result)
+	//{
+	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
+	//	return;
+	//}
+
+
+	static int frameCnt = 0;
+	static float timeElapsed = 0.0f;
+
+	frameCnt++;
+
+	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
 	{
-		MessageBox(0, L"Failed to Render Shaders", 0, 0);
-		return;
+		float fps = (float)frameCnt;
+		float mspf = 1000.0f / fps;
+
+		std::wostringstream outs;
+		outs.precision(6);
+		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms" << " Rendering: " << count << " models" << "Terrain: " << result;
+		SetWindowText(mhMainWnd, outs.str().c_str());
+
+
+		frameCnt = 0;
+		timeElapsed += 1.0f;
 	}
+
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 

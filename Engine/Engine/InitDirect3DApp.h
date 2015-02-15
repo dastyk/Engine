@@ -72,6 +72,8 @@ private:
 
 	TerrainClass* mTerrainModel;
 	ObjectClass* mTerrain;
+	QuadTree* mQuadTree;
+
 
 	ParticleShaderClass* mParticleShader;
 	FireworkEffect* mFirework;

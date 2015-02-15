@@ -4,12 +4,11 @@
 #pragma once
 
 #define QUAD_TREE_CHILDREN_COUNT 4
-#define QUAD_SIZE_MIN 98304
-#define QUAD_TREE_QUADS_PER_LEAF 64
+#define QUAD_SIZE_MIN 24576
 
 
 #include "ObjectClass.h"
-
+#include "TerrainShaderClass.h"
 
 class QuadTree
 {
@@ -18,13 +17,14 @@ public:
 	~QuadTree();
 
 	bool Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UINT indexCount);
-	
-	
 
+
+	int RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap);
 
 private:
 	bool createChildren();
-	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount);
+	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart);
+
 
 private:
 	ObjectClass** mObjects;

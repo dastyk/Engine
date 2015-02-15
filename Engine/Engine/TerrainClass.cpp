@@ -4,7 +4,6 @@
 TerrainClass::TerrainClass() : ModelClass()
 {
 	mHeightMap = 0;
-
 }
 
 
@@ -19,10 +18,9 @@ TerrainClass::~TerrainClass()
 		delete[]mHeightMap;
 		mHeightMap = 0;
 	}	
-
 }
 
-bool TerrainClass::Init(ID3D11Device* pDevice)
+bool TerrainClass::Init(ID3D11Device* pDevice, QuadTree** ppQuadTree)
 {
 
 	bool result;
@@ -42,7 +40,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice)
 	filterTerrain();
 	filterTerrain();
 
-	result = fillVertexAndIndexData(pDevice, L"seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"seemless_4.jpg",L"data/resources/blendmap1.jpg");
+	result = fillVertexAndIndexData(pDevice, L"seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"seemless_4.jpg",L"data/resources/blendmap1.jpg", ppQuadTree);
 	if (!result)
 	{
 		return false;
@@ -246,7 +244,7 @@ bool TerrainClass::inBoundsOfHeightMap(int m, int n)const
 	return true;
 }
 
-bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileName, WCHAR* name2, WCHAR* blendmap)
+bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileName, WCHAR* name2, WCHAR* blendmap, QuadTree** ppQuadTree)
 {
 	bool result;
 	TerrainVertex* vertices = 0;
@@ -280,6 +278,9 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	int count = (mWidth-1)*(mHeight-1);
 	mIndexCount = count * 6;
+
+	(*ppQuadTree) = new QuadTree;
+	(*ppQuadTree)->Init(mVertexCount, (XMFLOAT3*)vertices, sizeof(TerrainVertex), mIndexCount);
 
 	unsigned long* indices = new unsigned long[mIndexCount];
 
