@@ -283,6 +283,15 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	unsigned long* indices = new unsigned long[mIndexCount];
 
+
+
+
+
+
+
+
+
+
 	int index = 0;
 	for (int j = 0; j < (mHeight - 1); j++)
 	{

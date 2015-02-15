@@ -4,6 +4,7 @@
 #pragma once
 
 #define QUAD_TREE_CHILDREN_COUNT 4
+#define QUAD_SIZE_MIN 98304
 
 #include "ObjectClass.h"
 
@@ -11,23 +12,29 @@
 class QuadTree
 {
 public:
-	QuadTree();
+	QuadTree();	
 	~QuadTree();
 
-
-	bool Init(ID3D11Device* pDevice, int pointCount, const XMFLOAT3* pPoints, size_t stride, int indexCount, unsigned long* pIndices, int width, int depth);
+	bool Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UINT indexCount);
+	
+	
 
 
 private:
 	bool createChildren();
+	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount);
 
 private:
 	ObjectClass** mObjects;
 	UINT mObjectCount;
 
-	ID3D11Buffer* mIndexBuffer;
 	BoundingBox mBox;
 	QuadTree* mChildren[QUAD_TREE_CHILDREN_COUNT];
+	QuadTree* mParent;
+
+	UINT mIndexStart;
+	UINT mIndexCount;
+
 };
 
 #endif

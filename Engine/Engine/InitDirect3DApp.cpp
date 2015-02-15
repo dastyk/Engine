@@ -241,7 +241,7 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mNRofObjects = 10;
+	mNRofObjects = 100;
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
@@ -471,7 +471,6 @@ void InitDirect3DApp::DrawScene()
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
-
 	BoundingFrustum f = mCamera->GetBoundingFrustum();
 	BoundingFrustum f2 = mPointLight[0]->GetBoundingFrustum();
 	UINT count = 0;
@@ -550,19 +549,19 @@ void InitDirect3DApp::DrawScene()
 	//	return;
 	//}
 
-	//mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
-	//result = mTerrainShader->RenderShadowsDeferred(
-	//	mDeviceContext,
-	//	mTerrain,
-	//	mCamera,
-	//	mPointLight[0],
-	//	mShadowmapShader->GetShaderResourceView());
+	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	result = mTerrainShader->RenderShadowsDeferred(
+		mDeviceContext,
+		mTerrain,
+		mCamera,
+		mPointLight[0],
+		mShadowmapShader->GetShaderResourceView());
 
-	//if (!result)
-	//{
-	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
-	//	return;
-	//}
+	if (!result)
+	{
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
+	}
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 
