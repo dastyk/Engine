@@ -4,6 +4,8 @@
 #pragma once
 
 #include "LightClass.h"
+#include <DirectXCollision.h>
+using namespace DirectX;
 
 class PointLightClass : public LightClass
 {
@@ -21,11 +23,16 @@ public:
 	void CalcViewMatrix();
 	void SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP);
 
+	BoundingFrustum GetBoundingFrustum()const;
+
 private:
 	float mRadius;
 
 	XMFLOAT4X4 mViewMatrix;
 	XMFLOAT4X4 mProjMatrix;
+	XMFLOAT4X4 mInvViewMatrix;
+
+	BoundingFrustum mFrustum;
 };
 
 #endif

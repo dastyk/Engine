@@ -78,14 +78,19 @@ void ObjectClass::Update()
 }
 
 
-void ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext)
+void ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext, int flag)
 {
-	mModel->SetAsModelToBeDrawn(pDeviceContext);
+
+	mModel->SetAsModelToBeDrawn(pDeviceContext, flag);
 }
 
-bool ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum)
+bool ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum, int flag)
 {
-	if (mModel->SetAsModelToBeDrawn(pDeviceContext, frustum))
+	XMMATRIX w = XMLoadFloat4x4(&GetWorldMatrix());
+	w = XMMatrixInverse(NULL,w);
+	BoundingFrustum f;
+	frustum.Transform(f, w);
+	if (mModel->SetAsModelToBeDrawn(pDeviceContext, f, flag))
 		return true;
 	else
 		return false;

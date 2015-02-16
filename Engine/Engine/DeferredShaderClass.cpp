@@ -10,7 +10,10 @@ DeferredShaderClass::DeferredShaderClass() : ShaderClass()
 	{
 		unbindSrv[i] = nullptr;
 	}
-
+	mVertexShaderRenderTarget = 0;
+	mPixelShaderRenderTarget = 0;
+	mVertexBuffer = 0;
+	mLayout2 = 0;
 }
 
 
@@ -30,6 +33,26 @@ DeferredShaderClass::~DeferredShaderClass()
 	{
 		mLightBuffer->Release();
 		mLightBuffer = 0;
+	}
+	if (mVertexShaderRenderTarget)
+	{
+		mVertexShaderRenderTarget->Release();
+		mVertexShaderRenderTarget = 0;
+	}
+	if (mPixelShaderRenderTarget)
+	{
+		mPixelShaderRenderTarget->Release();
+		mPixelShaderRenderTarget = 0;
+	}
+	if (mVertexBuffer)
+	{
+		mVertexBuffer->Release();
+		mVertexBuffer = 0;
+	}
+	if (mLayout2)
+	{
+		mLayout2->Release();
+		mLayout2 = 0;
 	}
 }
 

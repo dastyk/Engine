@@ -400,6 +400,52 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	return true;
 }
 
+bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap, UINT indexCount, UINT indexStart)
+{
+	bool result;
+	unsigned int bufferNumber;
+
+
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	result = SetShadowConstantBufferParamters(pDeviceContext, pObject, pCamera, pLights);
+	if (!result)
+	{
+		return false;
+	}
+	TextureClass* pTexture = pObject->GetTexture();
+
+	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
+
+	pDeviceContext->PSSetShaderResources(0, 1, &pShadowmap);
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(1, pTexture->GetTextureCount(), tex);
+
+
+
+	pDeviceContext->PSSetSamplers(1, 1, &mPointSampleState);
+	// Now render the prepared buffers with the shader.
+	pDeviceContext->PSSetSamplers(0, 1, &mSampleState);
+
+	// Set the vertex input layout.
+	pDeviceContext->IASetInputLayout(mLayout);
+
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	pDeviceContext->VSSetShader(mShadowDeferredVS, nullptr, 0);
+	pDeviceContext->HSSetShader(mHullShader, nullptr, 0);
+	pDeviceContext->DSSetShader(mDomainShader, nullptr, 0);
+	pDeviceContext->GSSetShader(NULL, nullptr, 0);
+	pDeviceContext->PSSetShader(mShadowDeferredPS, nullptr, 0);
+
+	// Render mesh stored in active buffers
+	pDeviceContext->DrawIndexed(indexCount, indexStart, 0);
+
+	return true;
+}
+
 bool TerrainShaderClass::SetShadowConstantBufferParamters(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pPointLight)
 {
 	HRESULT result;

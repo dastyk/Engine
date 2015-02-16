@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
+    <ClCompile Include="BoundingBoxShader.cpp" />
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="ColorShaderClass.cpp" />
     <ClCompile Include="D3DApp.cpp" />
@@ -51,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
+    <ClInclude Include="BoundingBoxShader.h" />
     <ClInclude Include="bth_image.h" />
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="CircularDoubleDirectedList.h" />

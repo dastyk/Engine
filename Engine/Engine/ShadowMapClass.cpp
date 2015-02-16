@@ -53,25 +53,34 @@ bool ShadowMapClass::CreateShadowMap(ID3D11DeviceContext* pDeviceContext, Object
 	pDeviceContext->VSSetConstantBuffers(0, 1, &mMatrixBuffer);
 
 
-	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-	ID3D11DepthStencilView* prevDSV;
+
+
+	RenderShader(pDeviceContext, pObject->GetIndexCount());
+
+	
+
+	return true;
+}
+
+void  ShadowMapClass::SetRTV(ID3D11DeviceContext* pDeviceContext)
+{
 
 	pDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
 	pDeviceContext->OMSetRenderTargets(1, &mRTV, mDSV);
+
+}
+void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
+{
 
 	float color[] = { 1, 0, 0, 0 };
 
 	pDeviceContext->ClearRenderTargetView(mRTV, color);
 	pDeviceContext->ClearDepthStencilView(mDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	RenderShader(pDeviceContext, pObject->GetIndexCount());
-
-	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, prevDSV);
-
-	return true;
 }
-
-
+void  ShadowMapClass::UnbindRTV(ID3D11DeviceContext* pDeviceContext)
+{
+	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, prevDSV);
+}
 
 bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFile, float w, float h)
 {

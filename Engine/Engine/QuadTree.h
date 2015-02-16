@@ -2,27 +2,40 @@
 #define _QUADTREE_H_
 
 #pragma once
-#define QUAD_SIZE_MIN 98304
-#include "AABB.h"
 
-class QuadTree : public AABB
+#define QUAD_TREE_CHILDREN_COUNT 4
+#define QUAD_SIZE_MIN 98304
+
+
+#include "ObjectClass.h"
+#include "TerrainShaderClass.h"
+
+class QuadTree
 {
 public:
-	QuadTree(int pointCount, const XMFLOAT3* pPoints, int indexCount, unsigned long* pIndices,int width, int depth);
-	QuadTree(XMVECTOR p1, XMVECTOR p2, int indexCount, unsigned long* pIndices, int wOffset, int dOffset, int width, int depth, int fWidth, int fDepth);
+	QuadTree();	
 	~QuadTree();
 
-	bool GetIndexArray(int& indexCount, unsigned long* pIndices, BoundingFrustum& frustum);
+	bool Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UINT indexCount);
+
+
+	int RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap);
 
 private:
-	void createChildren(int width, int depth, int fWidth, int fDepth, int wOffset, int dOffset, unsigned long* pIndices);
+	bool createChildren();
+	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart);
+
 
 private:
-	QuadTree* mChildren[4];
+	ObjectClass** mObjects;
+	UINT mObjectCount;
 
-	int mIndexCount;
-	unsigned long* mIndices;
+	BoundingBox mBox;
+	QuadTree* mChildren[QUAD_TREE_CHILDREN_COUNT];
+	QuadTree* mParent;
 
+	UINT mIndexStart;
+	UINT mIndexCount;
 
 };
 

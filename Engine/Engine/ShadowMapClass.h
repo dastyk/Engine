@@ -12,6 +12,9 @@ public:
 
 	bool Init(ID3D11Device* pDevice, float w, float h);
 	bool CreateShadowMap(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObject, PointLightClass* pPointLight);
+	void SetRTV(ID3D11DeviceContext* pDeviceContext);
+	void ClearRTV(ID3D11DeviceContext* pDeviceContext);
+	void UnbindRTV(ID3D11DeviceContext* pDeviceContext);
 
 	ID3D11ShaderResourceView* GetShaderResourceView();
 
@@ -23,6 +26,9 @@ private:
 	ID3D11RenderTargetView* mRTV;
 	ID3D11ShaderResourceView* mSRV;
 	ID3D11DepthStencilView* mDSV;
+
+	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
+	ID3D11DepthStencilView* prevDSV = nullptr;
 	D3D11_VIEWPORT mViewport;
 };
 

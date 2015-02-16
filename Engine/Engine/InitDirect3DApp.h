@@ -35,6 +35,9 @@
 
 #include "ShadowMapClass.h"
 
+
+#include "BoundingBoxShader.h"
+
 class InitDirect3DApp : public D3DApp
 {
 public:
@@ -65,12 +68,15 @@ private:
 	ModelClass* mQuadModel;
 	ObjectClass* mRTQ[BUFFER_COUNT];
 
-	ObjectClass* mObject;
+	ObjectClass** mObject;
+	UINT mNRofObjects;
 
 	LightObjectClass* mSun;
 
 	TerrainClass* mTerrainModel;
 	ObjectClass* mTerrain;
+	QuadTree* mQuadTree;
+
 
 	ParticleShaderClass* mParticleShader;
 	FireworkEffect* mFirework;
@@ -90,6 +96,7 @@ private:
 	UINT mLightCount;
 
 	ShadowMapClass* mShadowmapShader;
+	BoundingBoxShader* mBoundingBoxShader;
 };
 
 #endif

@@ -40,6 +40,7 @@ void PointLightClass::CalcViewMatrix()
 	// Finally create the view matrix from the three updated vectors.
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(position, lookAt, up);
 	XMStoreFloat4x4(&mViewMatrix, viewMatrix);
+	XMStoreFloat4x4(&mInvViewMatrix, XMMatrixInverse(nullptr, viewMatrix));
 
 	return;
 }
@@ -48,6 +49,8 @@ void PointLightClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, f
 {
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
+
+	BoundingFrustum::CreateFromMatrix(mFrustum, proj);
 }
 
 XMFLOAT4X4 PointLightClass::GetViewMatrix()const
@@ -58,4 +61,12 @@ XMFLOAT4X4 PointLightClass::GetViewMatrix()const
 XMFLOAT4X4 PointLightClass::GetProjMatrix()const
 {
 	return (XMFLOAT4X4)mProjMatrix;
+}
+
+BoundingFrustum PointLightClass::GetBoundingFrustum()const
+{
+	XMMATRIX invView = XMLoadFloat4x4(&mInvViewMatrix);
+	BoundingFrustum f;
+	mFrustum.Transform(f, invView);
+	return f;
 }

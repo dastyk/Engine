@@ -6,6 +6,7 @@ CameraClass::CameraClass() : PositionClass()
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mViewMatrix, I);
 	XMStoreFloat4x4(&mProjMatrix, I);
+	XMStoreFloat4x4(&mInvViewMatrix, I);
 }
 
 
@@ -34,14 +35,8 @@ void CameraClass::CalcViewMatrix()
 	// Finally create the view matrix from the three updated vectors.
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(position, lookAt, up);
 	XMStoreFloat4x4(&mViewMatrix, viewMatrix);
+	XMStoreFloat4x4(&mInvViewMatrix, XMMatrixInverse(nullptr, viewMatrix));
 
-	XMMATRIX proj = XMMatrixPerspectiveFovLH(mFoV, mAspectRatio, mNearPlane, mFarPlane);
-	XMVECTOR det = XMMatrixDeterminant(proj);
-	XMMATRIX invProj = XMMatrixTranspose(proj);
-	BoundingFrustum::CreateFromMatrix(mFrustrum, proj);
-	det = XMMatrixDeterminant(viewMatrix);
-	XMMATRIX invViewMatrix = XMMatrixInverse(&det,viewMatrix);
-	mFrustrum.Transform(mFrustrum, invViewMatrix);
 	return;
 }
 
@@ -55,9 +50,7 @@ void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
-	XMVECTOR det = XMMatrixDeterminant(proj);
-	XMMATRIX invProj = XMMatrixInverse(&det, proj);
-	BoundingFrustum::CreateFromMatrix(mFrustrum, invProj);
+	BoundingFrustum::CreateFromMatrix(mFrustum, proj);
 }
 
 void CameraClass::SetRotation(XMFLOAT3& rot)
@@ -88,7 +81,10 @@ XMFLOAT4X4 CameraClass::GetProjMatrix()const
 	return (XMFLOAT4X4)mProjMatrix;
 }
 
-BoundingFrustum CameraClass::GetBoundingFrustrum()const
+BoundingFrustum CameraClass::GetBoundingFrustum()const
 {
-	return mFrustrum;
+	XMMATRIX invView = XMLoadFloat4x4(&mInvViewMatrix);
+	BoundingFrustum f;
+	mFrustum.Transform(f, invView);
+	return f;
 }

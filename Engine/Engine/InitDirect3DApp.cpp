@@ -37,11 +37,15 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 
 
 	mObject = 0;
+	mNRofObjects = 0;
+
 
 	mSun = 0;
 
 	mTerrain = 0;
 	mTerrainModel = 0;
+	mQuadTree = 0;
+
 
 	mDrawDistFog = 0;
 
@@ -61,6 +65,7 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	srand(time(NULL));
 
 	mShadowmapShader = 0;
+	mBoundingBoxShader = 0;
 }
 
 
@@ -93,7 +98,15 @@ InitDirect3DApp::~InitDirect3DApp()
 	}
 	if (mObject)
 	{
-		delete mObject;
+		for (UINT i = 0; i < mNRofObjects; i++)
+		{ 
+			if (mObject[i])
+			{
+				delete mObject[i];
+				mObject[i] = 0;
+			}
+		}
+		delete[] mObject;
 		mObject = 0;
 	}
 	if (mDrawDistFog)
@@ -105,6 +118,12 @@ InitDirect3DApp::~InitDirect3DApp()
 	{
 		delete mSun;
 		mSun = 0;
+	}
+
+	if (mQuadTree)
+	{
+		delete mQuadTree;
+		mQuadTree = 0;
 	}
 	if (mTerrain)
 	{
@@ -179,7 +198,11 @@ InitDirect3DApp::~InitDirect3DApp()
 		delete mShadowmapShader;
 		mShadowmapShader = 0;
 	}
-	
+	if (mBoundingBoxShader)
+	{
+		delete mBoundingBoxShader;
+		mBoundingBoxShader = 0;
+	}
 
 }
 
@@ -231,12 +254,18 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mObject = new ObjectClass(mModel);
+	mNRofObjects = 10;
+	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
-	TransformationClass* t = mObject->GetTransformation();
-	t->SetPosition(XMFLOAT3(128.0f, 0, 128.0f));
-	t->SetScale(XMFLOAT3(0.1, 0.1, 0.1));
+	for (UINT i = 0; i < mNRofObjects; i++)
+	{
+		mObject[i] = new ObjectClass(mModel);
+		TransformationClass* t = mObject[i]->GetTransformation();
+		t->SetPosition(XMFLOAT3(128.0f + rand() % 100 - 50, 0, 128.0f + rand() % 100 - 50));
+		t->SetScale(XMFLOAT3(0.1, 0.1, 0.1));
+	}
+	
 
 	mDrawDistFog = new FogClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.4f, 0.4f, 0.9f), 10);
 	if (!mDrawDistFog)
@@ -253,7 +282,7 @@ bool InitDirect3DApp::Init()
 	if (!mTerrainModel)
 		return false;
 
-	result = mTerrainModel->Init(mDevice);
+	result = mTerrainModel->Init(mDevice, &mQuadTree);
 	if (!result)
 		return false;
 
@@ -365,6 +394,17 @@ bool InitDirect3DApp::Init()
 		return false;
 	}
 	
+	mBoundingBoxShader = new BoundingBoxShader();
+	if (!mBoundingBoxShader)
+		return false;
+
+	result = mBoundingBoxShader->Init(mDevice);
+	if (!result)
+	{
+		MessageBox(0, L"Failed init boundingbox shader", 0, 0);
+		return false;
+	}
+	
 	return true;
 
 }
@@ -379,15 +419,29 @@ void InitDirect3DApp::OnResize()
 
 void InitDirect3DApp::UpdateScene(float dt)
 {
-	TransformationClass* temp = mObject->GetTransformation();
-	XMFLOAT3 rot = temp->GetRotation();
-	XMFLOAT3 pos = temp->GetPosition();
+	TransformationClass* temp = 0;
+	XMFLOAT3 rot;
+	XMFLOAT3 pos;
+	for (UINT i = 0; i < mNRofObjects; i++)
+	{
+		temp = mObject[i]->GetTransformation();
+		rot = temp->GetRotation();
+		pos = temp->GetPosition();
+		rot.y += dt*100;
+		pos.y = mTerrainModel->getHeightAtPoint(pos) + 0.5;
+
+
+		temp->SetRotation(rot);
+		temp->SetPosition(pos);
+
+		mObject[i]->Update();
+	}
+
 	//pos.y = 2;
 	//rot.y -= dt * 25;
 	//rot.x = 90;
 	//rot.z += dt * 25;
-	temp->SetRotation(rot);
-	temp->SetPosition(pos);
+
 
 	pos = mCamera->GetPosition();
 
@@ -416,12 +470,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 
 	mCamera->CalcViewMatrix();
 
-	TransformationClass * t = mObject->GetTransformation();
-	XMFLOAT3 p = t->GetPosition();
-	p.y = mTerrainModel->getHeightAtPoint(p)+ 0.5;
-	t->SetPosition(p);
-
-	mObject->Update();
+	
 }
 
 void InitDirect3DApp::handleInput()
@@ -441,28 +490,71 @@ void InitDirect3DApp::handleInput()
 void InitDirect3DApp::DrawScene()
 {
 	HRESULT hr;
-	bool result;
+	int result = 1;
 
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
+	BoundingFrustum f = mCamera->GetBoundingFrustum();
+	BoundingFrustum f2 = mPointLight[0]->GetBoundingFrustum();
+	UINT count = 0;
 
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-	result = mShadowmapShader->CreateShadowMap(mDeviceContext, mObject, mPointLight[0]);
-	if (!result)
+	mShadowmapShader->SetRTV(mDeviceContext);
+	mShadowmapShader->ClearRTV(mDeviceContext);
+	
+	for (UINT i = 0; i < mNRofObjects; i++)
 	{
-		MessageBox(0, L"Failed to Render Shaders", 0, 0);
-		return;
+		if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f2, 0))
+		{
+			result = mShadowmapShader->CreateShadowMap(mDeviceContext, mObject[i], mPointLight[0]);
+			if (!result)
+			{
+				MessageBox(0, L"Failed to Render Shaders", 0, 0);
+				return;
+			}
+		}
+
+
+
 	}
 
-	mDeferredBuffer->SetRenderTargets(mDeviceContext);
+	mShadowmapShader->UnbindRTV(mDeviceContext);
 
+	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-	mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+	for (UINT i = 0; i < mNRofObjects; i++)
+	{
+		if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f, 0))
+		{
+		/*	mObject->SetAsObjectToBeDrawn(mDeviceContext);
+			mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
-	mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+			*/
+
+			mDeferredShader->RenderDeferred(mDeviceContext, mObject[i], mCamera);
+
+			
+			count++;
+		}
+
+	}
+
+	
+
+	//mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	//result = mTerrainShader->RenderDeferred(
+	//	mDeviceContext,
+	//	mTerrain,
+	//	mCamera);
+
+	//if (!result)
+	//{
+	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
+	//	return;
+	//}
+
+	mTerrain->SetAsObjectToBeDrawn(mDeviceContext,0);
 	result = mTerrainShader->RenderShadowsDeferred(
 		mDeviceContext,
 		mTerrain,
@@ -470,13 +562,48 @@ void InitDirect3DApp::DrawScene()
 		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
 
+	//result = mQuadTree->RenderAgainsQuadTree(
+	//	mDeviceContext,
+	//	mTerrainShader,
+	//	mTerrain,
+	//	mCamera,
+	//	mPointLight[0],
+	//	mShadowmapShader->GetShaderResourceView());
+
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
 	}
 
+
+	static int frameCnt = 0;
+	static float timeElapsed = 0.0f;
+
+	frameCnt++;
+
+	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
+	{
+		float fps = (float)frameCnt;
+		float mspf = 1000.0f / fps;
+
+		std::wostringstream outs;
+		outs.precision(6);
+		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms" << " Rendering: " << count << " models" << " Terrain: " << result;
+		SetWindowText(mhMainWnd, outs.str().c_str());
+
+
+		frameCnt = 0;
+		timeElapsed += 1.0f;
+	}
+
+
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
+
+	
+	
+
+
 
 	// Clear back buffer blue.
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
@@ -485,7 +612,7 @@ void InitDirect3DApp::DrawScene()
 	mDeferredShader->Render(
 		mDeviceContext, 
 		mDeferredBuffer,
-		mObject,
+		mObject[0],
 		mCamera,
 		mPointLight,
 		mLightCount,
@@ -496,21 +623,19 @@ void InitDirect3DApp::DrawScene()
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
 
+	//for (UINT i = 0; i < mNRofObjects; i++)
+	//{
+	//	mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, -1);
+	//	result = mBoundingBoxShader->Render(mDeviceContext, mObject[i], mCamera);
 
+	//	if (!result)
+	//	{
+	//		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+	//		return;
+	//	}
+	//}
 
 	
-
-	/*if (mTerrain->SetAsObjectToBeDrawn(mDeviceContext, mCamera->GetBoundingFrustrum()))
-	{
-		result = mTerrainShader->Render(
-			mDeviceContext,
-			mTerrain,
-			mCamera,
-			mSun,
-			mObject->GetMaterial(),
-			mDrawDistFog);
-	}*/
-
 
 	/*mFirework->render(mDeviceContext);
 
@@ -573,10 +698,10 @@ void InitDirect3DApp::DrawScene()
 
 	for (int i = 0; i < BUFFER_COUNT-1; i++)
 	{
-		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext);
+		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
 		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mDeferredBuffer->GetShaderResourceView(i));
 	}
-	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext);
+	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
 	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mShadowmapShader->GetShaderResourceView());
 
 	// Present the back buffer to the screen

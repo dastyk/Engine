@@ -1,171 +1,168 @@
 #include "QuadTree.h"
 
 
-QuadTree::QuadTree(int pointCount, const XMFLOAT3* pPoints, int indexCount, unsigned long* pIndices, int width, int depth)
+QuadTree::QuadTree()
 {
-	AABB::createFromPoints(pointCount, pPoints);
-
-	mIndexCount = indexCount;
-
-	mIndices = new unsigned long[mIndexCount];
-	for (int i = 0; i < mIndexCount; i++)
+	mObjects = 0;
+	mObjectCount = 0;
+	mIndexCount = 0;
+	mIndexStart = 0;
+	mParent = 0;
+	for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
 	{
-		mIndices[i] = pIndices[i];
+		mChildren[i] = 0;
 	}
-
-	QuadTree::createChildren(width, depth, width, depth, 0, 0, pIndices);
 }
 
-QuadTree::QuadTree(XMVECTOR p1, XMVECTOR p2, int indexCount, unsigned long* pIndices, int wOffset, int dOffset, int width, int depth, int fWidth, int fDepth)
-{
-	AABB::createFromPoints(p1, p2);
-
-	mIndexCount = indexCount / 4;
-	int nWidth = width / 2;
-	int nDepth = depth / 2;
-
-	if (mIndexCount <= QUAD_SIZE_MIN)
-	{
-		mIndices = new unsigned long[mIndexCount];
-
-		int count = 0;
-		for (int j = 0; j < nDepth; j++)
-		{
-			for (int i = 0; i < nWidth; i++)
-			{
-				int d = ((dOffset + j)*fWidth + (wOffset + i)) * 6;
-				for (int u = 0; u < 6; u++)
-				{
-					unsigned long test = pIndices[d + u];
-					mIndices[count] = test;
-					count++;
-				}
-			}
-		}
-	}
-	else
-		createChildren(nWidth, nDepth,fWidth,fDepth, wOffset, dOffset, pIndices);
-
-
-}
 
 QuadTree::~QuadTree()
 {
-	for (int i = 0; i < 4; i++)
+	for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
 	{
 		if (mChildren[i])
+		{
 			delete mChildren[i];
-	}
-	if (mIndices)
-	{
-		delete mIndices;
-		mIndices = 0;
+			mChildren[i] = 0;
+		}
+		
 	}
 }
 
-void QuadTree::createChildren(int width, int depth, int fWidth, int fDepth, int wOffset, int dOffset, unsigned long* pIndices)
+
+bool QuadTree::Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UINT indexCount)
 {
+	bool result;
+	BoundingBox::CreateFromPoints(mBox, pointCount, pPoints, stride);
+	
+	mParent = 0;
+	mIndexCount = indexCount;
+	mIndexStart = 0;
+
+	result = createChildren();
+	if (!result)
+		return false;
+
+	return true;
+}
+
+bool QuadTree::Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart)
+{
+	bool result;
+	BoundingBox::CreateFromPoints(mBox, p1, p2);
+	mParent = pParent;
+	mIndexCount = indexCount;
+	mIndexStart = indexStart;
+
+	if (!(mIndexCount <= QUAD_SIZE_MIN))
+	{
+		result = createChildren();
+		if (!result)
+			return false;
+	}
+
+
+	return true;
+}
+
+bool QuadTree::createChildren()
+{
+	bool result;
 	XMFLOAT3 c = mBox.Center;
 	XMFLOAT3 e = mBox.Extents;
+	UINT index = mIndexCount / 4;
 
-	int nwOffset = wOffset;
-	int ndOffset = dOffset + depth / 2;
+	for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+	{
+		mChildren[i] = new QuadTree;
+	}
 
-	// Top Left Box
-	mChildren[0] = new QuadTree(
+	// Top left box
+	result = mChildren[0]->Init(
 		XMVectorSet(c.x - e.x, c.y - e.y, c.z, 0),
 		XMVectorSet(c.x, c.y + e.y, c.z + e.z, 0),
-		mIndexCount,
-		pIndices,
-		nwOffset,
-		ndOffset,
-		width,
-		depth,
-		fWidth,
-		fDepth);
+		this,
+		index,
+		index * 2
+		);
+	if (!result)
+		return false;
 
-	nwOffset = wOffset + width / 2;
-	ndOffset = dOffset + depth / 2;
-
-	// Top Right Box
-	mChildren[1] = new QuadTree(
+	// Top right box
+	result = mChildren[1]->Init(
 		XMVectorSet(c.x, c.y - e.y, c.z, 0),
 		XMVectorSet(c.x + e.x, c.y + e.y, c.z + e.y, 0),
-		mIndexCount,
-		pIndices,
-		nwOffset,
-		ndOffset,
-		width,
-		depth,
-		fWidth,
-		fDepth);
+		this,
+		index,
+		index * 3
+		);
+	if (!result)
+		return false;
 
-	nwOffset = wOffset;
-	ndOffset = dOffset;
-
-	// Bottom Left Box
-	mChildren[2] = new QuadTree(
+	// bottom left box
+	result = mChildren[2]->Init(
 		XMVectorSet(c.x - e.x, c.y - e.y, c.z - e.z, 0),
 		XMVectorSet(c.x, c.y + e.y, c.z, 0),
-		mIndexCount,
-		pIndices,
-		nwOffset,
-		ndOffset,
-		width,
-		depth,
-		fWidth,
-		fDepth);
+		this,
+		index,
+		index * 0
+		);
+	if (!result)
+		return false;
 
-	nwOffset = wOffset + width / 2;
-	ndOffset = dOffset;
-
-	// Bottom Right Box
-	mChildren[3] = new QuadTree(
+	// bottom right box
+	result = mChildren[3]->Init(
 		XMVectorSet(c.x, c.y - e.y, c.z - e.z, 0),
 		XMVectorSet(c.x + e.x, c.y + e.y, c.z, 0),
-		mIndexCount,
-		pIndices,
-		nwOffset,
-		ndOffset,
-		width,
-		depth,
-		fWidth,
-		fDepth);
+		this,
+		index,
+		index * 1
+		);
+	if (!result)
+		return false;
 
+	return true;
 }
 
-bool QuadTree::GetIndexArray(int& indexCount, unsigned long* pIndices, BoundingFrustum& frustum)
+int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap)
 {
-	if (Intersect(frustum))
+	int count = 0;
+	BoundingFrustum f = pCamera->GetBoundingFrustum();
+	int result = f.Contains(mBox);
+	if (result == 2 || (!mChildren[0]))
 	{
-		if (mChildren[0])
+		// Render the whole thing
+		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
+		result = pShader->RenderShadowsDeferred(
+			pDeviceContext,
+			pObject,
+			pCamera,
+			pLights,
+			pShadowmap,
+			mIndexCount,
+			mIndexStart);
+		if (!result)
+			return 0;
+
+		return 1;
+		
+	}
+	else if (result == 1)
+	{
+		// check children
+		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
+		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
 		{
-			int iCount = 0;
-			for (int i = 0; i < 4; i++)
-			{
-				if (mChildren[i]->GetIndexArray(indexCount, pIndices, frustum))
-				{
-					iCount += indexCount;
-				}
-				indexCount = iCount;
-			}
-			
+			result = mChildren[i]->RenderAgainsQuadTree(pDeviceContext, pShader, pObject, pCamera, pLights, pShadowmap);
+			if (!result)
+				return 0;
+			count += result;
 		}
-		else
-		{
-			for (int i = 0; i < mIndexCount; i++)
-			{
-				pIndices[indexCount + i] = mIndices[i];
-			}
-			indexCount = mIndexCount;
-		}
-		return true;
+		return count;
 	}
 	else
 	{
-		indexCount = 0;
-		return false;
-	}
+		// Render nothing
 
-	
+		return 0;
+	}
 }

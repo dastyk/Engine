@@ -20,8 +20,8 @@ public:
 	void SetModel(ModelClass* pModel);
 
 	void Update();
-	void SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext);
-	bool SetAsObjectToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum);
+	void SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext, int flag);
+	bool SetAsObjectToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum, int flag);
 
 	XMFLOAT4X4 GetWorldMatrix()const;
 	XMFLOAT4X4 GetNormalMatrix()const;
