@@ -59,7 +59,7 @@ bool ShadowMapClass::CreateShadowMap(ID3D11DeviceContext* pDeviceContext, Object
 	pDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
 	pDeviceContext->OMSetRenderTargets(1, &mRTV, mDSV);
 
-	float color[] = { 0, 0, 0, 0 };
+	float color[] = { 1, 0, 0, 0 };
 
 	pDeviceContext->ClearRenderTargetView(mRTV, color);
 	pDeviceContext->ClearDepthStencilView(mDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -194,6 +194,16 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	{
 		return false;
 	}
+
+
+	// Setup the viewport for rendering.
+	mViewport.Width = (float)w*2;
+	mViewport.Height = (float)h*2;
+	mViewport.MinDepth = 0.0f;
+	mViewport.MaxDepth = 1.0f;
+	mViewport.TopLeftX = 0.0f;
+	mViewport.TopLeftY = 0.0f;
+
 	return true;
 
 }

@@ -23,6 +23,7 @@ private:
 	ID3D11RenderTargetView* mRTV;
 	ID3D11ShaderResourceView* mSRV;
 	ID3D11DepthStencilView* mDSV;
+	D3D11_VIEWPORT mViewport;
 };
 
 #endif
