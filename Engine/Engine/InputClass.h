@@ -7,6 +7,7 @@
 #define VK_A 0x41
 #define VK_S 0x53
 #define VK_D 0x44
+#define VK_C 0x43
 
 #include <Windows.h>
 

@@ -573,3 +573,9 @@ AnimClipRead* ModelClass::GetAnimationClips()const
 {
 	return mAnimationClips;
 }
+
+
+BoundingBox ModelClass::GetBoundingBox()const
+{
+	return mBox->GetBoundingBox();
+}

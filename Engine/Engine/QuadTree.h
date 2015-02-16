@@ -9,6 +9,7 @@
 
 #include "ObjectClass.h"
 #include "TerrainShaderClass.h"
+#include "DeferredShaderClass.h"
 
 class QuadTree
 {
@@ -19,14 +20,21 @@ public:
 	bool Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UINT indexCount);
 
 
-	int RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap);
+	int RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, DeferredShaderClass* pOShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap);
 
+	void AddModels(ObjectClass** ppObject, UINT nrOfObjects);
+	bool AddModel(ObjectClass* pObject);
+	void CopyFromVectorToArray();
 private:
 	bool createChildren();
 	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart);
+	
+	bool AddModelHelper(ObjectClass* pObject);
 
+	
 
 private:
+	vector<ObjectClass*> mTObjects;
 	ObjectClass** mObjects;
 	UINT mObjectCount;
 

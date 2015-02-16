@@ -22,6 +22,8 @@ public:
 	void Update();
 	void SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext, int flag);
 	bool SetAsObjectToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum, int flag);
+	BoundingBox GetBoundingBox()const;
+
 
 	XMFLOAT4X4 GetWorldMatrix()const;
 	XMFLOAT4X4 GetNormalMatrix()const;

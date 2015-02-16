@@ -19,7 +19,9 @@ public:
 	XMFLOAT4X4 GetViewMatrix()const;
 	XMFLOAT4X4 GetProjMatrix()const;
 	BoundingFrustum GetBoundingFrustum()const;
-
+	void ToggleDC();
+	void SetDC(bool);
+	bool GetDC();
 
 	void CalcViewMatrix();
 	
@@ -27,10 +29,13 @@ private:
 	XMFLOAT4X4 mViewMatrix;
 	XMFLOAT4X4 mProjMatrix;
 	XMFLOAT4X4 mInvViewMatrix;
+	XMFLOAT4X4 mLastInvViewMatrix;
 
 	float mFoV, mAspectRatio, mNearPlane, mFarPlane;
 
 	BoundingFrustum mFrustum;
+
+	bool mDc;
 };
 
 #endif

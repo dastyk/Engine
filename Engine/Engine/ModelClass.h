@@ -27,7 +27,7 @@ public:
 
 	void SetAsModelToBeDrawn(ID3D11DeviceContext*, int flag);
 	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum, int flag);
-
+	BoundingBox GetBoundingBox()const;
 
 	virtual UINT GetIndexCount()const;
 

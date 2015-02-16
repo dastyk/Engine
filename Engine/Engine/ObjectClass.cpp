@@ -253,3 +253,14 @@ void ObjectClass::Animate(XMFLOAT4X4** mBL)
 	//	XMStoreFloat4x4(&m[i], XMMatrixTranspose(bP*fin));
 	//}
 }
+
+BoundingBox ObjectClass::GetBoundingBox()const
+{
+	BoundingBox b = mModel->GetBoundingBox();
+
+	XMMATRIX w = XMLoadFloat4x4(&mTransform->GetWorldMatrix());
+
+	b.Transform(b, w);
+
+	return b;
+}

@@ -17,6 +17,12 @@ QuadTree::QuadTree()
 
 QuadTree::~QuadTree()
 {
+
+	if (mObjects)
+	{
+		delete[] mObjects;
+		mObjects = 0;
+	}
 	for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
 	{
 		if (mChildren[i])
@@ -128,35 +134,8 @@ bool QuadTree::createChildren()
 	return true;
 }
 
-int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap)
+int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, DeferredShaderClass* pOShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap)
 {
-	//int result = 0;
-	//int count = 0;
-	//if (mChildren[0])
-	//{
-	//	for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
-	//	{
-	//		result = mChildren[i]->RenderAgainsQuadTree(pDeviceContext, pShader, pObject, pCamera, pLights, pShadowmap);
-	//		count += result;
-	//	}
-
-	//	return count;
-	//}
-	//else
-	//{
-	//	pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
-	//	result = pShader->RenderShadowsDeferred(
-	//		pDeviceContext,
-	//		pObject,
-	//		pCamera,
-	//		pLights,
-	//		pShadowmap,
-	//		mIndexCount,
-	//		mIndexStart);
-
-	//		return 1;
-	//}
-
 	int count = 0;
 	BoundingFrustum f = pCamera->GetBoundingFrustum();
 	int result = f.Contains(mBox);
@@ -181,6 +160,18 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		if (!result)
 			return -1;
 
+
+		
+
+		for (UINT i = 0; i < mObjectCount; i++)
+		{
+
+			if (mObjects[i]->SetAsObjectToBeDrawn(pDeviceContext, f, 0))
+			{
+				pOShader->RenderDeferred(pDeviceContext, mObjects[i], pCamera);
+			}
+
+		}
 		return 1;
 		
 	}
@@ -190,7 +181,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		//pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
 		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
 		{
-			result = mChildren[i]->RenderAgainsQuadTree(pDeviceContext, pShader, pObject, pCamera, pLights, pShadowmap);
+			result = mChildren[i]->RenderAgainsQuadTree(pDeviceContext, pShader, pOShader, pObject, pCamera, pLights, pShadowmap);
 			if (result == -1)
 				return -1;
 			count += result;
@@ -198,4 +189,67 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		return count;
 	}
 	
+}
+
+void QuadTree::AddModels(ObjectClass** ppObject, UINT nrOfObjects)
+{
+	for (UINT i = 0; i < nrOfObjects; i++)
+	{
+		AddModel(ppObject[i]);
+	}
+
+	CopyFromVectorToArray();
+
+}
+
+bool QuadTree::AddModel(ObjectClass* pObject)
+{
+	BoundingBox b = pObject->GetBoundingBox();
+
+	int result = mBox.Intersects(b);
+	if (result)
+	{
+		mTObjects.push_back(pObject);
+		AddModelHelper(pObject);
+		return true;		
+	}
+
+	return false;
+}
+
+bool QuadTree::AddModelHelper(ObjectClass* pObject)
+{
+	
+	if (mChildren[0])
+	{
+		for (UINT j = 0; j < QUAD_TREE_CHILDREN_COUNT; j++)
+		{
+			if (mChildren[j]->AddModel(pObject))
+				return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void QuadTree::CopyFromVectorToArray()
+{
+	mObjectCount = mTObjects.size();
+	mObjects = new ObjectClass*[mObjectCount];
+
+	for (UINT i = 0; i < mObjectCount; i++)
+	{
+		mObjects[i] = mTObjects[i];
+	}
+	if (mChildren[0])
+	{
+		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+		{
+			mChildren[i]->CopyFromVectorToArray();
+		}
+	}
+
+	//mTObjects.clear();
 }

@@ -298,6 +298,10 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
+	
+
+
+
 	mParticleShader = new ParticleShaderClass;
 	if (!mParticleShader)
 		return false;
@@ -405,6 +409,18 @@ bool InitDirect3DApp::Init()
 		return false;
 	}
 	
+
+	
+	TransformationClass* temp;
+	for (UINT i = 0; i < mNRofObjects; i++)
+	{
+		temp = mObject[i]->GetTransformation();
+		pos = temp->GetPosition();
+		pos.y = mTerrainModel->getHeightAtPoint(pos) + 0.5;
+		temp->SetPosition(pos);
+	}
+
+	mQuadTree->AddModels(mObject, mNRofObjects);
 	return true;
 
 }
@@ -485,6 +501,7 @@ void InitDirect3DApp::handleInput()
 	{
 		PostQuitMessage(0);
 	}
+	mCamera->SetDC(mInput->isKeyDown(VK_C));
 }
 
 void InitDirect3DApp::DrawScene()
@@ -523,22 +540,22 @@ void InitDirect3DApp::DrawScene()
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	for (UINT i = 0; i < mNRofObjects; i++)
-	{
-		if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f, 0))
-		{
-		/*	mObject->SetAsObjectToBeDrawn(mDeviceContext);
-			mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+	//for (UINT i = 0; i < mNRofObjects; i++)
+	//{
+	//	if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f, 0))
+	//	{
+	//	/*	mObject->SetAsObjectToBeDrawn(mDeviceContext);
+	//		mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
-			*/
+	//		*/
 
-			mDeferredShader->RenderDeferred(mDeviceContext, mObject[i], mCamera);
+	//		mDeferredShader->RenderDeferred(mDeviceContext, mObject[i], mCamera);
 
-			
-			count++;
-		}
+	//		
+	//		count++;
+	//	}
 
-	}
+	//}
 
 	
 
@@ -565,6 +582,7 @@ void InitDirect3DApp::DrawScene()
 	result = mQuadTree->RenderAgainsQuadTree(
 		mDeviceContext,
 		mTerrainShader,
+		mDeferredShader,
 		mTerrain,
 		mCamera,
 		mPointLight[0],

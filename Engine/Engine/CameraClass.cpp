@@ -7,6 +7,7 @@ CameraClass::CameraClass() : PositionClass()
 	XMStoreFloat4x4(&mViewMatrix, I);
 	XMStoreFloat4x4(&mProjMatrix, I);
 	XMStoreFloat4x4(&mInvViewMatrix, I);
+	XMStoreFloat4x4(&mLastInvViewMatrix, I);
 }
 
 
@@ -36,6 +37,8 @@ void CameraClass::CalcViewMatrix()
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(position, lookAt, up);
 	XMStoreFloat4x4(&mViewMatrix, viewMatrix);
 	XMStoreFloat4x4(&mInvViewMatrix, XMMatrixInverse(nullptr, viewMatrix));
+	if (!mDc)
+		XMStoreFloat4x4(&mLastInvViewMatrix, XMMatrixInverse(nullptr, viewMatrix));
 
 	return;
 }
@@ -83,8 +86,32 @@ XMFLOAT4X4 CameraClass::GetProjMatrix()const
 
 BoundingFrustum CameraClass::GetBoundingFrustum()const
 {
-	XMMATRIX invView = XMLoadFloat4x4(&mInvViewMatrix);
+	XMMATRIX invView;// = XMLoadFloat4x4(&mInvViewMatrix);
 	BoundingFrustum f;
+	if (mDc)
+	{
+		invView = XMLoadFloat4x4(&mLastInvViewMatrix);
+	}
+	else
+	{
+		invView = XMLoadFloat4x4(&mInvViewMatrix);
+	}
+	
 	mFrustum.Transform(f, invView);
 	return f;
+}
+
+void CameraClass::ToggleDC()
+{
+	mDc = (mDc) ? false : true;
+}
+
+void CameraClass::SetDC(bool b)
+{
+	mDc = b;
+}
+
+bool CameraClass::GetDC()
+{
+	return mDc;
 }
