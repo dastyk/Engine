@@ -2,6 +2,9 @@
 #define _SHADOWMAPCLASS_H_
 
 #pragma once
+
+#define SHADOW_DETAIL 8
+
 #include "ShaderClass.h"
 class ShadowMapClass :
 	public ShaderClass
@@ -26,10 +29,11 @@ private:
 	ID3D11RenderTargetView* mRTV;
 	ID3D11ShaderResourceView* mSRV;
 	ID3D11DepthStencilView* mDSV;
+	D3D11_VIEWPORT mViewport;
 
 	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
 	ID3D11DepthStencilView* prevDSV = nullptr;
-	D3D11_VIEWPORT mViewport;
+	D3D11_VIEWPORT prevVP;
 };
 
 #endif

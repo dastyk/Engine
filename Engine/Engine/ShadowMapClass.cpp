@@ -64,9 +64,11 @@ bool ShadowMapClass::CreateShadowMap(ID3D11DeviceContext* pDeviceContext, Object
 
 void  ShadowMapClass::SetRTV(ID3D11DeviceContext* pDeviceContext)
 {
-
+	UINT i = 1;
+	pDeviceContext->RSGetViewports(&i, &prevVP);
 	pDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
 	pDeviceContext->OMSetRenderTargets(1, &mRTV, mDSV);
+	pDeviceContext->RSSetViewports(1, &mViewport);
 
 }
 void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
@@ -80,6 +82,7 @@ void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
 void  ShadowMapClass::UnbindRTV(ID3D11DeviceContext* pDeviceContext)
 {
 	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, prevDSV);
+	pDeviceContext->RSSetViewports(1, &prevVP);
 }
 
 bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFile, float w, float h)
@@ -111,8 +114,8 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
 
 	// Setup the render target texture description.
-	textureDesc.Width = w;
-	textureDesc.Height = h;
+	textureDesc.Width = w*SHADOW_DETAIL;
+	textureDesc.Height = h*SHADOW_DETAIL;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R32_TYPELESS; //DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -168,8 +171,8 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 
 	// Set up the description of the depth buffer.
-	depthBufferDesc.Width = w;
-	depthBufferDesc.Height = h;
+	depthBufferDesc.Width = w*SHADOW_DETAIL;
+	depthBufferDesc.Height = h*SHADOW_DETAIL;
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -206,8 +209,8 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 
 
 	// Setup the viewport for rendering.
-	mViewport.Width = (float)w*2;
-	mViewport.Height = (float)h*2;
+	mViewport.Width = (float)w*SHADOW_DETAIL;
+	mViewport.Height = (float)h * SHADOW_DETAIL;
 	mViewport.MinDepth = 0.0f;
 	mViewport.MaxDepth = 1.0f;
 	mViewport.TopLeftX = 0.0f;
