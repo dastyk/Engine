@@ -48,6 +48,11 @@ bool QuadTree::Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UIN
 bool QuadTree::Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart)
 {
 	bool result;
+
+	XMFLOAT3 f1, f2;  
+	XMStoreFloat3(&f1, p1);
+	XMStoreFloat3(&f2, p2);
+
 	BoundingBox::CreateFromPoints(mBox, p1, p2);
 	mParent = pParent;
 	mIndexCount = indexCount;
@@ -82,7 +87,7 @@ bool QuadTree::createChildren()
 		XMVectorSet(c.x, c.y + e.y, c.z + e.z, 0),
 		this,
 		index,
-		index * 2
+		mIndexStart + index * 2
 		);
 	if (!result)
 		return false;
@@ -90,10 +95,10 @@ bool QuadTree::createChildren()
 	// Top right box
 	result = mChildren[1]->Init(
 		XMVectorSet(c.x, c.y - e.y, c.z, 0),
-		XMVectorSet(c.x + e.x, c.y + e.y, c.z + e.y, 0),
+		XMVectorSet(c.x + e.x, c.y + e.y, c.z + e.z, 0),
 		this,
 		index,
-		index * 3
+		mIndexStart + index * 3
 		);
 	if (!result)
 		return false;
@@ -104,7 +109,7 @@ bool QuadTree::createChildren()
 		XMVectorSet(c.x, c.y + e.y, c.z, 0),
 		this,
 		index,
-		index * 0
+		mIndexStart + index * 0
 		);
 	if (!result)
 		return false;
@@ -115,7 +120,7 @@ bool QuadTree::createChildren()
 		XMVectorSet(c.x + e.x, c.y + e.y, c.z, 0),
 		this,
 		index,
-		index * 1
+		mIndexStart + index * 1
 		);
 	if (!result)
 		return false;
@@ -125,10 +130,43 @@ bool QuadTree::createChildren()
 
 int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap)
 {
+	//int result = 0;
+	//int count = 0;
+	//if (mChildren[0])
+	//{
+	//	for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+	//	{
+	//		result = mChildren[i]->RenderAgainsQuadTree(pDeviceContext, pShader, pObject, pCamera, pLights, pShadowmap);
+	//		count += result;
+	//	}
+
+	//	return count;
+	//}
+	//else
+	//{
+	//	pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
+	//	result = pShader->RenderShadowsDeferred(
+	//		pDeviceContext,
+	//		pObject,
+	//		pCamera,
+	//		pLights,
+	//		pShadowmap,
+	//		mIndexCount,
+	//		mIndexStart);
+
+	//		return 1;
+	//}
+
 	int count = 0;
 	BoundingFrustum f = pCamera->GetBoundingFrustum();
 	int result = f.Contains(mBox);
-	if (result == 2 || (!mChildren[0]))
+	if (result == 0)
+	{
+		// Render nothing
+
+		return 0;
+	}
+	else if (result == 2 || (!mChildren[0]))
 	{
 		// Render the whole thing
 		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
@@ -141,7 +179,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 			mIndexCount,
 			mIndexStart);
 		if (!result)
-			return 0;
+			return -1;
 
 		return 1;
 		
@@ -149,20 +187,15 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 	else if (result == 1)
 	{
 		// check children
-		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
+		//pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
 		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
 		{
 			result = mChildren[i]->RenderAgainsQuadTree(pDeviceContext, pShader, pObject, pCamera, pLights, pShadowmap);
-			if (!result)
-				return 0;
+			if (result == -1)
+				return -1;
 			count += result;
 		}
 		return count;
 	}
-	else
-	{
-		// Render nothing
-
-		return 0;
-	}
+	
 }

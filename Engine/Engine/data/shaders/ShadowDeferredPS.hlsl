@@ -26,7 +26,6 @@ struct PS_OUT
 PS_OUT PSMain(PS_IN input)
 {
 	PS_OUT output;
-
 	input.LPos.xy /= input.LPos.w;
 	float2 smTex = float2(0.5*input.LPos.x + 0.5f, -0.5f*input.LPos.y + 0.5f);
 		float depth = input.LPos.z / input.LPos.w;
@@ -35,7 +34,6 @@ PS_OUT PSMain(PS_IN input)
 	float sCont = 1;
 	if (lDepth < 1)
 	{
-
 		if (lDepth + SHADOW_EPSILON < depth)
 			sCont = 0.3;
 	}

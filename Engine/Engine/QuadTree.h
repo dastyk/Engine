@@ -4,7 +4,7 @@
 #pragma once
 
 #define QUAD_TREE_CHILDREN_COUNT 4
-#define QUAD_SIZE_MIN 98304
+#define QUAD_SIZE_MIN 24576
 
 
 #include "ObjectClass.h"

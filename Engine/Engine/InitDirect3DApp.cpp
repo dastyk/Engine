@@ -254,7 +254,7 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mNRofObjects = 10;
+	mNRofObjects = 100;
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
@@ -554,28 +554,28 @@ void InitDirect3DApp::DrawScene()
 	//	return;
 	//}
 
-	mTerrain->SetAsObjectToBeDrawn(mDeviceContext,0);
-	result = mTerrainShader->RenderShadowsDeferred(
-		mDeviceContext,
-		mTerrain,
-		mCamera,
-		mPointLight[0],
-		mShadowmapShader->GetShaderResourceView());
-
-	//result = mQuadTree->RenderAgainsQuadTree(
+	//mTerrain->SetAsObjectToBeDrawn(mDeviceContext,0);
+	//result = mTerrainShader->RenderShadowsDeferred(
 	//	mDeviceContext,
-	//	mTerrainShader,
 	//	mTerrain,
 	//	mCamera,
 	//	mPointLight[0],
 	//	mShadowmapShader->GetShaderResourceView());
 
-	if (!result)
+	result = mQuadTree->RenderAgainsQuadTree(
+		mDeviceContext,
+		mTerrainShader,
+		mTerrain,
+		mCamera,
+		mPointLight[0],
+		mShadowmapShader->GetShaderResourceView());
+
+	/*if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
 	}
-
+*/
 
 	static int frameCnt = 0;
 	static float timeElapsed = 0.0f;
