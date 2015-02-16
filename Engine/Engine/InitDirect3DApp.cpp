@@ -65,6 +65,7 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	srand(time(NULL));
 
 	mShadowmapShader = 0;
+	mBoundingBoxShader = 0;
 }
 
 
@@ -197,7 +198,11 @@ InitDirect3DApp::~InitDirect3DApp()
 		delete mShadowmapShader;
 		mShadowmapShader = 0;
 	}
-	
+	if (mBoundingBoxShader)
+	{
+		delete mBoundingBoxShader;
+		mBoundingBoxShader = 0;
+	}
 
 }
 
@@ -249,7 +254,7 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mNRofObjects = 100;
+	mNRofObjects = 10;
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
@@ -389,6 +394,17 @@ bool InitDirect3DApp::Init()
 		return false;
 	}
 	
+	mBoundingBoxShader = new BoundingBoxShader();
+	if (!mBoundingBoxShader)
+		return false;
+
+	result = mBoundingBoxShader->Init(mDevice);
+	if (!result)
+	{
+		MessageBox(0, L"Failed init boundingbox shader", 0, 0);
+		return false;
+	}
+	
 	return true;
 
 }
@@ -474,7 +490,7 @@ void InitDirect3DApp::handleInput()
 void InitDirect3DApp::DrawScene()
 {
 	HRESULT hr;
-	int result;
+	int result = 1;
 
 	assert(mDeviceContext);
 	assert(mSwapChain);
@@ -488,7 +504,7 @@ void InitDirect3DApp::DrawScene()
 	
 	for (UINT i = 0; i < mNRofObjects; i++)
 	{
-		if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f2, 1))
+		if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f2, 0))
 		{
 			result = mShadowmapShader->CreateShadowMap(mDeviceContext, mObject[i], mPointLight[0]);
 			if (!result)
@@ -511,18 +527,17 @@ void InitDirect3DApp::DrawScene()
 	{
 		if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f, 0))
 		{
-			//mObject->SetAsObjectToBeDrawn(mDeviceContext);
-			//mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
+		/*	mObject->SetAsObjectToBeDrawn(mDeviceContext);
+			mDeferredShader->RenderDeferred(mDeviceContext, mObject, mCamera);
 
-			
+			*/
 
 			mDeferredShader->RenderDeferred(mDeviceContext, mObject[i], mCamera);
 
 			
-
-
 			count++;
 		}
+
 	}
 
 	
@@ -539,27 +554,27 @@ void InitDirect3DApp::DrawScene()
 	//	return;
 	//}
 
-	/*mTerrain->SetAsObjectToBeDrawn(mDeviceContext);
+	mTerrain->SetAsObjectToBeDrawn(mDeviceContext,0);
 	result = mTerrainShader->RenderShadowsDeferred(
 		mDeviceContext,
 		mTerrain,
 		mCamera,
 		mPointLight[0],
-		mShadowmapShader->GetShaderResourceView());*/
-
-	result = mQuadTree->RenderAgainsQuadTree(
-		mDeviceContext,
-		mTerrainShader,
-		mTerrain,
-		mCamera,
-		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
 
-	//if (!result)
-	//{
-	//	MessageBox(0, L"Failed to Render Shaders", 0, 0);
-	//	return;
-	//}
+	//result = mQuadTree->RenderAgainsQuadTree(
+	//	mDeviceContext,
+	//	mTerrainShader,
+	//	mTerrain,
+	//	mCamera,
+	//	mPointLight[0],
+	//	mShadowmapShader->GetShaderResourceView());
+
+	if (!result)
+	{
+		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+		return;
+	}
 
 
 	static int frameCnt = 0;
@@ -574,7 +589,7 @@ void InitDirect3DApp::DrawScene()
 
 		std::wostringstream outs;
 		outs.precision(6);
-		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms" << " Rendering: " << count << " models" << "Terrain: " << result;
+		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms" << " Rendering: " << count << " models" << " Terrain: " << result;
 		SetWindowText(mhMainWnd, outs.str().c_str());
 
 
@@ -584,6 +599,11 @@ void InitDirect3DApp::DrawScene()
 
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
+
+	
+	
+
+
 
 	// Clear back buffer blue.
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
@@ -603,7 +623,17 @@ void InitDirect3DApp::DrawScene()
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
 
+	//for (UINT i = 0; i < mNRofObjects; i++)
+	//{
+	//	mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, -1);
+	//	result = mBoundingBoxShader->Render(mDeviceContext, mObject[i], mCamera);
 
+	//	if (!result)
+	//	{
+	//		MessageBox(0, L"Failed to Render Shaders", 0, 0);
+	//		return;
+	//	}
+	//}
 
 	
 
@@ -668,10 +698,10 @@ void InitDirect3DApp::DrawScene()
 
 	for (int i = 0; i < BUFFER_COUNT-1; i++)
 	{
-		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext);
+		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
 		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mDeferredBuffer->GetShaderResourceView(i));
 	}
-	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext);
+	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
 	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mShadowmapShader->GetShaderResourceView());
 
 	// Present the back buffer to the screen

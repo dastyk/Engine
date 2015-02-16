@@ -11,6 +11,10 @@
 
 using namespace DirectX;
 
+struct BoundingVertex
+{
+	XMFLOAT3 Pos;
+};
 
 class ModelClass
 {
@@ -21,7 +25,7 @@ public:
 
 	
 
-	void SetAsModelToBeDrawn(ID3D11DeviceContext*);
+	void SetAsModelToBeDrawn(ID3D11DeviceContext*, int flag);
 	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum, int flag);
 
 
@@ -45,6 +49,7 @@ public:
 protected:
 	bool createVertexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
 	bool createVertexBuffer(ID3D11Device* pDevice, ID3D11Buffer **ppBuffer, UINT byteWidth);
+	bool createVertexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, ID3D11Buffer **ppBuffer, UINT);
 	bool createIndexBuffer(ID3D11Device*, D3D11_SUBRESOURCE_DATA*, UINT);
 	bool createIndexBuffer(ID3D11Device*, ID3D11Buffer**, UINT);
 	bool createIndexBuffer(ID3D11Device* pDevice, D3D11_SUBRESOURCE_DATA* pData, ID3D11Buffer **ppBuffer, UINT byteWidth);
@@ -59,6 +64,7 @@ protected:
 	AnimClipRead* mAnimationClips;
 
 	AABB* mBox;
+	ID3D11Buffer* mBoundingBoxVBuffer, *mBoundingBoxIBuffer;
 };
 
 #endif

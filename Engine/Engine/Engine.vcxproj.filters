@@ -66,6 +66,9 @@
     <ClCompile Include="PositionClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QuadTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -123,7 +126,7 @@
     <ClCompile Include="ShadowMapClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QuadTree.cpp">
+    <ClCompile Include="BoundingBoxShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -186,6 +189,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PositionClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClass.h">
@@ -254,7 +260,7 @@
     <ClInclude Include="ShadowMapClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QuadTree.h">
+    <ClInclude Include="BoundingBoxShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

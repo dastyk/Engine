@@ -35,6 +35,9 @@
 
 #include "ShadowMapClass.h"
 
+
+#include "BoundingBoxShader.h"
+
 class InitDirect3DApp : public D3DApp
 {
 public:
@@ -93,6 +96,7 @@ private:
 	UINT mLightCount;
 
 	ShadowMapClass* mShadowmapShader;
+	BoundingBoxShader* mBoundingBoxShader;
 };
 
 #endif

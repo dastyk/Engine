@@ -78,9 +78,10 @@ void ObjectClass::Update()
 }
 
 
-void ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext)
+void ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext, int flag)
 {
-	mModel->SetAsModelToBeDrawn(pDeviceContext);
+
+	mModel->SetAsModelToBeDrawn(pDeviceContext, flag);
 }
 
 bool ObjectClass::SetAsObjectToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum, int flag)

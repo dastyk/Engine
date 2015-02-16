@@ -128,10 +128,10 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 	int count = 0;
 	BoundingFrustum f = pCamera->GetBoundingFrustum();
 	int result = f.Contains(mBox);
-	if (result)// == 2 || (!mChildren[0]))
+	if (result == 2 || (!mChildren[0]))
 	{
 		// Render the whole thing
-		pObject->SetAsObjectToBeDrawn(pDeviceContext);
+		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
 		result = pShader->RenderShadowsDeferred(
 			pDeviceContext,
 			pObject,
@@ -149,7 +149,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 	else if (result == 1)
 	{
 		// check children
-		pObject->SetAsObjectToBeDrawn(pDeviceContext);
+		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
 		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
 		{
 			result = mChildren[i]->RenderAgainsQuadTree(pDeviceContext, pShader, pObject, pCamera, pLights, pShadowmap);
