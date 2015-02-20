@@ -25,21 +25,21 @@ bool TerrainClass::Init(ID3D11Device* pDevice, QuadTree** ppQuadTree)
 
 	bool result;
 
-	result = loadRAW(257, 257, "data/resources/Heightmap.raw", 0.7f, 0);
+	result = loadRAW(257, 257, "data/resources/world10raw.raw", 0.5f, 0);
 	if (!result)
 	{
 		return false;
 	}
 
-	/*result = loadBitmap("data/resources/workin10.bmp",0.3,0);
-	if (!result)
-	{
-		return false;
-	}*/
+	//result = loadBitmap("data/resources/world10bmp.bmp",0.3,0);
+	//if (!result)
+	//{
+	//	return false;
+	//}
 
 	filterTerrain();
 	filterTerrain();
-
+	filterTerrain();
 	result = fillVertexAndIndexData(pDevice, L"seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"seemless_4.jpg",L"data/resources/blendmap1.jpg", ppQuadTree);
 	if (!result)
 	{

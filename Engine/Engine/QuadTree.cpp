@@ -160,7 +160,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		if (!result)
 			return -1;
 
-
+		count++;
 		
 
 		for (UINT i = 0; i < mObjectCount; i++)
@@ -169,10 +169,11 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 			if (mObjects[i]->SetAsObjectToBeDrawn(pDeviceContext, f, 0))
 			{
 				pOShader->RenderDeferred(pDeviceContext, mObjects[i], pCamera);
+				count++;
 			}
 
 		}
-		return 1;
+		return count;
 		
 	}
 	else if (result == 1)

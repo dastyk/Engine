@@ -254,7 +254,7 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mNRofObjects = 10;
+	mNRofObjects = 100;
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
@@ -444,7 +444,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 		rot = temp->GetRotation();
 		pos = temp->GetPosition();
 		rot.y += dt*100;
-		pos.y = mTerrainModel->getHeightAtPoint(pos) + 0.5;
+		pos.y = mTerrainModel->getHeightAtPoint(pos)+ 0.15;
 
 
 		temp->SetRotation(rot);
@@ -521,15 +521,14 @@ void InitDirect3DApp::DrawScene()
 	
 	for (UINT i = 0; i < mNRofObjects; i++)
 	{
-		if (mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, f2, 0))
+		mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
+		result = mShadowmapShader->CreateShadowMap(mDeviceContext, mObject[i], mPointLight[0]);
+		if (!result)
 		{
-			result = mShadowmapShader->CreateShadowMap(mDeviceContext, mObject[i], mPointLight[0]);
-			if (!result)
-			{
-				MessageBox(0, L"Failed to Render Shaders", 0, 0);
-				return;
-			}
+			MessageBox(0, L"Failed to Render Shaders", 0, 0);
+			return;
 		}
+
 	}
 
 	mShadowmapShader->UnbindRTV(mDeviceContext);
