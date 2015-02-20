@@ -23,7 +23,7 @@ public:
 	void SetDC(bool);
 	bool GetDC();
 
-	void CalcViewMatrix();
+	virtual void CalcViewMatrix();
 	
 private:
 	XMFLOAT4X4 mViewMatrix;

@@ -51,6 +51,7 @@ struct MatrixBufferType
 {
 	XMFLOAT4X4 mWorldViewProj;
 	XMFLOAT4X4 mWorld;
+	XMFLOAT4 camPos;
 };
 
 class ShaderClass
@@ -68,7 +69,7 @@ public:
 protected:
 	void OutputShaderErrorMessage(ID3D10Blob*, WCHAR*);
 
-	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix);
+	bool SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, XMFLOAT3& direction);
 
 	bool createVertexShaderAndInputLayout(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint, D3D11_INPUT_ELEMENT_DESC *vertexDesc, int numElements);
 	bool createPixelShader(ID3D11Device* pDevice, WCHAR* fileName, CHAR* EntryPoint);

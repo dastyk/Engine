@@ -22,7 +22,7 @@ public:
 	ID3D11ShaderResourceView* GetShaderResourceView();
 
 private:
-	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, float w, float h);
+	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*, float w, float h);
 
 	void RenderShader(ID3D11DeviceContext*, int);
 private: 

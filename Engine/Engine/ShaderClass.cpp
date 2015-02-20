@@ -274,7 +274,7 @@ bool ShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* pObje
 	return true;
 }
 
-bool ShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix)
+bool ShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, XMFLOAT4X4& worldMatrix , XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, XMFLOAT3& direction)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -307,6 +307,7 @@ bool ShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceContex
 
 	XMStoreFloat4x4(&dataPtr->mWorldViewProj, mWorldViewProj);
 	XMStoreFloat4x4(&dataPtr->mWorld, mWorld);
+	dataPtr->camPos = XMFLOAT4(direction.x, direction.y, direction.z, 0);
 
 
 	// Unlock the constant buffer.

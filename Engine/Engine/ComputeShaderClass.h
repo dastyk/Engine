@@ -17,20 +17,23 @@ class ComputeShaderClass
 {
 public:
 	ComputeShaderClass();
-	~ComputeShaderClass();
+	virtual ~ComputeShaderClass();
 
 
 
 	virtual bool Init(ID3D11Device* pDevice);
 
-
+	bool Compute(ID3D11DeviceContext* pDeviceContext, UINT ThreadGroupCountX, UINT ThreadGroupCountY);
 
 protected:
 	void OutputShaderErrorMessage(ID3D10Blob*, WCHAR*);
 
 	bool InitShaders(ID3D11Device* pDevice, WCHAR*);
 
-	bool createComputeShader(ID3D11Device* pDevice);
+	bool createComputeShader(ID3D11Device* pDevice, WCHAR* cName, char* EntryPoint);
+
+
+	ID3D11ComputeShader* mComputeShader;
 };
 
 #endif

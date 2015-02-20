@@ -14,7 +14,7 @@ public:
 	~ColorShaderClass();
 
 	bool Init(ID3D11Device* pDevice);
-	bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix);
+	bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, XMFLOAT3& dir);
 private:
 	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*);
 

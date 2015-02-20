@@ -78,7 +78,7 @@ bool DeferredShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Ob
 	unsigned int bufferNumber;
 
 	// Set the shader parameters that it will use for rendering.
-	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix());
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix(), pCamera->GetForward());
 	if (!result)
 	{
 		return false;

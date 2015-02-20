@@ -64,7 +64,7 @@ bool TextureShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 }
 
 
-bool TextureShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, ID3D11ShaderResourceView* pTexture)
+bool TextureShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, XMFLOAT3& dir, ID3D11ShaderResourceView* pTexture)
 {
 	bool result;
 
@@ -72,7 +72,7 @@ bool TextureShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCo
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, worldMatrix, viewMatrix, projMatrix);
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, worldMatrix, viewMatrix, projMatrix,dir);
 	if (!result)
 	{
 		return false;

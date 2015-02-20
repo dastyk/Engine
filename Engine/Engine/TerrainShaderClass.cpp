@@ -10,6 +10,7 @@ TerrainShaderClass::TerrainShaderClass() : ShaderClass()
 	mShadowDeferredVS = 0;
 	mShadowDeferredPS = 0;
 	mPointSampleState = 0;
+	mShadowDeferredGS = 0;
 
 }
 
@@ -51,6 +52,12 @@ TerrainShaderClass::~TerrainShaderClass()
 		mPointSampleState->Release();
 		mPointSampleState = 0;
 	}
+	if (mShadowDeferredGS)
+	{
+		mShadowDeferredGS->Release();
+		mShadowDeferredGS = 0;
+	}
+	
 }
 
 bool TerrainShaderClass::Init(ID3D11Device* pDevice)
@@ -159,6 +166,11 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 		return false;
 	}
 
+	result = createGeometryShader(pDevice, L"data/shaders/ShadowDeferredGS.hlsl", "GSMain", &mShadowDeferredGS);
+	if (!result)
+		return false;
+
+
 	result = createPixelShader(pDevice, L"data/shaders/ShadowDeferredPS.hlsl", "PSMain", &mShadowDeferredPS);
 	if (!result)
 	{
@@ -198,7 +210,7 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix());
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix(), pCamera->GetForward());
 	if (!result)
 	{
 		return false;
@@ -307,7 +319,7 @@ bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Obj
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix());
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix(), pCamera->GetForward());
 	if (!result)
 	{
 		return false;
@@ -391,7 +403,7 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	pDeviceContext->VSSetShader(mShadowDeferredVS, nullptr, 0);
 	pDeviceContext->HSSetShader(mHullShader, nullptr, 0);
 	pDeviceContext->DSSetShader(mDomainShader, nullptr, 0);
-	pDeviceContext->GSSetShader(NULL, nullptr, 0);
+	pDeviceContext->GSSetShader(mShadowDeferredGS, nullptr, 0);
 	pDeviceContext->PSSetShader(mShadowDeferredPS, nullptr, 0);
 
 	// Render mesh stored in active buffers
@@ -437,7 +449,7 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	pDeviceContext->VSSetShader(mShadowDeferredVS, nullptr, 0);
 	pDeviceContext->HSSetShader(mHullShader, nullptr, 0);
 	pDeviceContext->DSSetShader(mDomainShader, nullptr, 0);
-	pDeviceContext->GSSetShader(NULL, nullptr, 0);
+	pDeviceContext->GSSetShader(mShadowDeferredGS, nullptr, 0);
 	pDeviceContext->PSSetShader(mShadowDeferredPS, nullptr, 0);
 
 	// Render mesh stored in active buffers
@@ -478,6 +490,8 @@ bool TerrainShaderClass::SetShadowConstantBufferParamters(ID3D11DeviceContext* p
 	XMStoreFloat4x4(&dataPtr->worldViewProj, WVP);
 	XMStoreFloat4x4(&dataPtr->world, world);
 	XMStoreFloat4x4(&dataPtr->LightWorldViewProj, lWVP);
+	XMFLOAT3 cP = pCamera->GetPosition();
+	dataPtr->camPos = XMFLOAT4(cP.x, cP.y, cP.z, 0);
 
 	// Unlock the constant buffer.
 	pDeviceContext->Unmap(mShadowBuffer, 0);
@@ -486,7 +500,7 @@ bool TerrainShaderClass::SetShadowConstantBufferParamters(ID3D11DeviceContext* p
 	bufferNumber = 0;
 
 	// Set the constant buffer in the shader with the updated values.
-	pDeviceContext->VSSetConstantBuffers(bufferNumber, 1, &mShadowBuffer);
+	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mShadowBuffer);
 
 	return true;
 }

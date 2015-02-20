@@ -18,6 +18,7 @@
     <ClCompile Include="ComputeShaderClass.cpp" />
     <ClCompile Include="D3DApp.cpp" />
     <ClCompile Include="DeferredBufferClass.cpp" />
+    <ClCompile Include="DeferredComputeShaderClass.cpp" />
     <ClCompile Include="DeferredShaderClass.cpp" />
     <ClCompile Include="DX11HelperFuncs.cpp" />
     <ClCompile Include="FireworkEffect.cpp" />
@@ -43,7 +44,6 @@
     <ClCompile Include="ShaderClass.cpp" />
     <ClCompile Include="ShadowMapClass.cpp" />
     <ClCompile Include="SnowEffect.cpp" />
-    <ClCompile Include="SunLightShaderClass.cpp" />
     <ClCompile Include="TerrainClass.cpp" />
     <ClCompile Include="TerrainShaderClass.cpp" />
     <ClCompile Include="TextureClass.cpp" />
@@ -61,6 +61,7 @@
     <ClInclude Include="ComputeShaderClass.h" />
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="DeferredBufferClass.h" />
+    <ClInclude Include="DeferredComputeShaderClass.h" />
     <ClInclude Include="DeferredShaderClass.h" />
     <ClInclude Include="DirectXHelpers.h" />
     <ClInclude Include="DX11HelperFuncs.h" />
@@ -90,7 +91,6 @@
     <ClInclude Include="ShaderClass.h" />
     <ClInclude Include="ShadowMapClass.h" />
     <ClInclude Include="SnowEffect.h" />
-    <ClInclude Include="SunLightShaderClass.h" />
     <ClInclude Include="TerrainClass.h" />
     <ClInclude Include="TerrainShaderClass.h" />
     <ClInclude Include="TextureClass.h" />

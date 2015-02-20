@@ -145,7 +145,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 
 		return 0;
 	}
-	else if (result == 2 || (!mChildren[0]))
+	else if (result == 2)
 	{
 		// Render the whole thing
 		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
@@ -166,15 +166,45 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		for (UINT i = 0; i < mObjectCount; i++)
 		{
 
+			mObjects[i]->SetAsObjectToBeDrawn(pDeviceContext, 0);
+			pOShader->RenderDeferred(pDeviceContext, mObjects[i], pCamera);
+			count++;
+
+
+		}
+		return count;
+		
+	}
+	else if ((!mChildren[0]))
+	{
+		// Render the whole thing and cull the objects
+		pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
+		result = pShader->RenderShadowsDeferred(
+			pDeviceContext,
+			pObject,
+			pCamera,
+			pLights,
+			pShadowmap,
+			mIndexCount,
+			mIndexStart);
+		if (!result)
+			return -1;
+
+		count++;
+
+
+		for (UINT i = 0; i < mObjectCount; i++)
+		{
+
 			if (mObjects[i]->SetAsObjectToBeDrawn(pDeviceContext, f, 0))
 			{
+
 				pOShader->RenderDeferred(pDeviceContext, mObjects[i], pCamera);
 				count++;
 			}
 
 		}
 		return count;
-		
 	}
 	else if (result == 1)
 	{

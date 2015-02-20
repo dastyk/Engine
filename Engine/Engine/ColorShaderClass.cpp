@@ -48,13 +48,13 @@ bool ColorShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR
 	return true;
 }
 
-bool ColorShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix)
+bool ColorShaderClass::Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, XMFLOAT3& dir)
 {
 	bool result;
 
 	
 	// Set the shader parameters that it will use for rendering.
-	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, worldMatrix, viewMatrix, projMatrix);
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, worldMatrix, viewMatrix, projMatrix, dir);
 	if (!result)
 	{
 		return false;

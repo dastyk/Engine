@@ -34,7 +34,7 @@ PS_OUT PSMain(PS_IN input)
 		float lDepth = shadowMap.Sample(PointSample, smTex).r;
 		
 		float depth = input.LPos.z / input.LPos.w;
-			if (lDepth + SHADOW_EPSILON < depth)
+			if (lDepth + SHADOW_EPSILON > depth)
 				sCont = 0.3;
 
 

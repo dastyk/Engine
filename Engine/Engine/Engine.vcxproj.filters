@@ -72,9 +72,6 @@
     <ClCompile Include="ShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SunLightShaderClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -130,6 +127,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ComputeShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeferredComputeShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -200,9 +200,6 @@
     <ClInclude Include="ShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SunLightShaderClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TerrainClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -267,6 +264,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ComputeShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeferredComputeShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -38,6 +38,8 @@
 
 #include "BoundingBoxShader.h"
 
+#include "DeferredComputeShaderClass.h"
+
 class InitDirect3DApp : public D3DApp
 {
 public:
@@ -60,7 +62,7 @@ public:
 
 private:
 	ShaderClass* mColorShader;
-	ShaderClass* mTexShader;
+	TextureShaderClass* mTexShader;
 	LightShaderClass* mLightShader;
 	TerrainShaderClass* mTerrainShader;
 
@@ -97,6 +99,9 @@ private:
 
 	ShadowMapClass* mShadowmapShader;
 	BoundingBoxShader* mBoundingBoxShader;
+
+
+	DeferredComputeShaderClass* mDCShader;
 };
 
 #endif

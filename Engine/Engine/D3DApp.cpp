@@ -535,14 +535,14 @@ bool D3DApp::createDepthStencilBufferView()
 	
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-	
+	*/
 	D3D11_RASTERIZER_DESC rasterDesc;
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
+	rasterDesc.DepthClipEnable = false;
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
@@ -558,7 +558,7 @@ bool D3DApp::createDepthStencilBufferView()
 
 	// Now set the rasterizer state.
 	mDeviceContext->RSSetState(mRasterState);
-	*/
+	
 
 	return true;
 }
@@ -755,7 +755,7 @@ bool D3DApp::createDeviceAndDeviceContextAndSwapChain(D3D_DRIVER_TYPE pDriverTyp
 		sd.SampleDesc.Quality = 0;
 	}
 
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_UNORDERED_ACCESS;
 	sd.BufferCount = 1;
 	sd.OutputWindow = mhMainWnd;
 	sd.Windowed = true;

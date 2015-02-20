@@ -21,9 +21,11 @@ public:
 	void SetPosition(const XMFLOAT3& pos);
 	void SetPosition(const XMVECTOR& pos);
 	virtual void SetRotation(const XMFLOAT3& rot);
-	
+
+
 	XMFLOAT3 GetPosition()const;
 	XMFLOAT3 GetRotation()const;
+	XMFLOAT3 GetForward()const;
 
 	float GetAvgPosY()const;
 

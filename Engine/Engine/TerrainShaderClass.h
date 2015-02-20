@@ -37,6 +37,7 @@ struct ShadowBuffer
 	XMFLOAT4X4 worldViewProj;
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 LightWorldViewProj;
+	XMFLOAT4 camPos;
 };
 
 class TerrainShaderClass : public ShaderClass
@@ -68,6 +69,7 @@ private:
 	ID3D11Buffer* mShadowBuffer;
 	ID3D11VertexShader* mShadowDeferredVS;
 	ID3D11PixelShader* mShadowDeferredPS;
+	ID3D11GeometryShader* mShadowDeferredGS;
 	ID3D11SamplerState* mPointSampleState;
 };
 

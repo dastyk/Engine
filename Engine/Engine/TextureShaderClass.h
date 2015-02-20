@@ -13,7 +13,7 @@ public:
 	~TextureShaderClass();
 
 	bool Init(ID3D11Device* pDevice);
-	bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, ID3D11ShaderResourceView* pTexture);
+	bool Render(ID3D11DeviceContext* pDeviceContext, int indexCount, XMFLOAT4X4& worldMatrix, XMFLOAT4X4& viewMatrix, XMFLOAT4X4& projMatrix, XMFLOAT3& dir, ID3D11ShaderResourceView* pTexture);
 private:
 	bool InitShader(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 

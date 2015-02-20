@@ -33,7 +33,7 @@ ShadowMapClass::~ShadowMapClass()
 bool ShadowMapClass::Init(ID3D11Device* pDevice, float w, float h)
 {
 	bool result;
-	result = InitShader(pDevice, L"data/shaders/ShadowmapVS.hlsl", L"data/shaders/ShadowmapPS.hlsl", w, h);
+	result = InitShader(pDevice, L"data/shaders/ShadowmapVS.hlsl", L"data/shaders/ShadowmapPS.hlsl", L"data/shaders/ShadowmapGS.hlsl", w, h);
 	if (!result)
 		return false;
 
@@ -44,7 +44,7 @@ bool ShadowMapClass::CreateShadowMap(ID3D11DeviceContext* pDeviceContext, Object
 {
 	bool result;
 
-	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pPointLight->GetViewMatrix(), pPointLight->GetProjMatrix());
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pPointLight->GetViewMatrix(), pPointLight->GetProjMatrix(), pPointLight->GetLightDir());
 	if (!result)
 		return false;
 
@@ -74,7 +74,7 @@ void  ShadowMapClass::SetRTV(ID3D11DeviceContext* pDeviceContext)
 void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
 {
 
-	float color[] = { 1, 0, 0, 0 };
+	float color[] = { 0, 0, 0, 0 };
 
 	pDeviceContext->ClearRenderTargetView(mRTV, color);
 	pDeviceContext->ClearDepthStencilView(mDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -85,7 +85,7 @@ void  ShadowMapClass::UnbindRTV(ID3D11DeviceContext* pDeviceContext)
 	pDeviceContext->RSSetViewports(1, &prevVP);
 }
 
-bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFile, float w, float h)
+bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFile, WCHAR* gFile, float w, float h)
 {
 	bool result;
 	HRESULT hr;

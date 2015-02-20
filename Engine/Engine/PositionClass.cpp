@@ -236,3 +236,8 @@ float PositionClass::GetAvgPosY()const
 	
 	return avg / SAMPLES_POSITION;
 }
+
+XMFLOAT3 PositionClass::GetForward()const
+{
+	return mForward;
+}
