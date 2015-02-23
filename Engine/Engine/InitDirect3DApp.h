@@ -25,7 +25,6 @@
 
 #include "ParticleShaderClass.h"
 #include "FireworkEffect.h"
-#include "SnowEffect.h"
 
 #include <time.h>
 
@@ -82,7 +81,6 @@ private:
 
 	ParticleShaderClass* mParticleShader;
 	FireworkEffect* mFirework;
-	SnowEffect* mSnow;
 
 	FogClass* mDrawDistFog;
 
@@ -101,7 +99,11 @@ private:
 	BoundingBoxShader* mBoundingBoxShader;
 
 
+
 	DeferredComputeShaderClass* mDCShader;
+
+
+	ID3D11Query* mStart, *mStop, *mDisjoint;
 };
 
 #endif

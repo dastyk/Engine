@@ -40,6 +40,10 @@ void CameraClass::CalcViewMatrix()
 	if (!mDc)
 		XMStoreFloat4x4(&mLastInvViewMatrix, XMMatrixInverse(nullptr, viewMatrix));
 
+	mBox.Center = mPosition;
+	mBox.Extents = XMFLOAT3(25, 25, 25);
+
+
 	return;
 }
 
@@ -114,4 +118,9 @@ void CameraClass::SetDC(bool b)
 bool CameraClass::GetDC()
 {
 	return mDc;
+}
+
+BoundingBox CameraClass::GetBoundingBox()const
+{
+	return mBox;
 }

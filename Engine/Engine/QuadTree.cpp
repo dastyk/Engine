@@ -12,6 +12,7 @@ QuadTree::QuadTree()
 	{
 		mChildren[i] = 0;
 	}
+	mSnow = 0;
 }
 
 
@@ -32,6 +33,12 @@ QuadTree::~QuadTree()
 		}
 		
 	}
+	if (mSnow)
+	{
+		delete mSnow;
+		mSnow = 0;
+	}
+	
 }
 
 
@@ -172,6 +179,9 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 
 
 		}
+
+
+
 		return count;
 		
 	}
@@ -204,6 +214,8 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 			}
 
 		}
+
+
 		return count;
 	}
 	else if (result == 1)
@@ -382,4 +394,87 @@ bool QuadTree::AddLightHelper(PointLightClass* pPointLights)
 	{
 		return false;
 	}
+}
+
+bool QuadTree::AddSnow(ID3D11Device* pDevice)
+{
+	bool result;
+	if (mChildren[0])
+	{
+		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+		{
+			mChildren[i]->AddSnow(pDevice);
+		}
+	}
+	else
+	{
+		mSnow = new SnowEffect();
+		if (!mSnow)
+			return false;
+
+		result = mSnow->Init(pDevice, &mBox.Center, &mBox.Extents);
+		if (!result)
+			return false;
+	}
+}
+
+void QuadTree::Update(float dt)
+{
+	if (mChildren[0])
+	{
+		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+		{
+			mChildren[i]->Update(dt);
+		}
+	}
+	else
+	{
+		mSnow->Update(dt);
+	}
+}
+
+bool QuadTree::RenderSnow(ID3D11DeviceContext* pDeviceContext, ParticleShaderClass* pPShader, CameraClass* pCamera)
+{
+	int cont = mBox.Contains(pCamera->GetBoundingBox());
+	
+	if (cont)
+	{
+		if (mChildren[0])
+		{
+			for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+			{
+				mChildren[i]->RenderSnow(pDeviceContext, pPShader, pCamera);
+			}
+		}
+		else
+		{
+			mSnow->render(pDeviceContext);
+			pPShader->Render(pDeviceContext, mSnow, pCamera);
+
+		}
+	}
+	return true;
+}
+
+bool QuadTree::SnowRenderHelper(ID3D11DeviceContext* pDeviceContext, ParticleShaderClass* pPShader, CameraClass* pCamera)
+{
+	bool result;
+	if (!mChildren[0])
+	{
+		mSnow->render(pDeviceContext);
+		result = pPShader->Render(pDeviceContext, mSnow, pCamera);
+		if (!result)
+			return false;
+	}
+	else
+	{
+		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+		{
+			result = mChildren[i]->SnowRenderHelper(pDeviceContext, pPShader, pCamera);
+			if (!result)
+				return false;
+		}
+	}
+
+	return true;
 }

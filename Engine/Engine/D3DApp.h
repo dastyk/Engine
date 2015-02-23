@@ -20,6 +20,10 @@ using namespace DirectX;
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
+#define COMPUTE_X 58
+#define COMPUTE_Y 32
+
+
 class D3DApp
 {
 public:

@@ -10,7 +10,8 @@
 #include "ObjectClass.h"
 #include "TerrainShaderClass.h"
 #include "DeferredShaderClass.h"
-
+#include "SnowEffect.h"
+#include "ParticleShaderClass.h"
 class QuadTree
 {
 public:
@@ -28,8 +29,15 @@ public:
 
 	bool AddModel(ObjectClass* pObject);
 	bool AddLight(PointLightClass* pPointLights);
+	bool AddSnow(ID3D11Device* pDevice);
+	bool RenderSnow(ID3D11DeviceContext* pDeviceContext, ParticleShaderClass* pPShader, CameraClass* pCamera);
+	bool SnowRenderHelper(ID3D11DeviceContext* pDeviceContext, ParticleShaderClass* pPShader, CameraClass* pCamera);
 
 	void CopyFromVectorToArray();
+
+	void Update(float dt);
+
+
 private:
 	bool createChildren();
 	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart);
@@ -50,6 +58,8 @@ private:
 
 	UINT mIndexStart;
 	UINT mIndexCount;
+
+	SnowEffect* mSnow;
 
 };
 

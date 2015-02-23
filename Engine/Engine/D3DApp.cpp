@@ -20,8 +20,8 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	
 	mInput = 0;
 
-	mClientWidth = 800;
-	mClientHeight = 600;
+	mClientWidth = 32*COMPUTE_X;
+	mClientHeight = 32*COMPUTE_Y;
 
 	mNearPlane = 0.1f;
 	mFarPlane = 100;

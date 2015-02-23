@@ -26,7 +26,6 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mTerrainShader = 0;
 	mParticleShader = 0;
 	mFirework = 0;
-	mSnow = 0;
 
 	mModel = 0;
 	mQuadModel = 0;
@@ -67,6 +66,7 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mShadowmapShader = 0;
 	mBoundingBoxShader = 0;
 	mDCShader = 0;
+
 }
 
 
@@ -150,11 +150,6 @@ InitDirect3DApp::~InitDirect3DApp()
 	{
 		delete mFirework;
 		mFirework = 0;
-	}
-	if (mSnow)
-	{
-		delete mSnow;
-		mSnow = 0;
 	}
 	if (mDeferredBuffer)
 	{
@@ -260,7 +255,7 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mNRofObjects = 1;
+	mNRofObjects = 10;
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
@@ -325,13 +320,6 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mSnow = new SnowEffect();
-	if (!mSnow)
-		return false;
-	mSnow->SetPlayerPos(mCamera->GetPosition());
-	result = mSnow->Init(mDevice);
-	if (!result)
-		return false;
 	
 	mDeferredBuffer = new DeferredBufferClass();
 	if (!mDeferredBuffer)
@@ -438,7 +426,7 @@ bool InitDirect3DApp::Init()
 
 	mQuadTree->AddModels(mObject, mNRofObjects);
 	mQuadTree->AddLights(mPointLight, mLightCount);
-
+	mQuadTree->AddSnow(mDevice);
 
 	mDCShader = new DeferredComputeShaderClass;
 	if (!mDCShader)
@@ -447,7 +435,6 @@ bool InitDirect3DApp::Init()
 	result = mDCShader->Init(mDevice, mSwapChain);
 	if (!result)
 		return false;
-
 
 	return true;
 
@@ -509,11 +496,9 @@ void InitDirect3DApp::UpdateScene(float dt)
 	
 	//mFirework->Update(dt);
 
-	mSnow->SetPlayerPos(mCamera->GetPosition());
-	mSnow->Update(dt);
-
 	mCamera->CalcViewMatrix();
 
+	mQuadTree->Update(dt);
 	
 }
 
@@ -564,8 +549,6 @@ void InitDirect3DApp::DrawScene()
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
-
-
 	result = mQuadTree->RenderAgainsQuadTree(
 		mDeviceContext,
 		mTerrainShader,
@@ -574,6 +557,11 @@ void InitDirect3DApp::DrawScene()
 		mCamera,
 		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
+
+
+
+
+	
 
 
 
@@ -589,7 +577,7 @@ void InitDirect3DApp::DrawScene()
 
 		std::wostringstream outs;
 		outs.precision(6);
-		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms" << " Rendering: " << count << " models" << " Terrain: " << result;
+		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms" << " Time: " << time << " Terrain: " << result;
 		SetWindowText(mhMainWnd, outs.str().c_str());
 
 
@@ -620,13 +608,15 @@ void InitDirect3DApp::DrawScene()
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 
 
-	mDCShader->Compute(mDeviceContext, mDeferredBuffer, 25, 20);
+	mDCShader->Compute(mDeviceContext, mDeferredBuffer, COMPUTE_X, COMPUTE_Y);
 
 	//// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	mSnow->render(mDeviceContext);
-	mParticleShader->Render(mDeviceContext, mSnow, mCamera);
+
+	mQuadTree->RenderSnow(mDeviceContext, mParticleShader, mCamera);
+
+
 
 	for (int i = 0; i < BUFFER_COUNT-2; i++)
 	{

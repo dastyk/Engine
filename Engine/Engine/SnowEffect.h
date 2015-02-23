@@ -12,10 +12,8 @@ public:
 	SnowEffect();
 	~SnowEffect();
 
-	bool Init(ID3D11Device*);
+	bool Init(ID3D11Device*, XMFLOAT3* c, XMFLOAT3* e);
 	void Update(float dt);
-
-	void SetPlayerPos(XMFLOAT3& position);
 
 private:
 	void createFirstParticles();
@@ -24,10 +22,9 @@ private:
 	void CreateEmitterInUpdate(ParticleClass*);
 	void CreateMovingInUpdate(ParticleClass*);
 
-	XMFLOAT3 mPlayerPos;
-	XMFLOAT3 mLastPlayerPos;
 
-	GameTimer* mTimer;
+	XMFLOAT3 Center;
+	XMFLOAT3 Extent;
 };
 
 #endif

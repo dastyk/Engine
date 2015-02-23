@@ -90,6 +90,7 @@ bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* 
 	{
 		fileName[i] = L"data/resources/" + fileName[i];
 		hr = DirectX::CreateWICTextureFromFileEx(pDevice, (WCHAR*)fileName[i].c_str(), NULL, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, (ID3D11Resource**)&mTexture[i], NULL);//DirectX::CreateWICTextureFromFile(pDevice, (WCHAR*)fileName[i].c_str(), (ID3D11Resource**)&mTexture[i], NULL, NULL);
+		
 		if (FAILED(hr))
 		{
 			MessageBox(0, L"Failed to load texture.", fileName[i].c_str(), MB_OK);
