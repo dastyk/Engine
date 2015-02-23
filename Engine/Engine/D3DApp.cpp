@@ -21,10 +21,10 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mInput = 0;
 
 	mClientWidth = 800;
-	mClientHeight = 640;
+	mClientHeight = 600;
 
 	mNearPlane = 0.1f;
-	mFarPlane = 500;
+	mFarPlane = 100;
 	mFoV = XMConvertToRadians(90);
 
 	mMainWndCaption = L"Engine";
@@ -285,7 +285,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		mAppPaused = false;
 		mResizing = false;
 		mTimer.Start();
-		//OnResize();
+		OnResize();
 		return 0;
 	case WM_MENUCHAR:
 		return MAKELRESULT(0, MNC_CLOSE);
@@ -310,7 +310,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_SIZE: // If enter/exit fullscreen
 		if (wParam == SIZE_MAXIMIZED)
-			//OnResize();
+			OnResize();
 		return 0;
 	case WM_KEYDOWN:
 		mInput->keyDown((unsigned int)wParam);
@@ -453,8 +453,8 @@ bool D3DApp::createDepthStencilBufferView()
 	// Set up the description of the stencil state.
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	
 	depthStencilDesc.StencilEnable = true;
 	depthStencilDesc.StencilReadMask = 0xFF;
 	depthStencilDesc.StencilWriteMask = 0xFF;

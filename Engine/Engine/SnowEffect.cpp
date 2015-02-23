@@ -40,9 +40,9 @@ void SnowEffect::createFirstParticles()
 	for (int i = 0; i < 1000; i++)
 	{
 		XMFLOAT3 temp;
-		temp.x = mPlayerPos.x + (rand() % 200 - 100) / 10.0f;
-		temp.y = mPlayerPos.y + (rand() % 500 - 250) / 10.0f;
-		temp.z = mPlayerPos.z + (rand() % 200 - 100) / 10.0f;
+		temp.x =(rand() % 256);
+		temp.y =(rand() % 300);
+		temp.z = (rand() % 256);
 		
 		mMoving.push_back(new ParticleClass(temp, XMFLOAT3(1, 1, 1), XMFLOAT3(0, -1, 0), 1, 0));
 	}
@@ -62,30 +62,14 @@ void SnowEffect::CreateEmitterInUpdate(ParticleClass* pParticle)
 void SnowEffect::CreateMovingInUpdate(ParticleClass* pParticle)
 {
 	XMFLOAT3 pos = pParticle->GetTranform()->GetPosition();
-	if (pos.y < 70)
+	if (pos.y < 0)
 	{
 
-		pos.y = mPlayerPos.y + (rand() % 150 + 70) / 10.0f;
-		pos.x = mPlayerPos.x + (rand() % 200 - 100) / 10.0f;
-		pos.z = mPlayerPos.z + (rand() % 200 - 100) / 10.0f;
+		pos.x = (rand() % 256);
+		pos.y = (rand() % 300);
+		pos.z = (rand() % 256);
 		pParticle->GetTranform()->SetPosition(pos);
 
-	}
-	if (mLastPlayerPos.x != mPlayerPos.x || mLastPlayerPos.y != mPlayerPos.y || mLastPlayerPos.z != mPlayerPos.z)
-	{
-
-		XMVECTOR player = XMLoadFloat3(&mPlayerPos);
-		XMVECTOR vPos = XMLoadFloat3(&pos);
-		XMVectorSetY(player, 0);
-		XMVectorSetY(vPos, 0);
-
-		float distance = XMVectorGetX(XMVectorAbs(player - vPos));
-		if (distance > 10)
-		{
-			pos.x = mPlayerPos.x + (rand() % 200 - 100) / 10.0f;
-			pos.z = mPlayerPos.z + (rand() % 200 - 100) / 10.0f;
-			pParticle->GetTranform()->SetPosition(pos);
-		}
 	}
 }
 

@@ -23,7 +23,8 @@ private:
 	void UnsetParameters(ID3D11DeviceContext* pDeviceContext);
 
 	ID3D11UnorderedAccessView* mBackBuffer;
-
+	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
+	ID3D11DepthStencilView* prevDSV = nullptr;
 };
 
 #endif

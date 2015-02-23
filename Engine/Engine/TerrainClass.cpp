@@ -40,7 +40,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice, QuadTree** ppQuadTree)
 	filterTerrain();
 	filterTerrain();
 	filterTerrain();
-	result = fillVertexAndIndexData(pDevice, L"seamless_mountain_rock_by_hhh316-d31i6ci.jpg", L"seemless_4.jpg",L"data/resources/blendmap1.jpg", ppQuadTree);
+	result = fillVertexAndIndexData(pDevice, L"Moon_floor_2_jaqx_tilable_1024.png", L"seemless_4.jpg",L"data/resources/blendmap1.jpg", ppQuadTree);
 	if (!result)
 	{
 		return false;
@@ -248,16 +248,16 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 {
 	bool result;
 	TerrainVertex* vertices = 0;
-
+	//mWidth = 257;
+	//mHeight = 257;
 	mStride = sizeof(TerrainVertex);
 	mVertexCount = mWidth*mHeight;
 
 	
 	vertices = new TerrainVertex[mVertexCount];
-	XMFLOAT3* pPoints = new XMFLOAT3[mVertexCount];
 
-	float dx = 4.0f;
-	float dz = 4.0f;
+	float dx = 1.0f;
+	float dz = 1.0f;
 
 	float width = (mWidth - 1) / 2.0f;
 	float depth = (mHeight - 1) / 2.0f;
@@ -269,7 +269,6 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			int index = j*mWidth + i;
 			//mHeightMap[i][j] = i;
 			vertices[index].Pos = XMFLOAT3((float)i, (float)mHeightMap[i][j], (float)j);
-			pPoints[index] = vertices[index].Pos;
 			vertices[index].texCoord = XMFLOAT2(i / width  * dx, j / depth * dz);
 			vertices[index].TexCoord2 = XMFLOAT2(i/25.0f, mHeight - j/25.0f);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
@@ -364,9 +363,6 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		index++;
 	}
 	
-	delete[]pPoints;
-
-
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = vertices;
 	vinitData.SysMemPitch = 0;

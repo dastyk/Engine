@@ -3,7 +3,7 @@
 
 #pragma once
 
-#define SHADOW_DETAIL 8
+#define SHADOW_DETAIL 4
 
 #include "ShaderClass.h"
 class ShadowMapClass :

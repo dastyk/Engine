@@ -6,7 +6,8 @@
 Texture2D shadowMap : register(t0);
 Texture2D DetailMap : register(t1);
 Texture2D NormalMap : register(t2);
-Texture2D shaderTexture[3] : register(t3);
+Texture2D shaderTexture0 : register(t3);
+Texture2D shaderTexture1 : register(t4);
 SamplerState SampleType : register(s0);
 SamplerState PointSample : register(s1);
 
@@ -46,14 +47,12 @@ PS_OUT PSMain(PS_IN input)
 
 
 
-	float4 textureColor[3];
+	float4 textureColor0, textureColor1;
 	int i = 0;
 
 	// Sample texture
-	for (i = 0; i < 2; i++)
-	{
-		textureColor[i] = shaderTexture[i].Sample(SampleType, input.Tex);
-	}
+	//textureColor0 = shaderTexture0.Sample(SampleType, input.Tex);
+	textureColor1 = shaderTexture1.Sample(SampleType, input.Tex);
 
 
 
@@ -65,24 +64,15 @@ PS_OUT PSMain(PS_IN input)
 		float intens = saturate(dot(ref, N));
 
 	float depthValue = input.Pos.z / input.Pos.w;
-	//if (depthValue < 0.9f)
-	//{
-	//	float3 bumpMap = NormalMap.Sample(SampleType, input.Tex);
 
-	//		bumpMap = (bumpMap*2.0f) - 1.0f;
-
-	//	N = input.Normal + bumpMap.x*input.Tangent + bumpMap.y * input.Binormal;
-
-	//	N = normalize(N);
-	//}
 	if (depthValue > 0.01f)
 	{
 		float4 detailColor = DetailMap.Sample(SampleType, input.Tex2*DETAIL_IT);
 
-			for (i = 0; i < 2; i++)
-			{
-			textureColor[i] *= detailColor*1.8;
-			}
+
+		//textureColor0 *= detailColor*1.8;
+		textureColor1 *= detailColor*1.8;
+			
 
 		float3 bumpMap = NormalMap.Sample(SampleType, input.Tex2);
 
@@ -90,10 +80,16 @@ PS_OUT PSMain(PS_IN input)
 				N = input.Normal + bumpMap.x*input.Tangent + bumpMap.y * input.Binormal;
 			N = normalize(N);
 	}
-	output.DiffuseColor = (textureColor[1] * intens + textureColor[0] * (1 - intens))*sCont ;
+
+	output.DiffuseColor = textureColor1*sCont;// (textureColor1 * intens + textureColor0 * (1 - intens))*sCont;
 	output.Normal_Depth = float4(N, input.PosH.z);
 	output.Position = float4(input.PosH, 1);
 	output.Specular_SpecPower = float4(float3(0.1, 0.1, 0.1), 5);
+
+	//output.DiffuseColor = shaderTexture1.Sample(SampleType, input.Tex);// (textureColor1 * intens + textureColor0 * (1 - intens))*sCont;
+	//output.Normal_Depth = float4(input.Normal, input.PosH.z);
+	//output.Position = float4(input.PosH, 1);
+	//output.Specular_SpecPower = float4(float3(0.1, 0.1, 0.1), 5);
 
 	return output;
 }

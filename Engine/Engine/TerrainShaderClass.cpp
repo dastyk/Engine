@@ -428,10 +428,6 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	// Set shader texture resource in the pixel shader.
 	pDeviceContext->PSSetShaderResources(3, pTexture->GetTextureCount(), tex);
 
-	
-
-	// Set shader texture resource in the pixel shader.
-	pDeviceContext->PSSetShaderResources(1, pTexture->GetTextureCount(), tex);
 
 	pDeviceContext->PSSetSamplers(1, 1, &mPointSampleState);
 	// Now render the prepared buffers with the shader.

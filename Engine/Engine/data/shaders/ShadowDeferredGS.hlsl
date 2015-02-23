@@ -65,4 +65,23 @@ void GSMain(
 
 		ts.RestartStrip();
 	}
+
+
+	//for (uint i = 0; i < 3; i++)
+	//{
+	//	GS_OUT output;
+	//	output.Pos = mul(input[i].Pos, mWorldViewProj);
+	//	output.Tex = input[i].Tex;
+	//	output.Tex2 = input[i].Tex2;
+	//	output.Normal = normalize(mul(float4(input[i].Normal, 0), mWorld).xyz);
+	//	float4 temp = mul(input[i].Pos, mWorld);
+	//		output.PosH = temp.xyz;
+	//	output.LPos = float4(0, 0, 0, 0);// mul(input[i].Pos, LightViewProj);
+	//	output.Tangent = float3(0, 0, 0);// normalize(mul(float4(input[i].Tangent, 0), mWorld).xyz);
+	//	output.Binormal = float3(0, 0, 0);//normalize(mul(float4(input[i].Binormal, 0), mWorld).xyz);
+
+	//	ts.Append(output);
+	//}
+
+	ts.RestartStrip();
 }

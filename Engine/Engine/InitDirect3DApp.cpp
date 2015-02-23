@@ -224,7 +224,7 @@ bool InitDirect3DApp::Init()
 		return false;
 
 	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
-	XMFLOAT3  pos(128, 0, 118.0f);// pos(0.0f, 0.0f, 0.0f);
+	XMFLOAT3  pos(128, 0, 128);// pos(0.0f, 0.0f, 0.0f);
 	mCamera->SetPosition(pos);
 	mCamera->SetMoveSpeed(50);
 
@@ -264,6 +264,7 @@ bool InitDirect3DApp::Init()
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
+
 	for (UINT i = 0; i < mNRofObjects; i++)
 	{
 		mObject[i] = new ObjectClass(mModel);
@@ -372,8 +373,8 @@ bool InitDirect3DApp::Init()
 		return false;
 
 
-	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 20);
-	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(128, 275, 315), 10000);
+	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 150);
+	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(128, 275, 315), 20);
 	mPointLight[0]->SetLightDir(XMFLOAT3(0, -1, -1));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 
@@ -508,8 +509,8 @@ void InitDirect3DApp::UpdateScene(float dt)
 	
 	//mFirework->Update(dt);
 
-	/*mSnow->SetPlayerPos(mCamera->GetPosition());
-	mSnow->Update(dt);*/
+	mSnow->SetPlayerPos(mCamera->GetPosition());
+	mSnow->Update(dt);
 
 	mCamera->CalcViewMatrix();
 
@@ -545,8 +546,8 @@ void InitDirect3DApp::DrawScene()
 
 	mShadowmapShader->SetRTV(mDeviceContext);
 	mShadowmapShader->ClearRTV(mDeviceContext);
-	
-	/*for (UINT i = 0; i < mNRofObjects; i++)
+
+	for (UINT i = 0; i < mNRofObjects; i++)
 	{
 		mObject[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
 		result = mShadowmapShader->CreateShadowMap(mDeviceContext, mObject[i], mPointLight[0]);
@@ -556,12 +557,14 @@ void InitDirect3DApp::DrawScene()
 			return;
 		}
 
-	}*/
+	}
 
 	mShadowmapShader->UnbindRTV(mDeviceContext);
 
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
+
+
 
 	result = mQuadTree->RenderAgainsQuadTree(
 		mDeviceContext,
@@ -597,6 +600,7 @@ void InitDirect3DApp::DrawScene()
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 
+
 	mDeferredBuffer->SetLightRT(mDeviceContext);
 	//mDeferredShader->SetLP(mDeviceContext, mCamera, mDeferredBuffer);
 	result = mDeferredShader->RenderLights(mDeviceContext, mCamera, mDeferredBuffer, mPointLight, mLightCount);
@@ -604,7 +608,7 @@ void InitDirect3DApp::DrawScene()
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
 		return;
-	}	
+	}
 	//mQuadTree->RenderLightsAgainsQuadTree(mDeviceContext, mDeferredBuffer, mDeferredShader, mCamera);
 
 	//mDeferredShader->UnSetLP(mDeviceContext);
@@ -615,35 +619,23 @@ void InitDirect3DApp::DrawScene()
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 
-	//mDeferredShader->Render(
-	//	mDeviceContext, 
-	//	mDeferredBuffer,
-	//	mObject[0],
-	//	mCamera,
-	//	mPointLight,
-	//	mLightCount,
-	//	mDrawDistFog);
-
-	
 
 	mDCShader->Compute(mDeviceContext, mDeferredBuffer, 25, 20);
 
 	//// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-	
-	
-	
 
-	//for (int i = 0; i < BUFFER_COUNT-2; i++)
-	//{
-	//	mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
-	//	mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetShaderResourceView(i));
-	//}
-	//mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
-	//mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
+	mSnow->render(mDeviceContext);
+	mParticleShader->Render(mDeviceContext, mSnow, mCamera);
 
+	for (int i = 0; i < BUFFER_COUNT-2; i++)
+	{
+		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
+		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetShaderResourceView(i));
+	}
+	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
+	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
 
-	//
 
 
 	// Present the back buffer to the screen
