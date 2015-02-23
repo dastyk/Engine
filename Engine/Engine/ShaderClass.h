@@ -54,6 +54,7 @@ struct MatrixBufferType
 	XMFLOAT4 camPos;
 };
 
+
 class ShaderClass
 {
 public:

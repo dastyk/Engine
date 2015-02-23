@@ -11,7 +11,6 @@ struct VS_IN
 	float3 Normal : NORMAL;
 	float4 BlendWeights : BLENDWEIGHT;
 	uint4 BlendIndices : BLENDINDICES0;
-	uint Id : BLENDINDICES1;
 };
 struct VS_OUT
 {
@@ -20,8 +19,6 @@ struct VS_OUT
 	float3 Normal : NORMAL;
 	float4 BlendWeights : BLENDWEIGHT;
 	uint4 BlendIndices : BLENDINDICES0;
-	uint Id : BLENDINDICES1;
-	float3 PosH : POSITION;
 };
 
 VS_OUT VSMain(VS_IN input)
@@ -29,16 +26,12 @@ VS_OUT VSMain(VS_IN input)
 	VS_OUT output;
 
 	output.Tex = input.Tex;
-	output.Pos = mul(float4(input.Pos, 1.0f), mWorldViewProj);
+	output.Pos = float4(input.Pos, 1.0f);
 
-	float4 temp = mul(float4(input.Pos, 1.0f), mWorld);
-	output.PosH = temp.xyz / temp.w;
-	temp = mul(float4(input.Normal, 0), mWorld);
-	output.Normal = normalize(temp.xyz);
+	output.Normal = input.Normal;
 
 	output.BlendWeights = input.BlendWeights;
 	output.BlendIndices = input.BlendIndices;
-	output.Id = input.Id;
 
 	return output;
 }

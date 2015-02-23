@@ -30,12 +30,8 @@ struct PS_IN
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
 	float2 Tex2 : TEXCOORD1;
-};
-
-struct PS_OUT
-{
-	float4 Pos : SV_POSITION;
-	float2 Tex : TEXCOORD0;
+	float3 Tangent : TANGENT;
+	float3 Binormal : BINORMAL;
 };
 
 float4 PSMain(PS_IN input) : SV_TARGET

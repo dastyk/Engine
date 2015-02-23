@@ -90,6 +90,7 @@ protected:
 	ID3D11DepthStencilView* mDepthStencilView;
 	ID3D11DepthStencilState* mDepthStencilState;
 	ID3D11RasterizerState* mRasterState;
+	ID3D11BlendState* mBlendingState;
 
 	D3D11_VIEWPORT mScreenViewport;
 

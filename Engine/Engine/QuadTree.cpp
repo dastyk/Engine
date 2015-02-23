@@ -222,6 +222,63 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 	
 }
 
+
+int QuadTree::RenderLightsAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer, DeferredShaderClass* pShader, CameraClass* pCamera)
+{
+	int count = 0;
+	BoundingFrustum f = pCamera->GetBoundingFrustum();
+	int result = f.Contains(mBox);
+	if (result == 0)
+	{
+		// Render nothing
+
+		return 0;
+	}
+	else if (result == 2)
+	{
+		// Contains the whole thing
+		UINT NR = mTLights.size();
+		for (UINT i = 0; i < NR; i++)
+		{
+			pBuffer->ClearDepthBuffer(pDeviceContext);
+			pShader->RenderLights(pDeviceContext, mTLights[i]);
+		}
+
+
+		return count;
+
+	}
+	else if ((!mChildren[0]))
+	{
+		// Leaf node
+		BoundingSphere s;
+		UINT NR = mTLights.size();
+		for (UINT i = 0; i < NR; i++)
+		{
+			s = mTLights[i]->GetBoundingSphere();
+			if (f.Intersects(s))
+			{
+				pBuffer->ClearDepthBuffer(pDeviceContext);
+				pShader->RenderLights(pDeviceContext, mTLights[i]);
+			}
+		}
+		return count;
+	}
+	else if (result == 1)
+	{
+		// check children
+		//pObject->SetAsObjectToBeDrawn(pDeviceContext, 0);
+		for (UINT i = 0; i < QUAD_TREE_CHILDREN_COUNT; i++)
+		{
+			result = mChildren[i]->RenderLightsAgainsQuadTree(pDeviceContext, pBuffer, pShader, pCamera);
+			if (result == -1)
+				return -1;
+			count += result;
+		}
+		return count;
+	}
+}
+
 void QuadTree::AddModels(ObjectClass** ppObject, UINT nrOfObjects)
 {
 	for (UINT i = 0; i < nrOfObjects; i++)
@@ -283,4 +340,46 @@ void QuadTree::CopyFromVectorToArray()
 	}
 
 	//mTObjects.clear();
+}
+
+
+void QuadTree::AddLights(PointLightClass** ppPointLights, UINT nrOfLights)
+{
+	for (UINT i = 0; i < nrOfLights; i++)
+	{
+		AddLight(ppPointLights[i]);
+	}
+
+}
+
+bool QuadTree::AddLight(PointLightClass* pPointLights)
+{
+	BoundingSphere b = pPointLights->GetBoundingSphere();
+
+	int result = mBox.Intersects(b);
+	if (result)
+	{
+		mTLights.push_back(pPointLights);
+		AddLightHelper(pPointLights);
+		return true;
+	}
+
+	return false;
+}
+
+bool QuadTree::AddLightHelper(PointLightClass* pPointLights)
+{
+
+	if (mChildren[0])
+	{
+		for (UINT j = 0; j < QUAD_TREE_CHILDREN_COUNT; j++)
+		{
+			if (mChildren[j]->AddLight(pPointLights))
+				return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
 }

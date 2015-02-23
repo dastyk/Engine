@@ -79,7 +79,7 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 {
 	bool result;
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[4];/* =
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[6];/* =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -122,6 +122,24 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 	polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[3].InstanceDataStepRate = 0;
+
+	polygonLayout[4].SemanticName = "TANGENT";
+	polygonLayout[4].SemanticIndex = 0;
+	polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[4].InputSlot = 0;
+	polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[4].InstanceDataStepRate = 0;
+
+	polygonLayout[5].SemanticName = "BINORMAL";
+	polygonLayout[5].SemanticIndex = 0;
+	polygonLayout[5].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[5].InputSlot = 0;
+	polygonLayout[5].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[5].InstanceDataStepRate = 0;
+
+
 
 	// Get a count of the elements in the layout.
 	int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -381,16 +399,39 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	{
 		return false;
 	}
-	TextureClass* pTexture = pObject->GetTexture();
+	ModelClass* pModel = pObject->GetModel();
+	
+	pDeviceContext->PSSetShaderResources(0, 1, &pShadowmap);
+
+
+
+	TextureClass* pTexture = pModel->GetDetailMap();
 
 	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
 
-	pDeviceContext->PSSetShaderResources(0, 1, &pShadowmap);
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(1, 1, tex);
+
+
+	pTexture = pModel->GetNormalMap();
+
+	tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(2, 1, tex);
+
+
+	pTexture = pModel->GetTexture();
+
+	tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(3, pTexture->GetTextureCount(), tex);
+
+	
 
 	// Set shader texture resource in the pixel shader.
 	pDeviceContext->PSSetShaderResources(1, pTexture->GetTextureCount(), tex);
-
-
 
 	pDeviceContext->PSSetSamplers(1, 1, &mPointSampleState);
 	// Now render the prepared buffers with the shader.
@@ -427,14 +468,34 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	{
 		return false;
 	}
-	TextureClass* pTexture = pObject->GetTexture();
 
-	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
+	ModelClass* pModel = pObject->GetModel();
 
 	pDeviceContext->PSSetShaderResources(0, 1, &pShadowmap);
 
+
+
+	TextureClass* pTexture = pModel->GetDetailMap();
+
+	ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
+
 	// Set shader texture resource in the pixel shader.
-	pDeviceContext->PSSetShaderResources(1, pTexture->GetTextureCount(), tex);
+	pDeviceContext->PSSetShaderResources(1, 1, tex);
+
+	pTexture = pModel->GetNormalMap();
+
+	tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(2, 1, tex);
+
+
+	pTexture = pModel->GetTexture();
+
+	tex = pTexture->GetShaderResourceView();
+
+	// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(3, pTexture->GetTextureCount(), tex);
 
 
 

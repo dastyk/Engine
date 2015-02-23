@@ -5,6 +5,8 @@ struct VS_IN
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
 	float2 Tex2 : TEXCOORD1;
+	float3 Tangent : TANGENT;
+	float3 Binormal : BINORMAL;
 };
 struct VS_OUT
 {
@@ -13,6 +15,8 @@ struct VS_OUT
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
 	float2 Tex2 : TEXCOORD1;
+	float3 Tangent : TANGENT;
+	float3 Binormal : BINORMAL;
 };
 
 VS_OUT VSMain(VS_IN input)
@@ -28,5 +32,7 @@ VS_OUT VSMain(VS_IN input)
 	output.Normal = input.Normal;
 	output.PosH = input.Pos;
 	output.Tex2 = input.Tex2;
+	output.Tangent = input.Tangent;
+	output.Binormal = input.Binormal;
 	return output;
 }

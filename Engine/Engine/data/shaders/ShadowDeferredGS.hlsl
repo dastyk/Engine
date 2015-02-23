@@ -3,7 +3,7 @@ cbuffer ConstantB : register(c0)
 	float4x4 mWorldViewProj;
 	float4x4 mWorld;
 	float4x4 LightViewProj;
-	float4 CamPos;
+	float3 CamPos;
 };
 
 
@@ -14,6 +14,8 @@ struct GS_IN
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
 	float2 Tex2 : TEXCOORD1;
+	float3 Tangent : TANGENT;
+	float3 Binormal : BINORMAL;
 };
 struct GS_OUT
 {
@@ -23,6 +25,8 @@ struct GS_OUT
 	float3 PosH : POSITION0;
 	float2 Tex2 : TEXCOORD1;
 	float4 LPos : POSITION1;
+	float3 Tangent : TANGENT;
+	float3 Binormal : BINORMAL;
 };
 
 [maxvertexcount(3)]
@@ -53,6 +57,9 @@ void GSMain(
 			float4 temp = mul(input[i].Pos, mWorld);
 				output.PosH = temp.xyz;
 			output.LPos = mul(input[i].Pos, LightViewProj);
+			output.Tangent = normalize(mul(float4(input[i].Tangent, 0), mWorld).xyz);
+			output.Binormal = normalize(mul(float4(input[i].Binormal, 0), mWorld).xyz);
+
 			ts.Append(output);
 		}
 

@@ -12,6 +12,8 @@ struct GS_IN
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
 	float2 Tex2 : TEXCOORD1;
+	float3 Tangent : TANGENT;
+	float3 Binormal : BINORMAL;
 };
 
 struct GS_OUT
@@ -21,6 +23,8 @@ struct GS_OUT
 	float3 Normal : NORMAL;
 	float3 PosH : POSITION;
 	float2 Tex2 : TEXCOORD1;
+	float3 Tangent : TANGENT;
+	float3 Binormal : BINORMAL;
 };
 
 
@@ -36,7 +40,10 @@ void outputData(GS_IN v[3], inout TriangleStream<GS_OUT> triStream)
 		output.Normal = normalize(mul(float4(v[i].Normal, 0), mWorld).xyz);	
 		float4 temp = mul(float4(v[i].PosH, 0), mWorld);
 
-			output.PosH = temp.xyz;
+		output.PosH = temp.xyz;
+
+		output.Tangent = normalize(mul(float4(v[i].Tangent, 0), mWorld).xyz);
+		output.Binormal = normalize(mul(float4(v[i].Binormal, 0), mWorld).xyz);
 
 		triStream.Append(output);
 	}

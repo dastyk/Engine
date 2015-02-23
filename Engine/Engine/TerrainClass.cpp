@@ -271,8 +271,10 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			vertices[index].Pos = XMFLOAT3((float)i, (float)mHeightMap[i][j], (float)j);
 			pPoints[index] = vertices[index].Pos;
 			vertices[index].texCoord = XMFLOAT2(i / width  * dx, j / depth * dz);
-			vertices[index].TexCoord2 = XMFLOAT2(i / (float)mWidth, j/(float)mHeight);
+			vertices[index].TexCoord2 = XMFLOAT2(i/25.0f, mHeight - j/25.0f);
 			vertices[index].Normal = XMFLOAT3(0, 0, 0);
+			vertices[index].tangent = XMFLOAT3(0, 0, 0);
+			vertices[index].binormal = XMFLOAT3(0, 0, 0);
 		}
 	}
 
@@ -284,14 +286,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 	unsigned long* indices = new unsigned long[mIndexCount];
 
-	int w2 = (mWidth - 1) / 2;
-	int w3 = w2 / 2;
-
-	int h2 = (mHeight - 1) / 2;
-	int h3 = h2 / 2;
-
 	fillIndices(0, 0, mWidth - 1, mHeight - 1, indices);
-
 
 	int index = 0;
 
@@ -305,7 +300,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 			XMVECTOR vec1 = pos2 - pos1;
 			XMVECTOR vec2 = pos3 - pos1;
-			
+
 			XMVECTOR norm = XMVector3Normalize(XMVector3Cross(vec1, vec2));
 
 			for (int k = 0; k < 3; k++)
@@ -331,11 +326,43 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 			}
 
 
+
+
+
+
 			index += 6;
 		}
 	}
 
+	UINT faceCount = mIndexCount / 3;
+	index = 0;
 
+	for (UINT i = 0; i < faceCount; i++)
+	{
+		Point p1,p2,p3;
+		p1.pos = XMLoadFloat3(&(vertices[indices[index]].Pos));
+		p1.tex = XMLoadFloat2(&(vertices[indices[index]].texCoord));
+
+		p2.pos = XMLoadFloat3(&(vertices[indices[index + 1]].Pos));
+		p2.tex = XMLoadFloat2(&(vertices[indices[index + 1]].texCoord));
+
+		p3.pos = XMLoadFloat3(&(vertices[indices[index + 2]].Pos));
+		p3.tex = XMLoadFloat2(&(vertices[indices[index + 2]].texCoord));
+
+		XMFLOAT3 tangent, binormal;
+
+		calcTangetBinormal(&p1, &p2, &p3, tangent, binormal);
+
+		vertices[indices[index]].tangent = tangent;
+		vertices[indices[index]].binormal = binormal;
+		index++;
+		vertices[indices[index]].tangent = tangent;
+		vertices[indices[index]].binormal = binormal;
+		index++;
+		vertices[indices[index]].tangent = tangent;
+		vertices[indices[index]].binormal = binormal;
+		index++;
+	}
 	
 	delete[]pPoints;
 
@@ -386,7 +413,64 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		return false;
 	}
 
+
+	mDetailMap = new TextureClass();
+	if (!mDetailMap)
+	{
+		return false;
+	}
+
+
+	vector<wstring> tex2;
+	tex2.push_back(L"TerrainDetailMap.jpg");
+
+	result = mDetailMap->Init(pDevice, tex2, NULL);
+	if (!result)
+	{
+		return false;
+	}
+
+
+	mNormalMap = new TextureClass();
+	if (!mNormalMap)
+	{
+		return false;
+	}
+
+
+	vector<wstring> tex3;
+	tex3.push_back(L"TerrainNormalMap.jpg");
+
+	result = mNormalMap->Init(pDevice, tex3, NULL);
+	if (!result)
+	{
+		return false;
+	}
 	return true;
+}
+
+void TerrainClass::calcTangetBinormal(Point* p1, Point* p2, Point* p3, XMFLOAT3& tangent, XMFLOAT3& binormal)
+{
+	XMVECTOR vec1 = p2->pos - p1->pos;
+	XMVECTOR vec2 = p3->pos - p1->pos;
+
+	XMVECTOR t1 = p2->tex - p1->tex;
+	XMVECTOR t2 = p3->tex - p1->tex;
+	
+	float cp = XMVectorGetY(t1)*XMVectorGetX(t2) - XMVectorGetX(t1)*XMVectorGetY(t2);
+
+	if (cp != 0.0f) {
+		float mul = 1.0f / cp;
+		
+		XMVECTOR tan = (vec1 * (-XMVectorGetY(t2)) + vec2 * XMVectorGetY(t1))*mul;
+		XMVECTOR bi = (vec1 * (-XMVectorGetX(t2)) + vec2 * XMVectorGetX(t1))*mul;
+		tan = XMVector3Normalize(tan);
+		bi = XMVector3Normalize(bi);
+
+		XMStoreFloat3(&tangent, tan);
+		XMStoreFloat3(&binormal, bi);
+	}
+
 }
 
 

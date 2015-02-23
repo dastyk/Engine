@@ -21,8 +21,16 @@ struct TerrainVertex
 	XMFLOAT2 texCoord;
 	XMFLOAT3 Normal;
 	XMFLOAT2 TexCoord2;
+	XMFLOAT3 tangent;
+	XMFLOAT3 binormal;
 };
 
+
+struct Point
+{
+	XMVECTOR pos;
+	XMVECTOR tex;
+};
 class TerrainClass : public ModelClass
 {
 public:
@@ -55,6 +63,8 @@ private:
 	float** mHeightMap;
 
 	void fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*& indices);
+
+	void calcTangetBinormal(Point*, Point*, Point*, XMFLOAT3&, XMFLOAT3&);
 };
 
 #endif

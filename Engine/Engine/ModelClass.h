@@ -32,9 +32,12 @@ public:
 	virtual UINT GetIndexCount()const;
 
 	TextureClass* GetTexture()const;
+	TextureClass* GetNormalMap()const;
+	TextureClass* GetDetailMap()const;
+
 	MatrialDesc* GetMaterials()const;
 
-
+	SubsetTableDesc* GetSubSetTable()const;
 
 	UINT GetObjectCount()const;
 	UINT GetBoneCount()const;
@@ -56,12 +59,16 @@ protected:
 
 
 	TextureClass *mTexture;
+	TextureClass* mNormalMap;
+	TextureClass* mDetailMap;
+
 	ID3D11Buffer* mVertexBuffer, *mIndexBuffer;
 	UINT mVertexCount, mIndexCount, mObjectCount, mBoneCount, mAnimationClipCount;
 	UINT mStride;
 	MatrialDesc* mMaterial;
 	Bone* mBones;
 	AnimClipRead* mAnimationClips;
+	SubsetTableDesc* mSubsetTable;
 
 	AABB* mBox;
 	ID3D11Buffer* mBoundingBoxVBuffer, *mBoundingBoxIBuffer;

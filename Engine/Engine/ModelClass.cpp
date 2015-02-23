@@ -17,6 +17,9 @@ ModelClass::ModelClass()
 	mBox = 0;
 	mBoundingBoxVBuffer = 0;
 	mBoundingBoxIBuffer = 0;
+	mSubsetTable = 0;
+	mNormalMap = 0;
+	mDetailMap = 0;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -90,6 +93,22 @@ ModelClass::~ModelClass()
 		delete[] mAnimationClips;
 		mAnimationClips = 0;
 	}
+	if (mSubsetTable)
+	{
+		delete[] mSubsetTable;
+		mSubsetTable = 0;
+	}
+	if (mNormalMap)
+	{
+		delete mNormalMap;
+		mNormalMap = 0;
+	}
+	if (mDetailMap)
+	{
+		delete mDetailMap;
+		mDetailMap = 0;
+	}
+	
 }
 
 
@@ -160,7 +179,7 @@ bool result;
 	BoneRead* bones;
 
 
-	LoadSmfModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial, &bones, mBoneCount, &mAnimationClips, mAnimationClipCount);
+	LoadSmfModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial, &mSubsetTable, &bones, mBoneCount, &mAnimationClips, mAnimationClipCount);
 
 
 	mBox = new AABB;
@@ -492,7 +511,15 @@ TextureClass* ModelClass::GetTexture()const
 	return mTexture;
 }
 
+TextureClass* ModelClass::GetNormalMap()const
+{
+	return mNormalMap;
+}
 
+TextureClass* ModelClass::GetDetailMap()const
+{
+	return mDetailMap;
+}
 bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum, int flag)
 {
 	if (flag == -1)
@@ -578,4 +605,9 @@ AnimClipRead* ModelClass::GetAnimationClips()const
 BoundingBox ModelClass::GetBoundingBox()const
 {
 	return mBox->GetBoundingBox();
+}
+
+SubsetTableDesc* ModelClass::GetSubSetTable()const
+{
+	return mSubsetTable;
 }

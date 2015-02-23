@@ -31,9 +31,13 @@ protected:
 	bool InitShaders(ID3D11Device* pDevice, WCHAR*);
 
 	bool createComputeShader(ID3D11Device* pDevice, WCHAR* cName, char* EntryPoint);
+	bool createSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSampleState, D3D11_SAMPLER_DESC* samplerDesc);
 
 
 	ID3D11ComputeShader* mComputeShader;
+	ID3D11SamplerState* mPointSample;
+
+
 };
 
 #endif

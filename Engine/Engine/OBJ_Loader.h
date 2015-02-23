@@ -15,7 +15,14 @@ using namespace DirectX;
 
 typedef unsigned int UINT;
 typedef unsigned long ULONG;
-
+struct SubsetTableDesc
+{
+	UINT SubsetID;
+	ULONG VertexStart;
+	ULONG VertexCount;
+	ULONG FaceStart;
+	ULONG FaceCount;
+};
 struct BoneRead
 {
 	XMFLOAT4X4 localOffset;
@@ -96,7 +103,6 @@ struct Vertex
 	XMFLOAT3 Normal;
 	XMFLOAT4 BlendWeights;
 	UINT4 BlendIndices;
-	unsigned int ID;
 };
 
 struct VertexType
@@ -118,7 +124,7 @@ bool LoadModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& 
 bool ReadFileCounts(char* filename, int& vertexCount, int& textureCount, int& normalCount, int& faceCount);
 bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray);
 
-bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips);
+bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, SubsetTableDesc**ppSubset, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips);
 
 
 void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexType* pNorm);

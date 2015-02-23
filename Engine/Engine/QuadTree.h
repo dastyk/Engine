@@ -21,20 +21,26 @@ public:
 
 
 	int RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, DeferredShaderClass* pOShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap);
+	int RenderLightsAgainsQuadTree(ID3D11DeviceContext* pDeviceContext,DeferredBufferClass* pBuffer, DeferredShaderClass* pShader, CameraClass* pCamera);
 
 	void AddModels(ObjectClass** ppObject, UINT nrOfObjects);
+	void AddLights(PointLightClass** ppPointLights, UINT nrOfLights);
+
 	bool AddModel(ObjectClass* pObject);
+	bool AddLight(PointLightClass* pPointLights);
+
 	void CopyFromVectorToArray();
 private:
 	bool createChildren();
 	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart);
 	
 	bool AddModelHelper(ObjectClass* pObject);
-
+	bool AddLightHelper(PointLightClass* pPointLights);
 	
 
 private:
 	vector<ObjectClass*> mTObjects;
+	vector<PointLightClass*> mTLights;
 	ObjectClass** mObjects;
 	UINT mObjectCount;
 

@@ -20,11 +20,13 @@ public:
 	XMFLOAT4X4 GetViewMatrix()const;
 	XMFLOAT4X4 GetProjMatrix()const;
 
+	void SetLightPos(XMFLOAT3&);
+
 	void CalcViewMatrix();
 	void SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP);
 
 	BoundingFrustum GetBoundingFrustum()const;
-
+	BoundingSphere GetBoundingSphere()const;
 private:
 	float mRadius;
 
@@ -33,6 +35,8 @@ private:
 	XMFLOAT4X4 mInvViewMatrix;
 
 	BoundingFrustum mFrustum;
+
+	BoundingSphere mSphere;
 };
 
 #endif

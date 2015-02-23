@@ -33,7 +33,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 
 	mEnable4xMsaa = false;
 
-
+	mBlendingState = 0;
 }
 
 bool D3DApp::Init()
@@ -131,8 +131,12 @@ D3DApp::~D3DApp()
 		delete mInput;
 		mInput = 0;
 	}
-
-
+	if (mBlendingState)
+	{
+		mBlendingState->Release();
+		mBlendingState = 0;
+	}
+	
 }
 
 
@@ -281,7 +285,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		mAppPaused = false;
 		mResizing = false;
 		mTimer.Start();
-		OnResize();
+		//OnResize();
 		return 0;
 	case WM_MENUCHAR:
 		return MAKELRESULT(0, MNC_CLOSE);
@@ -306,7 +310,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_SIZE: // If enter/exit fullscreen
 		if (wParam == SIZE_MAXIMIZED)
-			OnResize();
+			//OnResize();
 		return 0;
 	case WM_KEYDOWN:
 		mInput->keyDown((unsigned int)wParam);
@@ -356,6 +360,7 @@ bool D3DApp::InitDirect3D()
 		return false;
 	}
 
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 	// Set viewport
 	setViewPort(static_cast<float>(mClientWidth), static_cast<float>(mClientHeight));
@@ -439,8 +444,67 @@ bool D3DApp::createDepthStencilBufferView()
 	}
 
 
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+
+	// Initialize the description of the stencil state.
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+	// Set up the description of the stencil state.
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing.
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing.
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create the depth stencil state.
+	hr = mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilState);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Could not create mDepthStencilState.", 0, 0);
+		return false;
+	}
+
+	// Set the depth stencil state.
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
+	
+
+	D3D11_BLEND_DESC blendStateDescription;
+	// Clear the blend state description.
+	ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
+
+	// Create an alpha enabled blend state description.
+	blendStateDescription.RenderTarget[0].BlendEnable = false;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+	// Create the blend state using the description.
+	hr = mDevice->CreateBlendState(&blendStateDescription, &mBlendingState);
+	if (FAILED(hr))
+	{
+		return false;
+	}
+	float color[4] = { 0.0f };
+	mDeviceContext->OMSetBlendState(mBlendingState, color, 0xffffffff);
 
 	/*
 	// Create depth/stencil buffer and view

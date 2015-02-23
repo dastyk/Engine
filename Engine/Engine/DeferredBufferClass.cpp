@@ -13,6 +13,11 @@ DeferredBufferClass::DeferredBufferClass()
 	}
 	mDepthStencilBuffer = 0;
 	mDepthStencilView = 0;
+
+
+	mLightTexture = 0;
+	mLightRTV = 0;
+	mLightSRV = 0;
 }
 
 
@@ -51,6 +56,24 @@ DeferredBufferClass::~DeferredBufferClass()
 			mRenderTargetTextureArray[i] = 0;
 		}
 	}
+	if (mLightTexture)
+	{
+		mLightTexture->Release();
+		mLightTexture = 0;
+	}
+
+	if (mLightRTV)
+	{
+		mLightRTV->Release();
+		mLightRTV = 0;
+	}
+
+	if (mLightSRV)
+	{
+		mLightSRV->Release();
+		mLightSRV = 0;
+	}
+
 
 }
 
@@ -85,6 +108,12 @@ bool DeferredBufferClass::Init(ID3D11Device* device, int textureWidth, int textu
 		}
 	}
 
+	hr = device->CreateTexture2D(&textureDesc, NULL, &mLightTexture);
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 
 	// Setup the description of the render target view.
@@ -100,6 +129,12 @@ bool DeferredBufferClass::Init(ID3D11Device* device, int textureWidth, int textu
 		{
 			return false;
 		}
+	}
+
+	hr = device->CreateRenderTargetView(mLightTexture, &renderTargetViewDesc, &mLightRTV);
+	if (FAILED(hr))
+	{
+		return false;
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -118,6 +153,11 @@ bool DeferredBufferClass::Init(ID3D11Device* device, int textureWidth, int textu
 		{
 			return false;
 		}
+	}
+	hr = device->CreateShaderResourceView(mLightTexture, &shaderResourceViewDesc, &mLightSRV);
+	if (FAILED(hr))
+	{
+		return false;
 	}
 
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
@@ -169,6 +209,9 @@ bool DeferredBufferClass::Init(ID3D11Device* device, int textureWidth, int textu
 	mViewport.TopLeftY = 0.0f;
 
 
+
+
+
 	return true;
 }
 
@@ -188,7 +231,7 @@ void DeferredBufferClass::SetRenderTargets(ID3D11DeviceContext* deviceContext)
 	//deviceContext->RSGetViewports(&p, prevVP);
 
 	// Set the viewport.
-	deviceContext->RSSetViewports(1, &mViewport);
+	//deviceContext->RSSetViewports(1, &mViewport);
 }
 
 void DeferredBufferClass::UnsetRenderTargets(ID3D11DeviceContext* deviceContext)
@@ -215,6 +258,13 @@ void DeferredBufferClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext,
 		deviceContext->ClearRenderTargetView(mRenderTargetViewArray[i], color);
 	}
 
+	deviceContext->ClearRenderTargetView(mLightRTV, color);
+
+	ClearDepthBuffer(deviceContext);
+}
+
+void DeferredBufferClass::ClearDepthBuffer(ID3D11DeviceContext* deviceContext)
+{
 	// Clear the depth buffer.
 	deviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
@@ -227,4 +277,23 @@ ID3D11ShaderResourceView* DeferredBufferClass::GetShaderResourceView(int view)
 ID3D11ShaderResourceView** DeferredBufferClass::GetShaderResourceView()
 {
 	return mShaderResourceViewArray;
+}
+
+void DeferredBufferClass::SetLightRT(ID3D11DeviceContext* deviceContext)
+{
+	for (int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+	{
+		prevRTV[i] = nullptr;
+	}
+
+	deviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
+
+	// Bind the render target view array and depth stencil buffer to the output render pipeline.
+	deviceContext->OMSetRenderTargets(1, &mLightRTV, mDepthStencilView);
+
+}
+
+ID3D11ShaderResourceView* DeferredBufferClass::GetLightSRV()
+{
+	return mLightSRV;
 }

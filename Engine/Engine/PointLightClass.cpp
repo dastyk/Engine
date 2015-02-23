@@ -7,6 +7,8 @@ PointLightClass::PointLightClass()
 PointLightClass::PointLightClass(XMFLOAT3 color, XMFLOAT3 pos, float Radius) : LightClass(XMFLOAT3(0, 0, 0), color, pos)
 {
 	mRadius = Radius;
+	mSphere.Center = pos;
+	mSphere.Radius = Radius;
 }
 
 PointLightClass::~PointLightClass()
@@ -69,4 +71,15 @@ BoundingFrustum PointLightClass::GetBoundingFrustum()const
 	BoundingFrustum f;
 	mFrustum.Transform(f, invView);
 	return f;
+}
+
+BoundingSphere PointLightClass::GetBoundingSphere()const
+{
+	return mSphere;
+}
+
+void PointLightClass::SetLightPos(XMFLOAT3& pos)
+{
+	mLightPos = pos;
+	mSphere.Center = pos;
 }

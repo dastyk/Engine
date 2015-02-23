@@ -16,7 +16,7 @@ public:
 
 	void SetLightDir(XMFLOAT3&);
 	void SetLightColor(XMFLOAT3&);
-	void SetLightPos(XMFLOAT3&);
+	virtual void SetLightPos(XMFLOAT3&);
 
 	XMFLOAT3 GetLightDir()const;
 	XMFLOAT3 GetLightColor()const;
