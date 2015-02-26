@@ -24,7 +24,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mClientHeight = 32*COMPUTE_Y;
 
 	mNearPlane = 0.1f;
-	mFarPlane = 100;
+	mFarPlane = 10000;
 	mFoV = XMConvertToRadians(90);
 
 	mMainWndCaption = L"Engine";
@@ -136,7 +136,21 @@ D3DApp::~D3DApp()
 		mBlendingState->Release();
 		mBlendingState = 0;
 	}
-	
+	if (mStart)
+	{
+		mStart->Release();
+		mStart = 0;
+	}
+	if (mStop)
+	{
+		mStop->Release();
+		mStop = 0;
+	}
+	if (mDisjoint)
+	{
+		mDisjoint->Release();
+		mDisjoint = 0;
+	}
 }
 
 
@@ -365,7 +379,13 @@ bool D3DApp::InitDirect3D()
 	// Set viewport
 	setViewPort(static_cast<float>(mClientWidth), static_cast<float>(mClientHeight));
 
-
+	D3D11_QUERY_DESC desc;
+	desc.Query = D3D11_QUERY_TIMESTAMP;
+	desc.MiscFlags = 0;
+	mDevice->CreateQuery(&desc, &mStart);
+	mDevice->CreateQuery(&desc, &mStop);
+	desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+	mDevice->CreateQuery(&desc, &mDisjoint);
 
 	return true;
 }
@@ -970,4 +990,23 @@ void D3DApp::setViewPort(float width, float height)
 	mScreenViewport.TopLeftY = 0;
 
 	mDeviceContext->RSSetViewports(1, &mScreenViewport);
+}
+
+void D3DApp::TimeStart()
+{
+	mDeviceContext->Begin(mDisjoint);
+	mDeviceContext->End(mStart);
+	//while (mDeviceContext->GetData(mStart, &startTime, sizeof(startTime), 0) != S_OK);
+}
+void D3DApp::TimeEnd()
+{
+	mDeviceContext->End(mStop);
+	mDeviceContext->End(mDisjoint);
+	//while (mDeviceContext->GetData(mStop, &endTime, sizeof(endTime), 0) != S_OK);
+}
+
+double D3DApp::GetTime()
+{
+		while (mDeviceContext->GetData(mDisjoint, NULL, 0, 0) == S_FALSE);	D3D11_QUERY_DATA_TIMESTAMP_DISJOINT tsDisjoint;	mDeviceContext->GetData(mDisjoint, &tsDisjoint, sizeof(tsDisjoint), 0);	if (!(tsDisjoint.Disjoint))	{		UINT64 StartTime, StopTime;		mDeviceContext->GetData(mStart, &StartTime, sizeof(UINT64), 0);		mDeviceContext->GetData(mStop, &StopTime, sizeof(UINT64), 0);		return (float(StopTime - StartTime) / float(tsDisjoint.Frequency))*1000.0f;	}
+	return -1;
 }

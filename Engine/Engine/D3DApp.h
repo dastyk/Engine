@@ -21,7 +21,7 @@ using namespace DirectX;
 #pragma comment (lib, "d3dcompiler.lib")
 
 #define COMPUTE_X 58
-#define COMPUTE_Y 32
+#define COMPUTE_Y 28
 
 
 class D3DApp
@@ -64,6 +64,9 @@ protected:
 
 	void setViewPort(float width,float height);
 
+	void TimeStart();
+	void TimeEnd();
+	double GetTime();
 
 protected:
 	
@@ -103,6 +106,10 @@ protected:
 
 	D3D_DRIVER_TYPE mDriverType;
 
+
+
+
+	ID3D11Query* mStart, *mStop, *mDisjoint;
 protected:
 
 	InputClass* mInput;

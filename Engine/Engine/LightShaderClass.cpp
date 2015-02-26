@@ -134,7 +134,7 @@ bool LightShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass* 
 	pDeviceContext->PSSetShaderResources(0,pTexture->GetTextureCount(), tex);
 
 	// Now render the prepared buffers with the shader.
-	RenderShader(pDeviceContext, pObject->GetIndexCount());
+	RenderShader(pDeviceContext, pObject->GetIndexCount(0));
 
 	return true;
 }
@@ -246,7 +246,7 @@ bool LightShaderClass::RenderAnimated(ID3D11DeviceContext* pDeviceContext, Objec
 	pDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
 
 	// Render mesh stored in active buffers
-	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
+	pDeviceContext->DrawIndexed(pObject->GetIndexCount(0), 0, 0);
 
 	return true;
 }

@@ -63,6 +63,7 @@ struct SmfHeader
 	unsigned long IndexCount;
 	unsigned long bfOffBits;
 	unsigned int ObjectCount;
+	UINT MaterialCount;
 	UINT BoneCount;
 	UINT AnimationClips;
 };
@@ -124,7 +125,7 @@ bool LoadModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& 
 bool ReadFileCounts(char* filename, int& vertexCount, int& textureCount, int& normalCount, int& faceCount);
 bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, int& vertexCounts, Vertex** ppVertexArray, int& indexCount, unsigned long** ppIndexArray);
 
-bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, SubsetTableDesc**ppSubset, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips);
+bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, UINT materialCount, MatrialDesc** ppMaterials, SubsetTableDesc**ppSubset, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips);
 
 
 void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexType* pNorm);

@@ -42,7 +42,7 @@ void GSMain(
 	float4 pos6 = float4(1, -1, 0, 1);*/
 
 	float4 posH = mul(input[0].Pos, view);
-	posH = posH / posH.w;
+	//posH = posH / posH.w;
 
 	float4 pos1 = posH + float4(-0.1, 0.1, 0, 0);
 	float2 tex1 = float2(0, 0);

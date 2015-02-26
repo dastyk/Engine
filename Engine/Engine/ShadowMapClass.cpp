@@ -55,7 +55,7 @@ bool ShadowMapClass::CreateShadowMap(ID3D11DeviceContext* pDeviceContext, Object
 
 
 
-	RenderShader(pDeviceContext, pObject->GetIndexCount());
+	RenderShader(pDeviceContext, pObject->GetIndexCount(0));
 
 	
 

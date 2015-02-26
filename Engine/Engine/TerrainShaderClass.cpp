@@ -256,7 +256,7 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass
 
 
 	// Now render the prepared buffers with the shader.
-	RenderShader(pDeviceContext, pObject->GetIndexCount());
+	RenderShader(pDeviceContext, pObject->GetIndexCount(0));
 
 	return true;
 }
@@ -379,7 +379,7 @@ bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Obj
 	pDeviceContext->PSSetShader(mDeferredPS, nullptr, 0);
 
 	// Render mesh stored in active buffers
-	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
+	pDeviceContext->DrawIndexed(pObject->GetIndexCount(0), 0, 0);
 
 	return true;
 }
@@ -444,7 +444,7 @@ bool TerrainShaderClass::RenderShadowsDeferred(ID3D11DeviceContext* pDeviceConte
 	pDeviceContext->PSSetShader(mShadowDeferredPS, nullptr, 0);
 
 	// Render mesh stored in active buffers
-	pDeviceContext->DrawIndexed(pObject->GetIndexCount(), 0, 0);
+	pDeviceContext->DrawIndexed(pObject->GetIndexCount(0), 0, 0);
 
 	return true;
 }

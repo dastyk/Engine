@@ -106,9 +106,9 @@ XMFLOAT4X4 ObjectClass::GetNormalMatrix() const
 	return mTransform->GetNormalMatrix();
 }
 
-int ObjectClass::GetIndexCount()const
+int ObjectClass::GetIndexCount(UINT detailLevel)const
 {
-	return mModel->GetIndexCount();
+	return mModel->GetIndexCount(detailLevel);
 }
 
 

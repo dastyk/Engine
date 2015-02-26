@@ -17,6 +17,12 @@ struct CamBuffer
 	float pad;
 };
 
+struct VPBuffer
+{
+	XMFLOAT4X4 view;
+	XMFLOAT4X4 proj;
+};
+
 class DeferredShaderClass :
 	public ShaderClass
 {
@@ -47,6 +53,8 @@ private:
 	bool SetMaterialConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, MatrialDesc* pMaterial);
 	bool SetLightConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, PointLightClass* pPointLight);
 	bool SetCamConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
+	bool SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
+
 private:
 	ID3D11SamplerState* mSampleState;
 
@@ -61,6 +69,9 @@ private:
 	ID3D11Buffer* mMaterialBuffer;
 	ID3D11Buffer* mCamBuffer;
 	ID3D11PixelShader* mLightPS;
+	ID3D11GeometryShader* mLightGS;
+	ID3D11VertexShader* mLightVS;
+	ID3D11Buffer* mVPBuffer;
 
 	ID3D11ShaderResourceView* unbindSrv[BUFFER_COUNT];
 

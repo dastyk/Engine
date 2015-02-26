@@ -88,6 +88,12 @@ bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* 
 
 	for (int i = 0; i < mTextureCount; i++)
 	{
+		if (fileName[i].c_str()[0] == '.')
+			fileName[i].erase(0, 2);
+		if (GetExtension(fileName[i]) == wstring(L"tga"))
+		{
+			fileName[i] = removeExtension(fileName[i]) + L".jpg";
+		}
 		fileName[i] = L"data/resources/" + fileName[i];
 		hr = DirectX::CreateWICTextureFromFileEx(pDevice, (WCHAR*)fileName[i].c_str(), NULL, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, (ID3D11Resource**)&mTexture[i], NULL);//DirectX::CreateWICTextureFromFile(pDevice, (WCHAR*)fileName[i].c_str(), (ID3D11Resource**)&mTexture[i], NULL, NULL);
 		
@@ -190,4 +196,25 @@ ID3D11ShaderResourceView* TextureClass::GetBlendMapShaderResourceView()const
 bool TextureClass::blendEnabled()const
 {
 	return mUseBlendMap;
+}
+
+std::wstring TextureClass::GetExtension(const std::wstring& filename)
+{
+	std::string::size_type idx;
+
+	idx = filename.rfind('.');
+
+	if (idx != std::wstring::npos)
+	{
+		return filename.substr(idx + 1);
+	}
+
+	return L"";
+
+}
+
+std::wstring TextureClass::removeExtension(const std::wstring& filename) {
+	size_t lastdot = filename.find_last_of(L".");
+	if (lastdot == std::string::npos) return filename;
+	return filename.substr(0, lastdot);
 }

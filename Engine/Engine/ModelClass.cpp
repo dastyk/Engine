@@ -20,6 +20,7 @@ ModelClass::ModelClass()
 	mSubsetTable = 0;
 	mNormalMap = 0;
 	mDetailMap = 0;
+	mNrOfDetailLevels = 1;
 }
 
 ModelClass::ModelClass(const ModelClass& other)
@@ -53,7 +54,12 @@ ModelClass::~ModelClass()
 
 	if (mIndexBuffer)
 	{
-		mIndexBuffer->Release();
+		for (UINT i = 0; i < mNrOfDetailLevels; i++)
+		{
+			mIndexBuffer[i]->Release();
+			mIndexBuffer[i] = 0;
+		}
+		delete[]mIndexBuffer;
 		mIndexBuffer = 0;
 	}
 
@@ -108,16 +114,19 @@ ModelClass::~ModelClass()
 		delete mDetailMap;
 		mDetailMap = 0;
 	}
-	
+	if (mIndexCount)
+	{
+		delete[]mIndexCount;
+		mIndexCount = 0;
+	}
 }
 
 
-void ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, int flag)
+void ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, UINT detaiLevel)
 {
 	unsigned int stride;
 	unsigned int offset;
-	if (flag == 0)
-	{
+
 		// Set vertex buffer stride and offset.
 		stride = mStride;
 		offset = 0;
@@ -126,28 +135,11 @@ void ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, int fl
 
 		pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
 
-		pDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		pDeviceContext->IASetIndexBuffer(mIndexBuffer[detaiLevel], DXGI_FORMAT_R32_UINT, 0);
 
 		// Set topology
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-
-	}
-	else if (flag == -1)
-	{
-		// Set vertex buffer stride and offset.
-		stride = mStride;
-		offset = 0;
-
-		// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-
-		pDeviceContext->IASetVertexBuffers(0, 1, &mBoundingBoxVBuffer, &stride, &offset);
-
-		pDeviceContext->IASetIndexBuffer(mBoundingBoxIBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-		// Set topology
-		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	}
 
 
 	
@@ -156,10 +148,11 @@ void ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, int fl
 
 
 
-UINT ModelClass::GetIndexCount() const
+UINT ModelClass::GetIndexCount(UINT detailLevel) const
 {
-	return (UINT)mIndexCount;
+	return (UINT)mIndexCount[detailLevel];
 }
+
 
 
 bool ModelClass::createModel(ID3D11Device* pDevice, char* modelName)
@@ -178,8 +171,8 @@ bool result;
 	vector<wstring> tex;
 	BoneRead* bones;
 
-
-	LoadSmfModel(modelName, mVertexCount, &vertices, mIndexCount, &indices, mObjectCount, tex, &mMaterial, &mSubsetTable, &bones, mBoneCount, &mAnimationClips, mAnimationClipCount);
+	mIndexCount = new UINT[mNrOfDetailLevels];
+	LoadSmfModel(modelName, mVertexCount, &vertices, mIndexCount[0], &indices, mObjectCount, tex, mMaterialCount, &mMaterial, &mSubsetTable, &bones, mBoneCount, &mAnimationClips, mAnimationClipCount);
 
 
 	mBox = new AABB;
@@ -230,8 +223,8 @@ bool result;
 	iinitData.SysMemPitch = 0;
 	iinitData.SysMemSlicePitch = 0;
 
-
-	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount);
+	mIndexBuffer = new ID3D11Buffer*[mNrOfDetailLevels];
+	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount[0]);
 	if (!result)
 	{
 		return false;
@@ -457,7 +450,7 @@ bool ModelClass::createIndexBuffer(ID3D11Device* pDevice, D3D11_SUBRESOURCE_DATA
 	ibd.MiscFlags = 0;
 	ibd.StructureByteStride = 0;
 
-	hr = pDevice->CreateBuffer(&ibd, pData, &mIndexBuffer);
+	hr = pDevice->CreateBuffer(&ibd, pData, &mIndexBuffer[0]);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L"Failed to create Index Buffer.", 0, 0);
@@ -520,54 +513,30 @@ TextureClass* ModelClass::GetDetailMap()const
 {
 	return mDetailMap;
 }
-bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum, int flag)
+bool ModelClass::SetAsModelToBeDrawn(ID3D11DeviceContext* pDeviceContext, BoundingFrustum& frustum, UINT detaiLevel)
 {
-	if (flag == -1)
+
+	if (frustum.Contains(mBox->GetBoundingBox()) > 0)
 	{
-		if (frustum.Contains(mBox->GetBoundingBox()) > 0)
-		{
-			unsigned int stride;
-			unsigned int offset;
+		unsigned int stride;
+		unsigned int offset;
 
-			// Set vertex buffer stride and offset.
-			stride = mStride;
-			offset = 0;
+		// Set vertex buffer stride and offset.
+		stride = mStride;
+		offset = 0;
 
-			// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 
-			pDeviceContext->IASetVertexBuffers(0, 1, &mBoundingBoxVBuffer, &stride, &offset);
+		pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
 
-			pDeviceContext->IASetIndexBuffer(mBoundingBoxIBuffer, DXGI_FORMAT_R32_UINT, 0);
+		pDeviceContext->IASetIndexBuffer(mIndexBuffer[detaiLevel], DXGI_FORMAT_R32_UINT, 0);
 
-			// Set topology
-			pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		// Set topology
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-			return true;
-		}
+		return true;
 	}
-	else
-	{
-		if (frustum.Contains(mBox->GetBoundingBox()) > flag)
-		{
-			unsigned int stride;
-			unsigned int offset;
 
-			// Set vertex buffer stride and offset.
-			stride = mStride;
-			offset = 0;
-
-			// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-
-			pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
-
-			pDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-			// Set topology
-			pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-			return true;
-		}
-	}
 	return false;
 }
 
@@ -610,4 +579,9 @@ BoundingBox ModelClass::GetBoundingBox()const
 SubsetTableDesc* ModelClass::GetSubSetTable()const
 {
 	return mSubsetTable;
+}
+
+UINT ModelClass::GetMaterialCount()const
+{
+	return mMaterialCount;
 }

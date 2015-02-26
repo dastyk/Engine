@@ -358,7 +358,7 @@ void InsertData(Vertex* pVertex, VertexType* pPoint, VertexType* pTex, VertexTyp
 	pVertex->Normal.z = pNorm->z;
 }
 
-bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, MatrialDesc** ppMaterials, SubsetTableDesc**ppSubset, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips)
+bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UINT& indexCount, unsigned long** ppIndexArray, UINT& objectCount, vector<wstring> &fileName, UINT materialCount, MatrialDesc** ppMaterials, SubsetTableDesc**ppSubset, BoneRead** ppBones, UINT& boneCount, AnimClipRead** ppAnimClip, UINT& animClips)
 {
 	FILE* filePtr;
 	SmfHeader head;
@@ -375,12 +375,14 @@ bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UIN
 	objectCount = head.ObjectCount;
 	boneCount = head.BoneCount;
 	animClips = head.AnimationClips;
+	materialCount = head.MaterialCount;
+
 
 	(*ppVertexArray) = new Vertex[vertexCount];
 	(*ppIndexArray) = new unsigned long[indexCount];
-	UINT* textureSize = new UINT[objectCount];
-	char** textureArray = new char*[objectCount];
-	(*ppMaterials) = new MatrialDesc[objectCount];
+	UINT* textureSize = new UINT[materialCount];
+	char** textureArray = new char*[materialCount];
+	(*ppMaterials) = new MatrialDesc[materialCount];
 	(*ppSubset) = new SubsetTableDesc[objectCount];
 	(*ppBones) = new BoneRead[boneCount];
 	(*ppAnimClip) = new AnimClipRead[animClips];
@@ -391,13 +393,13 @@ bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UIN
 
 	fseek(filePtr, head.bfOffBits, SEEK_SET);
 
-	fread((*ppMaterials), sizeof(MatrialDesc), head.ObjectCount, filePtr);
+	fread((*ppMaterials), sizeof(MatrialDesc), head.MaterialCount, filePtr);
 	fread((*ppSubset), sizeof(SubsetTableDesc), head.ObjectCount, filePtr);
 	fread((*ppVertexArray), sizeof(Vertex), head.VertexCount, filePtr);
 	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
-	fread(textureSize, sizeof(UINT), head.ObjectCount, filePtr);
+	fread(textureSize, sizeof(UINT), head.MaterialCount, filePtr);
 
-	for (int i = 0; i < objectCount; i++)
+	for (int i = 0; i < materialCount; i++)
 	{
 		textureArray[i] = new char[textureSize[i]];
 		fread(textureArray[i], textureSize[i], 1, filePtr);

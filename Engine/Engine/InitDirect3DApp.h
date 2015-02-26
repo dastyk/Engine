@@ -102,8 +102,6 @@ private:
 
 	DeferredComputeShaderClass* mDCShader;
 
-
-	ID3D11Query* mStart, *mStop, *mDisjoint;
 };
 
 #endif

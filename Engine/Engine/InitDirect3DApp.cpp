@@ -66,6 +66,9 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mShadowmapShader = 0;
 	mBoundingBoxShader = 0;
 	mDCShader = 0;
+	mStart = 0;
+	mStop = 0;
+	mDisjoint = 0;
 
 }
 
@@ -355,14 +358,14 @@ bool InitDirect3DApp::Init()
 	//	mPointLight[i] = new PointLightClass(XMFLOAT3(l, l, l), XMFLOAT3(rand() % 50 - 25, rand() % 100, rand() % 50 - 25), rand() % 100 + 20);
 	//}
 
-	mLightCount = 2;
+	mLightCount = 10;
 	mPointLight = new PointLightClass*[mLightCount]; 
 	if (!mPointLight)
 		return false;
 
 
-	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 150);
-	mPointLight[0] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(128, 275, 315), 20);
+	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
+	mPointLight[0] = new PointLightClass(XMFLOAT3(0.05, 0.05, 0.05), XMFLOAT3(128, 275, 315), 10000);
 	mPointLight[0]->SetLightDir(XMFLOAT3(0, -1, -1));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 
@@ -436,6 +439,10 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
+	pos = mCamera->GetPosition();
+	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
+	mCamera->SetPosition(pos);
+
 	return true;
 
 }
@@ -450,6 +457,9 @@ void InitDirect3DApp::OnResize()
 
 void InitDirect3DApp::UpdateScene(float dt)
 {
+
+	mCamera->SetUpdateTime(dt);
+
 	TransformationClass* temp = 0;
 	XMFLOAT3 rot;
 	XMFLOAT3 pos;
@@ -473,7 +483,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 	//rot.x = 90;
 	//rot.z += dt * 25;
 
-
+	
 	pos = mCamera->GetPosition();
 
 	mPointLight[1]->SetLightPos(pos);
@@ -484,21 +494,25 @@ void InitDirect3DApp::UpdateScene(float dt)
 
 
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
-	mCamera->SetPosition(pos);
+
+	if (!mInput->isKeyDown(VK_F))
+		mCamera->SetPosition(pos);
+
+	
 
 	/*std::wostringstream outs;
 	outs.precision(6);
 	outs << mMainWndCaption << mFirework->GetAliveParticles() + mSnow->GetAliveParticles();
 	SetWindowText(mhMainWnd, outs.str().c_str());*/
 
-	mCamera->SetUpdateTime(dt);
+	
 
 	
 	//mFirework->Update(dt);
 
 	mCamera->CalcViewMatrix();
 
-	mQuadTree->Update(dt);
+	mQuadTree->Update(dt, mCamera);
 	
 }
 
@@ -528,7 +542,7 @@ void InitDirect3DApp::DrawScene()
 	BoundingFrustum f = mCamera->GetBoundingFrustum();
 	BoundingFrustum f2 = mPointLight[0]->GetBoundingFrustum();
 	UINT count = 0;
-
+	TimeStart();
 	mShadowmapShader->SetRTV(mDeviceContext);
 	mShadowmapShader->ClearRTV(mDeviceContext);
 
@@ -549,6 +563,7 @@ void InitDirect3DApp::DrawScene()
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
+
 	result = mQuadTree->RenderAgainsQuadTree(
 		mDeviceContext,
 		mTerrainShader,
@@ -559,31 +574,10 @@ void InitDirect3DApp::DrawScene()
 		mShadowmapShader->GetShaderResourceView());
 
 
-
+	
 
 	
 
-
-
-	static int frameCnt = 0;
-	static float timeElapsed = 0.0f;
-
-	frameCnt++;
-
-	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
-	{
-		float fps = (float)frameCnt;
-		float mspf = 1000.0f / fps;
-
-		std::wostringstream outs;
-		outs.precision(6);
-		outs << mMainWndCaption << L"Fps: " << fps << L" Frame Time: " << mspf << L" ms" << " Time: " << time << " Terrain: " << result;
-		SetWindowText(mhMainWnd, outs.str().c_str());
-
-
-		frameCnt = 0;
-		timeElapsed += 1.0f;
-	}
 
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
@@ -621,10 +615,10 @@ void InitDirect3DApp::DrawScene()
 	for (int i = 0; i < BUFFER_COUNT-2; i++)
 	{
 		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
-		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetShaderResourceView(i));
+		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(0), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetShaderResourceView(i));
 	}
 	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
-	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
+	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(0), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
 
 
 
@@ -637,6 +631,31 @@ void InitDirect3DApp::DrawScene()
 		MessageBox(0, L"Failed to swap back buffer", 0, 0);
 		return;
 	}
+
+	TimeEnd();	double t = GetTime();
+
+
+	static int frameCnt = 0;
+	static float timeElapsed = 0.0f;
+
+	frameCnt++;
+
+	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
+	{
+		float fps = (float)frameCnt;
+		float mspf = 1000.0f / fps;
+
+		std::wostringstream outs;
+		outs.precision(6);
+		outs << mMainWndCaption << L"Fps: " << fps << L" Total Time: " << mspf << L" ms" << " GPU Time: " << t << " Terrain: " << result;
+		SetWindowText(mhMainWnd, outs.str().c_str());
+
+
+		frameCnt = 0;
+		timeElapsed += 1.0f;
+	}
+
+
 }
 
 void InitDirect3DApp::OnMouseDown(WPARAM btnState, int x, int y)

@@ -14,6 +14,14 @@ using namespace std;
 #include <DirectXCollision.h>
 #include "QuadTree.h"
 
+#define TERRAIN_LEVEL_OF_DETAIL_HIGH 1
+#define TERRAIN_LEVEL_OF_DETAIL_MEDIUM 2
+#define TERRAIN_LEVEL_OF_DETAIL_LOW 4
+#define TERRAIN_LEVEL_OF_DETAIL_VERY_LOW 8
+#define TERRAIN_LEVEL_OF_DETAIL_COUNT 4  // dim/((2^detail-1)^2) // t.ex. om mappen är 256x256 loppar man fram max antal levels genom att börja på 1 if 256/(2^1-1)^2 >= 1 then ok, sen 256/(2^2-1)^2 >= 2
+
+// Generellt if(dim/((2^(detail-1))^2) >= detail then detail level is accepted)
+
 
 struct TerrainVertex
 {
@@ -40,7 +48,7 @@ public:
 	bool Init(ID3D11Device*, QuadTree**);
 
 	float getHeightAtPoint(const XMFLOAT3&)const;
-	XMFLOAT3 GetVectorAtPoint(const XMFLOAT3&)const;
+	bool GetVectorAtPoint(const XMFLOAT3& forward, const XMFLOAT3& pos, XMFLOAT3& out)const;
 
 
 
@@ -61,8 +69,11 @@ private:
 	float mHeightScale, mHeightOffset;
 
 	float** mHeightMap;
+	XMFLOAT3** mHeightMapNormal;
 
-	void fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*& indices);
+	void fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*& indices, UINT LevelOfQuality);
+	void CalcNormalTangentBinormal(TerrainVertex* vertices, unsigned long* indices, UINT i);
+
 
 	void calcTangetBinormal(Point*, Point*, Point*, XMFLOAT3&, XMFLOAT3&);
 };

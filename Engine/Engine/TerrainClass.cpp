@@ -4,20 +4,33 @@
 TerrainClass::TerrainClass() : ModelClass()
 {
 	mHeightMap = 0;
+	mNrOfDetailLevels = TERRAIN_LEVEL_OF_DETAIL_COUNT;
 }
 
 
 TerrainClass::~TerrainClass()
 {
-	for (int i = 0; i < mWidth; i++)
-	{
-		delete[] mHeightMap[i];
-	}
+	
 	if (mHeightMap)
 	{
+		for (int i = 0; i < mWidth; i++)
+		{
+			delete[] mHeightMap[i];
+		}
 		delete[]mHeightMap;
 		mHeightMap = 0;
 	}	
+
+	if (mHeightMapNormal)
+	{
+		for (int i = 0; i < mWidth; i++)
+		{
+			delete[] mHeightMapNormal[i];
+		}
+		delete[]mHeightMapNormal;
+		mHeightMapNormal = 0;
+	}
+	
 }
 
 bool TerrainClass::Init(ID3D11Device* pDevice, QuadTree** ppQuadTree)
@@ -38,9 +51,9 @@ bool TerrainClass::Init(ID3D11Device* pDevice, QuadTree** ppQuadTree)
 	//}
 
 	filterTerrain();
-	filterTerrain();
-	filterTerrain();
-	result = fillVertexAndIndexData(pDevice, L"Moon_floor_2_jaqx_tilable_1024.png", L"seemless_4.jpg",L"data/resources/blendmap1.jpg", ppQuadTree);
+	//filterTerrain();
+//	filterTerrain();
+	result = fillVertexAndIndexData(pDevice, L"Moon_floor_2_jaqx_tilable_1024.png", L"seamless_mountain_rock_by_hhh316-d31i6ci.jpg",L"data/resources/blendmap1.jpg", ppQuadTree);
 	if (!result)
 	{
 		return false;
@@ -248,16 +261,14 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 {
 	bool result;
 	TerrainVertex* vertices = 0;
-	//mWidth = 257;
-	//mHeight = 257;
 	mStride = sizeof(TerrainVertex);
 	mVertexCount = mWidth*mHeight;
 
 	
 	vertices = new TerrainVertex[mVertexCount];
 
-	float dx = 1.0f;
-	float dz = 1.0f;
+	float dx = 2.0f;
+	float dz = 2.0f;
 
 	float width = (mWidth - 1) / 2.0f;
 	float depth = (mHeight - 1) / 2.0f;
@@ -267,7 +278,6 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		for (int i = 0; i < mWidth; i++)
 		{
 			int index = j*mWidth + i;
-			//mHeightMap[i][j] = i;
 			vertices[index].Pos = XMFLOAT3((float)i, (float)mHeightMap[i][j], (float)j);
 			vertices[index].texCoord = XMFLOAT2(i / width  * dx, j / depth * dz);
 			vertices[index].TexCoord2 = XMFLOAT2(i/25.0f, mHeight - j/25.0f);
@@ -277,119 +287,96 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		}
 	}
 
-	int count = (mWidth-1)*(mHeight-1);
-	mIndexCount = count * 6;
-
-	(*ppQuadTree) = new QuadTree;
-	(*ppQuadTree)->Init(mVertexCount, (XMFLOAT3*)vertices, sizeof(TerrainVertex), mIndexCount);
-
-	unsigned long* indices = new unsigned long[mIndexCount];
-
-	fillIndices(0, 0, mWidth - 1, mHeight - 1, indices);
-
-	int index = 0;
-
-	for (int j = 0; j < (mHeight - 1); j++)
+	//if (dim / ((2 ^ (detail - 1)) ^ 2) >= detail then detail level is accepted)
+	bool done = false;
+	mNrOfDetailLevels = 0;
+	while (!done)
 	{
-		for (int i = 0; i < (mWidth - 1); i++)
+		float w = (float)mWidth - 1;
+		float pow1 = powf(2, mNrOfDetailLevels);
+		float pow2 = powf(pow1, 2);
+		float t = w / pow2;
+		if (t < mNrOfDetailLevels + 1)
 		{
-			XMVECTOR pos1 = XMLoadFloat3(&(vertices[indices[index]].Pos));
-			XMVECTOR pos2 = XMLoadFloat3(&(vertices[indices[index+1]].Pos));
-			XMVECTOR pos3 = XMLoadFloat3(&(vertices[indices[index+2]].Pos));
-
-			XMVECTOR vec1 = pos2 - pos1;
-			XMVECTOR vec2 = pos3 - pos1;
-
-			XMVECTOR norm = XMVector3Normalize(XMVector3Cross(vec1, vec2));
-
-			for (int k = 0; k < 3; k++)
-			{
-				XMVECTOR origNorm = XMLoadFloat3(&(vertices[indices[index + k]].Normal));
-				XMVECTOR finNorm = XMVector3Normalize((norm + origNorm));
-
-				XMStoreFloat3(&(vertices[indices[index + k]].Normal), norm);
-			}
-			XMVECTOR pos4 = XMLoadFloat3(&(vertices[indices[index + 5]].Pos));
-
-			vec1 = pos4 - pos3;
-			vec2 = pos2 - pos3;
-
-			norm = XMVector3Normalize(XMVector3Cross(vec1, vec2));
-
-			for (int k = 3; k < 6; k++)
-			{
-				XMVECTOR origNorm = XMLoadFloat3(&(vertices[indices[index + k]].Normal));
-				XMVECTOR finNorm = XMVector3Normalize((norm + origNorm));
-
-				XMStoreFloat3(&(vertices[indices[index + k]].Normal), norm);
-			}
-
-
-
-
-
-
-			index += 6;
+			done = true;
+		}
+		else
+		{
+			mNrOfDetailLevels++;
 		}
 	}
 
-	UINT faceCount = mIndexCount / 3;
-	index = 0;
 
-	for (UINT i = 0; i < faceCount; i++)
+	int count = (mWidth-1)*(mHeight-1);
+
+	mIndexCount = new UINT[mNrOfDetailLevels];
+	mIndexBuffer = new ID3D11Buffer*[mNrOfDetailLevels];
+
+	for (UINT i = 0; i < mNrOfDetailLevels; i++)
 	{
-		Point p1,p2,p3;
-		p1.pos = XMLoadFloat3(&(vertices[indices[index]].Pos));
-		p1.tex = XMLoadFloat2(&(vertices[indices[index]].texCoord));
+		UINT detail = (UINT)pow((float)2, (float)i);
 
-		p2.pos = XMLoadFloat3(&(vertices[indices[index + 1]].Pos));
-		p2.tex = XMLoadFloat2(&(vertices[indices[index + 1]].texCoord));
+		mIndexCount[i] = (count * 6) / (detail*detail);
 
-		p3.pos = XMLoadFloat3(&(vertices[indices[index + 2]].Pos));
-		p3.tex = XMLoadFloat2(&(vertices[indices[index + 2]].texCoord));
+		
 
-		XMFLOAT3 tangent, binormal;
+		unsigned long* indices = new unsigned long[mIndexCount[i]];
+		fillIndices(0, 0, mWidth - 1, mHeight - 1, indices, detail);
 
-		calcTangetBinormal(&p1, &p2, &p3, tangent, binormal);
+		if (i == 0)
+		{
+			CalcNormalTangentBinormal(vertices, indices, i);
+			 mHeightMapNormal = new XMFLOAT3*[mWidth];
+			for (int k = 0; k < mWidth; k++)
+				mHeightMapNormal[k] = new XMFLOAT3[mHeight];
 
-		vertices[indices[index]].tangent = tangent;
-		vertices[indices[index]].binormal = binormal;
-		index++;
-		vertices[indices[index]].tangent = tangent;
-		vertices[indices[index]].binormal = binormal;
-		index++;
-		vertices[indices[index]].tangent = tangent;
-		vertices[indices[index]].binormal = binormal;
-		index++;
+			for (int k = 0; k < mHeight; k++)
+			{
+				for (int l = 0; l < mWidth; l++)
+				{
+					UINT d = k*mWidth + l;
+					mHeightMapNormal[l][k] = vertices[d].Normal;
+				}
+			}
+		}
+		
+
+		D3D11_SUBRESOURCE_DATA iinitData;
+		iinitData.pSysMem = indices;
+		iinitData.SysMemPitch = 0;
+		iinitData.SysMemSlicePitch = 0;
+
+		result = createIndexBuffer(pDevice, &iinitData, &mIndexBuffer[i], sizeof(unsigned long)*mIndexCount[i]);
+		if (!result)
+		{
+			return false;
+		}
+
+		delete[]indices;
+
+		
 	}
-	
+
+
+	(*ppQuadTree) = new QuadTree;
+	(*ppQuadTree)->Init(mVertexCount, (XMFLOAT3*)vertices, sizeof(TerrainVertex), mIndexCount, mNrOfDetailLevels);
+
+
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = vertices;
 	vinitData.SysMemPitch = 0;
 	vinitData.SysMemSlicePitch = 0;
 
-	result = createVertexBuffer(pDevice, &vinitData, mStride * mVertexCount);
+	result = createVertexBuffer(pDevice, &vinitData, &mVertexBuffer, mStride * mVertexCount);
 	if (!result)
 	{
 		return false;
 	}
+	
+
+
 
 	delete[]vertices;
-
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = indices;
-	iinitData.SysMemPitch = 0;
-	iinitData.SysMemSlicePitch = 0;
-
-	result = createIndexBuffer(pDevice, &iinitData, sizeof(unsigned long)*mIndexCount);
-	if (!result)
-	{
-		return false;
-	}
-
-	delete[]indices;
-
-
 
 
 	mTexture = new TextureClass();
@@ -418,7 +405,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 
 	vector<wstring> tex2;
-	tex2.push_back(L"TerrainDetailMap.jpg");
+	tex2.push_back(L"stone_texture___seamless_by_agf81-d39vfot.jpg");
 
 	result = mDetailMap->Init(pDevice, tex2, NULL);
 	if (!result)
@@ -443,6 +430,83 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		return false;
 	}
 	return true;
+}
+
+void TerrainClass::CalcNormalTangentBinormal(TerrainVertex* vertices, unsigned long* indices, UINT i)
+{
+	int index = 0;
+
+
+	while (index < mIndexCount[i])
+	{
+		XMVECTOR pos1 = XMLoadFloat3(&(vertices[indices[index]].Pos));
+		XMVECTOR pos2 = XMLoadFloat3(&(vertices[indices[index + 1]].Pos));
+		XMVECTOR pos3 = XMLoadFloat3(&(vertices[indices[index + 2]].Pos));
+
+		XMVECTOR vec1 = pos2 - pos1;
+		XMVECTOR vec2 = pos3 - pos1;
+
+		XMVECTOR norm = XMVector3Normalize(XMVector3Cross(vec1, vec2));
+
+		for (int k = 0; k < 3; k++)
+		{
+			XMVECTOR origNorm = XMLoadFloat3(&(vertices[indices[index + k]].Normal));
+			XMVECTOR finNorm = XMVector3Normalize((norm + origNorm));
+
+			XMStoreFloat3(&(vertices[indices[index + k]].Normal), norm);
+		}
+		XMVECTOR pos4 = XMLoadFloat3(&(vertices[indices[index + 5]].Pos));
+
+		vec1 = pos4 - pos3;
+		vec2 = pos2 - pos3;
+
+		norm = XMVector3Normalize(XMVector3Cross(vec1, vec2));
+
+		for (int k = 3; k < 6; k++)
+		{
+			XMVECTOR origNorm = XMLoadFloat3(&(vertices[indices[index + k]].Normal));
+			XMVECTOR finNorm = XMVector3Normalize((norm + origNorm));
+
+			XMStoreFloat3(&(vertices[indices[index + k]].Normal), norm);
+		}
+
+
+
+
+
+
+		index += 6;
+	}
+
+	UINT faceCount = mIndexCount[i] / 3;
+	index = 0;
+
+	for (UINT i = 0; i < faceCount; i++)
+	{
+		Point p1, p2, p3;
+		p1.pos = XMLoadFloat3(&(vertices[indices[index]].Pos));
+		p1.tex = XMLoadFloat2(&(vertices[indices[index]].texCoord));
+
+		p2.pos = XMLoadFloat3(&(vertices[indices[index + 1]].Pos));
+		p2.tex = XMLoadFloat2(&(vertices[indices[index + 1]].texCoord));
+
+		p3.pos = XMLoadFloat3(&(vertices[indices[index + 2]].Pos));
+		p3.tex = XMLoadFloat2(&(vertices[indices[index + 2]].texCoord));
+
+		XMFLOAT3 tangent, binormal;
+
+		calcTangetBinormal(&p1, &p2, &p3, tangent, binormal);
+
+		vertices[indices[index]].tangent = tangent;
+		vertices[indices[index]].binormal = binormal;
+		index++;
+		vertices[indices[index]].tangent = tangent;
+		vertices[indices[index]].binormal = binormal;
+		index++;
+		vertices[indices[index]].tangent = tangent;
+		vertices[indices[index]].binormal = binormal;
+		index++;
+	}
 }
 
 void TerrainClass::calcTangetBinormal(Point* p1, Point* p2, Point* p3, XMFLOAT3& tangent, XMFLOAT3& binormal)
@@ -503,12 +567,60 @@ float TerrainClass::getHeightAtPoint(const XMFLOAT3& pos)const
 	return fHeight;
 }
 
-void TerrainClass::fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*& indices)
+bool TerrainClass::GetVectorAtPoint(const XMFLOAT3& forward, const XMFLOAT3& pos, XMFLOAT3& out)const
 {
-	if (x > 1 || y > 1)
+	int x = (int)pos.x;
+	int z = (int)pos.z;
+
+	if (!inBoundsOfHeightMap(x, z))
+		return false;
+	if (!inBoundsOfHeightMap(x + 1, z + 1))
+		return false;
+
+	XMFLOAT3 fTriY0 = (mHeightMapNormal[x][z]);
+	XMFLOAT3 fTriY1 = (mHeightMapNormal[x + 1][z]);
+	XMFLOAT3 fTriY2 = (mHeightMapNormal[x][z + 1]);
+	XMFLOAT3 fTriY3 = (mHeightMapNormal[x + 1][z + 1]);
+
+	float fHeight;
+	float fSqX = pos.x - truncf(pos.x);
+	float fSqZ = pos.z - truncf(pos.z);
+	if ((fSqX + fSqZ) < 1)
 	{
-		UINT count = x*y * 6;
-		UINT c2 = (x / 2)*(y / 2) * 6;
+		XMVECTOR v1 = XMLoadFloat3(&fTriY0);
+		XMVECTOR v2 = XMLoadFloat3(&fTriY1);
+		XMVECTOR v3 = XMLoadFloat3(&fTriY2);
+
+		XMVECTOR norm = XMVector3Normalize(v1 + v2 + v3);
+
+		XMVECTOR f = XMLoadFloat3(&forward);
+		XMVECTOR tan = XMVector3Cross(f, norm);
+		XMVECTOR fn = XMVector3Normalize( XMVector3Cross(norm, tan));
+		XMStoreFloat3(&out, fn);
+	}
+	else
+	{
+		XMVECTOR v1 = XMLoadFloat3(&fTriY3);
+		XMVECTOR v2 = XMLoadFloat3(&fTriY1);
+		XMVECTOR v3 = XMLoadFloat3(&fTriY2);
+
+		XMVECTOR norm = XMVector3Normalize(v1 + v2 + v3);
+
+		XMVECTOR f = XMLoadFloat3(&forward);
+		XMVECTOR tan = XMVector3Cross(f, norm);
+		XMVECTOR fn = XMVector3Cross(tan, norm);
+		XMStoreFloat3(&out, fn);
+	}
+
+	return true;
+}
+
+void TerrainClass::fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*& indices, UINT LevelOfQuality)
+{
+	if (x > LevelOfQuality || y > LevelOfQuality)
+	{
+		UINT count = (x*y * 6) / (LevelOfQuality*LevelOfQuality);
+		UINT c2 = ((x / 2)*(y / 2) * 6) / (LevelOfQuality*LevelOfQuality);
 		UINT index = 0;
 		for (UINT j = 0; j < 2; j++)
 		{
@@ -517,7 +629,7 @@ void TerrainClass::fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*&
 				unsigned long* Indices = new unsigned long[c2];
 				UINT oW = oX + i*(x / 2);
 				UINT oH = oY + j*(mWidth)*(y/2);
-				fillIndices(oW, oH, x / 2, y / 2, Indices);
+				fillIndices(oW, oH, x / 2, y / 2, Indices,LevelOfQuality);
 				for (UINT k = 0; k < c2; k++)
 				{
 					indices[index] = Indices[k];
@@ -531,8 +643,8 @@ void TerrainClass::fillIndices(UINT oX, UINT oY, UINT x, UINT y, unsigned long*&
 	{
 		int d = oY + oX;
 		indices[0] = (unsigned long)d;
-		indices[1] = indices[4] = (unsigned long)mWidth + d;
-		indices[2] = indices[3] = (unsigned long)d + 1;
-		indices[5] = (unsigned long)mWidth + d + 1;
+		indices[1] = indices[4] = (unsigned long)mWidth*LevelOfQuality + d;
+		indices[2] = indices[3] = (unsigned long)d + LevelOfQuality;
+		indices[5] = (unsigned long)mWidth*LevelOfQuality + d + LevelOfQuality;
 	}
 }

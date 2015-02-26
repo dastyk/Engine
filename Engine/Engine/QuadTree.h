@@ -18,7 +18,7 @@ public:
 	QuadTree();	
 	~QuadTree();
 
-	bool Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UINT indexCount);
+	bool Init(UINT pointCount, const XMFLOAT3* pPoints, size_t stride, UINT* indexCount, UINT nrOfDetailLevels);
 
 
 	int RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, DeferredShaderClass* pOShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap);
@@ -35,16 +35,19 @@ public:
 
 	void CopyFromVectorToArray();
 
-	void Update(float dt);
+	void Update(float dt, CameraClass* pCamera);
+
+
 
 
 private:
 	bool createChildren();
-	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT indexCount, UINT indexStart);
+	bool Init(XMVECTOR p1, XMVECTOR p2, QuadTree* pParent, UINT* indexCount, UINT nrOfDetailLevels, UINT* indexStart, UINT id);
 	
 	bool AddModelHelper(ObjectClass* pObject);
 	bool AddLightHelper(PointLightClass* pPointLights);
 	
+	UINT GetTerrainDetail(XMFLOAT3* p);
 
 private:
 	vector<ObjectClass*> mTObjects;
@@ -56,8 +59,9 @@ private:
 	QuadTree* mChildren[QUAD_TREE_CHILDREN_COUNT];
 	QuadTree* mParent;
 
-	UINT mIndexStart;
-	UINT mIndexCount;
+	UINT* mIndexStart;
+	UINT* mIndexCount;
+	UINT mNrOfDetailLevels;
 
 	SnowEffect* mSnow;
 

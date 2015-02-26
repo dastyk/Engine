@@ -27,7 +27,7 @@ public:
 
 	XMFLOAT4X4 GetWorldMatrix()const;
 	XMFLOAT4X4 GetNormalMatrix()const;
-	int GetIndexCount()const;
+	int GetIndexCount(UINT detailLevel)const;
 	TransformationClass* GetTransformation()const;
 
 	MatrialDesc* GetMaterials()const;

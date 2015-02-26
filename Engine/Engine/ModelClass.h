@@ -25,11 +25,11 @@ public:
 
 	
 
-	void SetAsModelToBeDrawn(ID3D11DeviceContext*, int flag);
-	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum, int flag);
+	void SetAsModelToBeDrawn(ID3D11DeviceContext*, UINT detaiLevel);
+	virtual bool SetAsModelToBeDrawn(ID3D11DeviceContext*, BoundingFrustum& frustum, UINT detaiLevel);
 	BoundingBox GetBoundingBox()const;
 
-	virtual UINT GetIndexCount()const;
+	virtual UINT GetIndexCount(UINT detailLevel)const;
 
 	TextureClass* GetTexture()const;
 	TextureClass* GetNormalMap()const;
@@ -40,6 +40,7 @@ public:
 	SubsetTableDesc* GetSubSetTable()const;
 
 	UINT GetObjectCount()const;
+	UINT GetMaterialCount()const;
 	UINT GetBoneCount()const;
 	Bone* GetBones()const;
 	UINT GetAnimationClipCount()const;
@@ -62,8 +63,11 @@ protected:
 	TextureClass* mNormalMap;
 	TextureClass* mDetailMap;
 
-	ID3D11Buffer* mVertexBuffer, *mIndexBuffer;
-	UINT mVertexCount, mIndexCount, mObjectCount, mBoneCount, mAnimationClipCount;
+	ID3D11Buffer* mVertexBuffer;
+	ID3D11Buffer** mIndexBuffer;
+	UINT mVertexCount, mObjectCount, mBoneCount, mAnimationClipCount, mMaterialCount;
+	UINT* mIndexCount;
+	UINT mNrOfDetailLevels;
 	UINT mStride;
 	MatrialDesc* mMaterial;
 	Bone* mBones;

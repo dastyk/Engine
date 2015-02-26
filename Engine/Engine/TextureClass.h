@@ -27,7 +27,8 @@ public:
 private:
 	int mTextureCount;
 	bool mUseBlendMap;
-
+	std::wstring GetExtension(const std::wstring& filename);
+	std::wstring removeExtension(const std::wstring& filename);
 private:
 	ID3D11ShaderResourceView** mSRV;
 	ID3D11Texture2D** mTexture;

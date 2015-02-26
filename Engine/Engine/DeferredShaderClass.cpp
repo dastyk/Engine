@@ -19,6 +19,9 @@ DeferredShaderClass::DeferredShaderClass() : ShaderClass()
 	mCamBuffer = 0;
 	mBlendState = 0;
 	mDepthStencilState = 0;
+	mLightGS = 0;
+	mVPBuffer = 0;
+	mLightVS = 0;
 }
 
 
@@ -84,7 +87,22 @@ DeferredShaderClass::~DeferredShaderClass()
 		mDepthStencilState->Release();
 		mDepthStencilState = 0;
 	}
-	
+
+	if (mLightGS)
+	{
+		mLightGS->Release();
+		mLightGS = 0;
+	}
+	if (mVPBuffer)
+	{
+		mVPBuffer->Release();
+		mVPBuffer = 0;
+	}
+	if (mLightVS)
+	{
+		mLightVS->Release();
+		mLightVS = 0;
+	}
 	
 }
 
@@ -148,13 +166,13 @@ bool DeferredShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Ob
 		TextureClass* pTexture = pObject->GetTexture();
 		ID3D11ShaderResourceView** tex = pTexture->GetShaderResourceView();
 	
-		result = SetMaterialConstantBufferParameters(pDeviceContext, &pMaterialDesc[i]);
+		result = SetMaterialConstantBufferParameters(pDeviceContext, &pMaterialDesc[pSubSet[i].SubsetID]);
 		if (!result)
 		{
 			return false;
 		}
 		// Set shader texture resource in the pixel shader.
-		pDeviceContext->PSSetShaderResources(0, 1, &tex[i]);
+		pDeviceContext->PSSetShaderResources(0, 1, &tex[pSubSet[i].SubsetID]);
 
 		// Render mesh stored in active buffers
 		pDeviceContext->DrawIndexed(pSubSet[i].FaceCount * 3, pSubSet[i].FaceStart * 3, 0);
@@ -248,12 +266,19 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	pDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	pDeviceContext->PSSetShader(mLightPS, nullptr, 0);
 
+	//pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
 	result = SetCamConstantBufferParameters(pDeviceContext, pCamera);
 	if (!result)
 	{
 		return false;
 	}
+
+	/*result = SetVPConstantBufferParameters(pDeviceContext, pCamera);
+	if (!result)
+	{
+		return false;
+	}*/
 
 	float color[4] = { 0.0f };
 	float pcolor[4] = { 0.0f };
@@ -269,6 +294,7 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	pDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
 
 
+
 	BoundingFrustum f = pCamera->GetBoundingFrustum();
 	BoundingSphere s;
 	for (UINT i = 0; i < NrOfLights; i++)
@@ -282,7 +308,6 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 				return false;
 			}
 
-			// Render mesh stored in active buffers
 			pDeviceContext->Draw(6, 0);
 		}
 	}
@@ -509,6 +534,24 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 		return false;
 	}
 
+	result = createGeometryShader(pDevice, L"data/shaders/LightGS.hlsl", "GSMain", &mLightGS);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = createVertexShader(pDevice, L"data/shaders/LightVS.hlsl", "VSMain", &mLightVS);
+	if (!result)
+	{
+		return false;
+	}
+
+
+	result = createConstantBuffer(pDevice, sizeof(VPBuffer), &mVPBuffer, D3D11_BIND_CONSTANT_BUFFER);
+	if (!result)
+	{
+		return false;
+	}
 
 	D3D11_BLEND_DESC blendStateDescription;
 	// Clear the blend state description.
@@ -690,6 +733,7 @@ bool DeferredShaderClass::SetLightConstantBufferParameters(ID3D11DeviceContext* 
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mLightBuffer);
 
+	pDeviceContext->GSSetConstantBuffers(1, 1, &mLightBuffer);
 	return true;
 }
 
@@ -720,6 +764,44 @@ bool DeferredShaderClass::SetCamConstantBufferParameters(ID3D11DeviceContext* pD
 
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mCamBuffer);
+
+	return true;
+}
+
+bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	VPBuffer* dataPtr;
+	unsigned int bufferNumber;
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mVPBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (VPBuffer*)mappedResource.pData;
+
+	XMMATRIX view = XMLoadFloat4x4(&pCamera->GetViewMatrix());
+	XMMATRIX proj = XMLoadFloat4x4(&pCamera->GetProjMatrix());
+
+	view = XMMatrixTranspose(view);
+	proj = XMMatrixTranspose(proj);
+
+	XMStoreFloat4x4(&dataPtr->view, view);
+	XMStoreFloat4x4(&dataPtr->proj, proj);
+
+	// Unlock the constant buffer.
+	pDeviceContext->Unmap(mVPBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Set the constant buffer in the shader with the updated values.
+	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mVPBuffer);
 
 	return true;
 }

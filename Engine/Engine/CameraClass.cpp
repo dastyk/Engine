@@ -58,6 +58,9 @@ void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
 	BoundingFrustum::CreateFromMatrix(mFrustum, proj);
+
+	proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, 1);
+	BoundingFrustum::CreateFromMatrix(mLowQFrustum, proj);
 }
 
 void CameraClass::SetRotation(XMFLOAT3& rot)
@@ -123,4 +126,21 @@ bool CameraClass::GetDC()
 BoundingBox CameraClass::GetBoundingBox()const
 {
 	return mBox;
+}
+
+BoundingFrustum CameraClass::GetLowQBoundingFrustum()const
+{
+	XMMATRIX invView;// = XMLoadFloat4x4(&mInvViewMatrix);
+	BoundingFrustum f;
+	if (mDc)
+	{
+		invView = XMLoadFloat4x4(&mLastInvViewMatrix);
+	}
+	else
+	{
+		invView = XMLoadFloat4x4(&mInvViewMatrix);
+	}
+
+	mLowQFrustum.Transform(f, invView);
+	return f;
 }
