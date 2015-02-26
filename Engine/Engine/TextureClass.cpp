@@ -89,7 +89,11 @@ bool TextureClass::Init(ID3D11Device* pDevice, vector<wstring> fileName, WCHAR* 
 	for (int i = 0; i < mTextureCount; i++)
 	{
 		if (fileName[i].c_str()[0] == '.')
-			fileName[i].erase(0, 2);
+			fileName[i].erase(0, 1);
+		if (fileName[i].c_str()[0] == '/')
+			fileName[i].erase(0, 1);
+		if (fileName[i].c_str()[0] == '/')
+			fileName[i].erase(0, 1);
 		if (GetExtension(fileName[i]) == wstring(L"tga"))
 		{
 			fileName[i] = removeExtension(fileName[i]) + L".jpg";
