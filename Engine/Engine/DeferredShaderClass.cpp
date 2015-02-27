@@ -11,7 +11,7 @@ DeferredShaderClass::DeferredShaderClass() : ShaderClass()
 		unbindSrv[i] = nullptr;
 	}
 	mVertexShaderRenderTarget = 0;
-	//mPixelShaderRenderTarget = 0;
+	mPixelShaderRenderTarget = 0;
 	mVertexBuffer = 0;
 	mLayout2 = 0;
 	mMaterialBuffer = 0;
@@ -47,11 +47,11 @@ DeferredShaderClass::~DeferredShaderClass()
 		mVertexShaderRenderTarget->Release();
 		mVertexShaderRenderTarget = 0;
 	}
-	//if (mPixelShaderRenderTarget)
-	//{
-	//	mPixelShaderRenderTarget->Release();
-	//	mPixelShaderRenderTarget = 0;
-	//}
+	if (mPixelShaderRenderTarget)
+	{
+		mPixelShaderRenderTarget->Release();
+		mPixelShaderRenderTarget = 0;
+	}
 	if (mVertexBuffer)
 	{
 		mVertexBuffer->Release();
@@ -161,6 +161,12 @@ bool DeferredShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Ob
 	pDeviceContext->GSSetShader(mGeometryShader, nullptr, 0);
 	pDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
 
+	struct MaterialBuffer{
+		MatrialDesc* pMaterials;
+		ObjectClass* pObjects;
+	};
+
+
 	for (UINT i = 0; i < count; i++)
 	{
 		TextureClass* pTexture = pObject->GetTexture();
@@ -181,58 +187,54 @@ bool DeferredShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Ob
 
 	return true;
 }
-//
-//bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog)
-//{
-//	bool result;
-//	unsigned int bufferNumber;
-//
-//	unsigned int stride = sizeof(DeferredVertexStruct);
-//	unsigned int offset = 0;
-//
-//	pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
-//	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//
-//	// Set the position of the constant buffer in the vertex shader.
-//	bufferNumber = 0;
-//
-//
-//
-//	result = SetConstantBufferParameters(pDeviceContext, ppLights, NrOfLights, pObject, pDrawDistFog, pCamera);
-//	if (!result)
-//	{
-//		return false;
-//	}
-//
-//	ID3D11ShaderResourceView** tex = pBuffer->GetShaderResourceView();
-//
-//	// Set shader texture resource in the pixel shader.
-//	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, tex);
-//
-//	pDeviceContext->PSSetSamplers(0, 1, &mSampleStateRenderTarget);
-//
-//
-//
-//
-//
-//	// Set the vertex input layout.
-//	pDeviceContext->IASetInputLayout(mLayout2);
-//
-//
-//	// Set the vertex and pixel shaders that will be used to render this triangle.
-//	pDeviceContext->VSSetShader(mVertexShaderRenderTarget, nullptr, 0);
-//	pDeviceContext->HSSetShader(nullptr, nullptr, 0);
-//	pDeviceContext->DSSetShader(nullptr, nullptr, 0);
-//	pDeviceContext->GSSetShader(nullptr, nullptr, 0);
-//	pDeviceContext->PSSetShader(mPixelShaderRenderTarget, nullptr, 0);
-//
-//	// Render mesh stored in active buffers
-//	pDeviceContext->Draw(6, 0);
-//
-//	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, unbindSrv);
-//
-//	return true;
-//}
+
+bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer)
+{
+	bool result;
+	unsigned int bufferNumber;
+
+	unsigned int stride = sizeof(DeferredVertexStruct);
+	unsigned int offset = 0;
+
+	pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	ID3D11ShaderResourceView* tex = pBuffer->GetLightSRV();
+
+	//// Set shader texture resource in the pixel shader.
+	pDeviceContext->PSSetShaderResources(0, 1, &tex);
+
+	tex = pBuffer->GetShaderResourceView(1);
+
+	pDeviceContext->PSSetShaderResources(1, 1, &tex);
+
+	pDeviceContext->PSSetSamplers(0, 1, &mSampleStateRenderTarget);
+
+
+
+
+
+	// Set the vertex input layout.
+	pDeviceContext->IASetInputLayout(mLayout2);
+
+
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	pDeviceContext->VSSetShader(mVertexShaderRenderTarget, nullptr, 0);
+	pDeviceContext->HSSetShader(nullptr, nullptr, 0);
+	pDeviceContext->DSSetShader(nullptr, nullptr, 0);
+	pDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	pDeviceContext->PSSetShader(mPixelShaderRenderTarget, nullptr, 0);
+
+	// Render mesh stored in active buffers
+	pDeviceContext->Draw(6, 0);
+
+	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, unbindSrv);
+
+	return true;
+}
 
 bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, DeferredBufferClass* pBuffer, PointLightClass** ppLights, UINT NrOfLights)
 {
@@ -439,11 +441,11 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 	}
 
 
-	/*result = createPixelShader(pDevice, pixel, "PSMain", &mPixelShaderRenderTarget);
+	result = createPixelShader(pDevice, pixel, "PSMain", &mPixelShaderRenderTarget);
 	if (!result)
 	{
 		return false;
-	}*/
+	}
 
 	result = createSamplerState(pDevice, &mSampleState);
 	if (!result)

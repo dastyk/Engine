@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define GPU_TIMER_COUNT 4
+
 #include "D3DApp.h"
 #include <crtdbg.h>
 
@@ -38,6 +40,8 @@
 #include "BoundingBoxShader.h"
 
 #include "DeferredComputeShaderClass.h"
+
+#include "GPUTimerClass.h"
 
 class InitDirect3DApp : public D3DApp
 {
@@ -102,6 +106,8 @@ private:
 
 	DeferredComputeShaderClass* mDCShader;
 
+
+	GPUTimerClass mGPUTimer[GPU_TIMER_COUNT];
 };
 
 #endif

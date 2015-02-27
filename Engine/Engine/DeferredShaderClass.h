@@ -39,7 +39,7 @@ public:
 
 	bool SetLP(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, DeferredBufferClass* pBuffer);
 	bool UnSetLP(ID3D11DeviceContext* pDeviceContext);
-	//bool Render(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer, ObjectClass* pObject, CameraClass* pCamera, PointLightClass** ppLights, UINT NrOfLights, FogClass* pDrawDistFog);
+	bool Render(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer);
 	
 	
 	
@@ -61,7 +61,7 @@ private:
 
 	ID3D11SamplerState* mSampleStateRenderTarget;
 	ID3D11VertexShader* mVertexShaderRenderTarget;
-	//ID3D11PixelShader* mPixelShaderRenderTarget;
+	ID3D11PixelShader* mPixelShaderRenderTarget;
 	ID3D11Buffer* mVertexBuffer;
 	ID3D11InputLayout* mLayout2;
 

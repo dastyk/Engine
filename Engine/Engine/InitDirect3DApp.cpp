@@ -66,9 +66,7 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	mShadowmapShader = 0;
 	mBoundingBoxShader = 0;
 	mDCShader = 0;
-	mStart = 0;
-	mStop = 0;
-	mDisjoint = 0;
+	
 
 }
 
@@ -258,7 +256,7 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mNRofObjects = 10;
+	mNRofObjects = 1;
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
@@ -358,14 +356,14 @@ bool InitDirect3DApp::Init()
 	//	mPointLight[i] = new PointLightClass(XMFLOAT3(l, l, l), XMFLOAT3(rand() % 50 - 25, rand() % 100, rand() % 50 - 25), rand() % 100 + 20);
 	//}
 
-	mLightCount = 10;
+	mLightCount = 2;
 	mPointLight = new PointLightClass*[mLightCount]; 
 	if (!mPointLight)
 		return false;
 
 
-	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
-	mPointLight[0] = new PointLightClass(XMFLOAT3(0.05, 0.05, 0.05), XMFLOAT3(128, 275, 315), 10000);
+	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 150);
+	mPointLight[0] = new PointLightClass(XMFLOAT3(0.1, 0.1, 0.1), XMFLOAT3(128, 275, 315), 10000);
 	mPointLight[0]->SetLightDir(XMFLOAT3(0, -1, -1));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 
@@ -442,6 +440,12 @@ bool InitDirect3DApp::Init()
 	pos = mCamera->GetPosition();
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
 	mCamera->SetPosition(pos);
+
+	for (UINT i = 0; i < GPU_TIMER_COUNT; i++)
+	{
+		mGPUTimer[i].Init(mDevice);
+	}
+
 
 	return true;
 
@@ -534,15 +538,17 @@ void InitDirect3DApp::handleInput()
 void InitDirect3DApp::DrawScene()
 {
 	HRESULT hr;
-	int result = 1;
-
+	bool result;
+	int counter = 0;
 	assert(mDeviceContext);
 	assert(mSwapChain);
 
 	BoundingFrustum f = mCamera->GetBoundingFrustum();
 	BoundingFrustum f2 = mPointLight[0]->GetBoundingFrustum();
 	UINT count = 0;
-	TimeStart();
+
+	mGPUTimer[0].TimeStart(mDeviceContext);
+
 	mShadowmapShader->SetRTV(mDeviceContext);
 	mShadowmapShader->ClearRTV(mDeviceContext);
 
@@ -560,11 +566,16 @@ void InitDirect3DApp::DrawScene()
 
 	mShadowmapShader->UnbindRTV(mDeviceContext);
 
+	mGPUTimer[0].TimeEnd(mDeviceContext);
+
+
+	mGPUTimer[1].TimeStart(mDeviceContext);
+
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
 
-	result = mQuadTree->RenderAgainsQuadTree(
+	counter = mQuadTree->RenderAgainsQuadTree(
 		mDeviceContext,
 		mTerrainShader,
 		mDeferredShader,
@@ -572,7 +583,6 @@ void InitDirect3DApp::DrawScene()
 		mCamera,
 		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
-
 
 	
 
@@ -582,6 +592,9 @@ void InitDirect3DApp::DrawScene()
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 
+	mGPUTimer[1].TimeEnd(mDeviceContext);
+	
+	mGPUTimer[2].TimeStart(mDeviceContext);
 
 	mDeferredBuffer->SetLightRT(mDeviceContext);
 	//mDeferredShader->SetLP(mDeviceContext, mCamera, mDeferredBuffer);
@@ -596,22 +609,30 @@ void InitDirect3DApp::DrawScene()
 	//mDeferredShader->UnSetLP(mDeviceContext);
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
 
+	mGPUTimer[2].TimeEnd(mDeviceContext);
+
+
 
 	//// Clear back buffer blue.
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 
+	mGPUTimer[3].TimeStart(mDeviceContext);
+	mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
+	//mDCShader->Compute(mDeviceContext, mDeferredBuffer, COMPUTE_X, COMPUTE_Y);
+	mGPUTimer[3].TimeEnd(mDeviceContext);
 
-	mDCShader->Compute(mDeviceContext, mDeferredBuffer, COMPUTE_X, COMPUTE_Y);
+
 
 	//// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-
+	
 	mQuadTree->RenderSnow(mDeviceContext, mParticleShader, mCamera);
+	
 
 
-
+	
 	for (int i = 0; i < BUFFER_COUNT-2; i++)
 	{
 		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
@@ -620,8 +641,7 @@ void InitDirect3DApp::DrawScene()
 	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
 	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(0), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
 
-
-
+	
 	// Present the back buffer to the screen
 
 
@@ -632,9 +652,7 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 
-	TimeEnd();	double t = GetTime();
-
-
+	
 	static int frameCnt = 0;
 	static float timeElapsed = 0.0f;
 
@@ -647,7 +665,14 @@ void InitDirect3DApp::DrawScene()
 
 		std::wostringstream outs;
 		outs.precision(6);
-		outs << mMainWndCaption << L"Fps: " << fps << L" Total Time: " << mspf << L" ms" << " GPU Time: " << t << " Terrain: " << result;
+		outs << mMainWndCaption << L"Fps: " << fps << L" Total Time: " << mspf << L" ms" << "Terrain: " << counter;
+
+		
+		for (UINT i = 0; i < GPU_TIMER_COUNT; i++)
+		{
+			double t = mGPUTimer[i].GetTime(mDeviceContext);
+			outs << " GPU Time" << i << ": " << t;
+		}
 		SetWindowText(mhMainWnd, outs.str().c_str());
 
 
