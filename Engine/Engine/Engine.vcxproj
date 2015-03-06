@@ -24,6 +24,7 @@
     <ClCompile Include="FireworkEffect.cpp" />
     <ClCompile Include="FogClass.cpp" />
     <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="GPUTimerClass.cpp" />
     <ClCompile Include="InitDirect3DApp.cpp" />
     <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="LightClass.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="FireworkEffect.h" />
     <ClInclude Include="FogClass.h" />
     <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="GPUTimerClass.h" />
     <ClInclude Include="ICircularDoubleDirectedList.h" />
     <ClInclude Include="InitDirect3DApp.h" />
     <ClInclude Include="InputClass.h" />

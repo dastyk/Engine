@@ -24,10 +24,11 @@ struct PS_IN
 float4 PSMain(PS_IN input) : SV_TARGET
 {
 	
-	//input.LPos.xy /= input.LPos.w;
+	input.Pos.xy /= input.Pos.w;
 	//float2 smTex = float2(0.5*input.LPos.x + 0.5f, -0.5f*input.LPos.y + 0.5f);
 
 	//float4 Color = shaderTexture[1].Sample(SampleType, input.Tex);
+	float2 smTex = float2(0.5*input.Pos.x + 0.5f, -0.5f*input.Pos.y + 0.5f);
 	float4 Pos = shaderTexture[2].Sample(SampleType, input.Tex);
 	
 

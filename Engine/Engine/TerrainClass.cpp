@@ -306,7 +306,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 		}
 	}
 
-
+	mNrOfDetailLevels = TERRAIN_LEVEL_OF_DETAIL_COUNT;
 	int count = (mWidth-1)*(mHeight-1);
 
 	mIndexCount = new UINT[mNrOfDetailLevels];

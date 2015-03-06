@@ -193,7 +193,7 @@ UINT QuadTree::GetTerrainDetail(XMFLOAT3* p)
 	
 	for (UINT i = 0; i < mNrOfDetailLevels; i++)
 	{
-		if (dist < (d2+ d2*((i+1)*1.8)))
+		if (dist < (d2+ (d2*0.8)*(i+1)))
 		{
 			return i;
 		}

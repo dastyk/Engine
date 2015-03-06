@@ -18,7 +18,7 @@ using namespace std;
 #define TERRAIN_LEVEL_OF_DETAIL_MEDIUM 2
 #define TERRAIN_LEVEL_OF_DETAIL_LOW 4
 #define TERRAIN_LEVEL_OF_DETAIL_VERY_LOW 8
-#define TERRAIN_LEVEL_OF_DETAIL_COUNT 4  // dim/((2^detail-1)^2) // t.ex. om mappen är 256x256 loppar man fram max antal levels genom att börja på 1 if 256/(2^1-1)^2 >= 1 then ok, sen 256/(2^2-1)^2 >= 2
+#define TERRAIN_LEVEL_OF_DETAIL_COUNT 6  // dim/((2^detail-1)^2) // t.ex. om mappen är 256x256 loppar man fram max antal levels genom att börja på 1 if 256/(2^1-1)^2 >= 1 then ok, sen 256/(2^2-1)^2 >= 2
 
 // Generellt if(dim/((2^(detail-1))^2) >= detail then detail level is accepted)
 

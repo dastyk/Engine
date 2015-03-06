@@ -1,7 +1,7 @@
 
 #define SHADOW_EPSILON 0.001
 #define BUMP_DEPTH 1.25
-#define DETAIL_IT 10
+#define DETAIL_IT 4
 
 Texture2D shadowMap : register(t0);
 Texture2D DetailMap : register(t1);
@@ -50,9 +50,6 @@ PS_OUT PSMain(PS_IN input)
 	float4 textureColor0, textureColor1;
 	int i = 0;
 
-	// Sample texture
-	textureColor0 = shaderTexture0.Sample(SampleType, input.Tex);
-	textureColor1 = shaderTexture1.Sample(SampleType, input.Tex);
 
 
 
@@ -62,25 +59,31 @@ PS_OUT PSMain(PS_IN input)
 	float intens = 1.0f - N.y;
 
 	float depthValue = input.Pos.z / input.Pos.w;
+	// Sample texture
+	textureColor0 = shaderTexture0.Sample(SampleType, input.Tex);
+	textureColor1 = shaderTexture1.Sample(SampleType, input.Tex);
 
-	if (depthValue > 0.025f)
+
+	if (depthValue > 0.01f)
 	{
-		//float4 detailColor = DetailMap.Sample(SampleType, input.Tex2*DETAIL_IT);
+		//float le = lerp(0, 0.025, depthValue);
 
-			float4 detail0 = shaderTexture0.Sample(SampleType, input.Tex2*DETAIL_IT);
+		////float4 detailColor = DetailMap.Sample(SampleType, input.Tex2*DETAIL_IT);
+
+		float4 detail0 = shaderTexture0.Sample(SampleType, input.Tex2*DETAIL_IT);
 			float4 detail1 = shaderTexture1.Sample(SampleType, input.Tex2*DETAIL_IT);
 
-			textureColor0 *= detail0*1.8;
-		textureColor1 *= detail1*1.8;
-			
+			textureColor0 = textureColor0*0.1 + detail0*0.9;
+		textureColor1 = textureColor1*0.1 + detail1*0.9;
+
 
 		float3 bumpMap = NormalMap.Sample(SampleType, input.Tex2);
 
-			bumpMap = (bumpMap*BUMP_DEPTH) - (BUMP_DEPTH/2.0f);
-				N = input.Normal + bumpMap.x*input.Tangent + bumpMap.y * input.Binormal;
-			N = normalize(N);
+		bumpMap = (bumpMap*BUMP_DEPTH) - (BUMP_DEPTH/2.0f);
+		N = input.Normal + bumpMap.x*input.Tangent + bumpMap.y * input.Binormal;
+		N = normalize(N);
 	}
-
+	
 	output.DiffuseColor = (textureColor0 * intens + textureColor1 * (1 - intens))*sCont;
 	output.Normal_Depth = float4(N, input.PosH.z);
 	output.Position = float4(input.PosH, 1);

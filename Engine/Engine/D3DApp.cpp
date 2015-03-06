@@ -24,7 +24,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mClientHeight = 32*COMPUTE_Y;
 
 	mNearPlane = 0.1f;
-	mFarPlane = 10000;
+	mFarPlane = 300;
 	mFoV = XMConvertToRadians(90);
 
 	mMainWndCaption = L"Engine";
