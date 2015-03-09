@@ -144,3 +144,13 @@ BoundingFrustum CameraClass::GetLowQBoundingFrustum()const
 	mLowQFrustum.Transform(f, invView);
 	return f;
 }
+
+
+unsigned int CameraClass::GetWidth()const
+{
+	return mWidth;
+}
+unsigned int CameraClass::GetHeight()const
+{
+	return mHeight;
+}
