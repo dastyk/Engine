@@ -31,13 +31,13 @@ void GSMain(
 
 	float4 vPos = mul(float4(input[0].Pos.xyz, 1),view);
 
-		//float4 pos1 = vPos + float4(-input[0].Pos.w, input[0].Pos.w, 0, 0);
+	/*	float4 pos1 = vPos + float4(-input[0].Pos.w, input[0].Pos.w, 0, 0);
 
-		//float4 pos2 = vPos + float4(input[0].Pos.w, input[0].Pos.w, 0, 0);
+		float4 pos2 = vPos + float4(input[0].Pos.w, input[0].Pos.w, 0, 0);
 
-		//float4 pos3 = vPos + float4(-input[0].Pos.w, -input[0].Pos.w, 0, 0);
+		float4 pos3 = vPos + float4(-input[0].Pos.w, -input[0].Pos.w, 0, 0);
 
-		//float4 pos4 = vPos + float4(input[0].Pos.w, -input[0].Pos.w, 0, 0);
+		float4 pos4 = vPos + float4(input[0].Pos.w, -input[0].Pos.w, 0, 0);*/
 
 		float4 pos1 =  float4(-1, 1, 0, 0);
 
@@ -61,8 +61,8 @@ void GSMain(
 
 		uPos4.Pos = mul(pos4, proj);
 		uPos4.Color = input[0].Color;
-		uPos4.vPos = input[0].Pos;*/
-
+		uPos4.vPos = input[0].Pos;
+*/
 
 		uPos1.Pos = pos1;// mul(pos1, proj);
 		uPos1.Color = input[0].Color;
