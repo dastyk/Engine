@@ -12,7 +12,7 @@ public:
 	CameraClass();
 	~CameraClass();
 
-	void SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP);
+	void SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP, unsigned int width, unsigned int height);
 
 	void SetRotation(XMFLOAT3& rot);
 
@@ -22,12 +22,15 @@ public:
 	BoundingFrustum GetLowQBoundingFrustum()const;
 	BoundingBox GetBoundingBox()const;
 
+	unsigned int GetWidth()const;
+	unsigned int GetHeight()const;
+
 	void ToggleDC();
 	void SetDC(bool);
 	bool GetDC();
 
 	virtual void CalcViewMatrix();
-	
+
 private:
 	XMFLOAT4X4 mViewMatrix;
 	XMFLOAT4X4 mProjMatrix;
@@ -40,6 +43,8 @@ private:
 	BoundingFrustum mLowQFrustum;
 	BoundingBox mBox;
 	bool mDc;
+
+	unsigned int mWidth, mHeight;
 };
 
 #endif
