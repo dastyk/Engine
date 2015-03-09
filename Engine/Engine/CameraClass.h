@@ -12,7 +12,7 @@ public:
 	CameraClass();
 	~CameraClass();
 
-	void SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP);
+	void SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP, unsigned int width, unsigned int height);
 
 	void SetRotation(XMFLOAT3& rot);
 
