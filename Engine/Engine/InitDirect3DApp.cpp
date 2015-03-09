@@ -584,7 +584,8 @@ void InitDirect3DApp::DrawScene()
 		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
 
-	
+	
+
 
 	
 
@@ -652,7 +653,8 @@ void InitDirect3DApp::DrawScene()
 		return;
 	}
 
-	
+	
+
 	static int frameCnt = 0;
 	static float timeElapsed = 0.0f;
 
