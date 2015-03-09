@@ -55,6 +55,16 @@ private:
 	bool SetCamConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
 	bool SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
 
+	D3D11_RECT CalcScissorRect(const XMFLOAT3& lightPos, float lightRange, CameraClass* pCamera);
+	float Clamp(float in, float v1, float v2)
+	{
+		in = (in < v1) ? v1 : in;
+		in = (in > v2) ? v2 : in;
+
+		return in;
+	}
+
+
 private:
 	ID3D11SamplerState* mSampleState;
 
@@ -86,3 +96,27 @@ private:
 };
 
 #endif
+
+inline XMFLOAT4 operator+(XMFLOAT4 f1, XMFLOAT4 f2)
+{
+	XMFLOAT4 out;
+
+	out.x = f1.x + f2.x;
+	out.y = f1.y + f2.y;
+	out.z = f1.z + f2.z;
+	out.w = f1.w + f2.w;
+
+	return out;
+}
+
+inline XMFLOAT4 operator-(XMFLOAT4 f1, XMFLOAT4 f2)
+{
+	XMFLOAT4 out;
+
+	out.x = f1.x - f2.x;
+	out.y = f1.y - f2.y;
+	out.z = f1.z - f2.z;
+	out.w = f1.w - f2.w;
+
+	return out;
+}

@@ -1,4 +1,4 @@
-#include "DeferredShaderClass.h"
+﻿#include "DeferredShaderClass.h"
 
 
 DeferredShaderClass::DeferredShaderClass() : ShaderClass()
@@ -806,4 +806,122 @@ bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDe
 	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mVPBuffer);
 
 	return true;
+}
+
+D3D11_RECT DeferredShaderClass::CalcScissorRect(const XMFLOAT3& lightPos, float lightRange, CameraClass* pCamera)
+{
+	// Create a bounding sphere for the light, based on the position 
+	// and range
+
+	XMMATRIX view = XMLoadFloat4x4(&pCamera->GetViewMatrix());
+	XMMATRIX proj = XMLoadFloat4x4(&pCamera->GetProjMatrix());
+	float mfNearClip = pCamera->ge
+
+	XMFLOAT4 centerWS = XMFLOAT4(lightPos.x, lightPos.y, lightPos.z, 1.0f);
+	float radius = lightRange;
+
+	// Transform the sphere center to view space
+	XMVECTOR v = XMLoadFloat4(&centerWS);
+	XMFLOAT4 centerVS;
+	XMStoreFloat4(&centerVS, XMVector4Transform(v, view));
+
+	// Figure out the four points at the top, bottom, left, and 
+	// right of the sphere
+	XMFLOAT4 topVS = centerVS + XMFLOAT4(0.0f, radius, 0.0f, 0.0f);
+	XMFLOAT4 bottomVS = centerVS - XMFLOAT4(0.0f, radius, 0.0f, 0.0f);
+	XMFLOAT4 leftVS = centerVS - XMFLOAT4(radius, 0.0f, 0.0f, 0.0f);
+	XMFLOAT4 rightVS = centerVS + XMFLOAT4(radius, 0.0f, 0.0f, 0.0f);
+
+	// Figure out whether we want to use the top and right from quad
+	// tangent to the front of the sphere, or the back of the sphere
+	leftVS.z = leftVS.x < 0.0f ? leftVS.z - radius : leftVS.z + radius;
+	rightVS.z = rightVS.x < 0.0f ? rightVS.z + radius : rightVS.z - radius;
+	topVS.z = topVS.y < 0.0f ? topVS.z + radius : topVS.z - radius;
+	bottomVS.z = bottomVS.y < 0.0f ? bottomVS.z - radius
+		: bottomVS.z + radius;
+
+	// Clamp the z coordinate to the clip planes
+	leftVS.z = Clamp(leftVS.z, m_fNearClip, m_fFarClip);
+	rightVS.z = Clamp(rightVS.z, m_fNearClip, m_fFarClip);
+	topVS.z = Clamp(topVS.z, m_fNearClip, m_fFarClip);
+	bottomVS.z = Clamp(bottomVS.z, m_fNearClip, m_fFarClip);
+
+	// Figure out the rectangle in clip-space by applying the 
+	// perspective transform. We assume that the perspective 
+	// transform is symmetrical with respect to X and Y.
+	float rectLeftCS = leftVS.x * ProjMatrix(0, 0) / leftVS.z;
+	float rectRightCS = rightVS.x * ProjMatrix(0, 0) / rightVS.z;
+	float rectTopCS = topVS.y * ProjMatrix(1, 1) / topVS.z;
+	float rectBottomCS = bottomVS.y * ProjMatrix(1, 1) / bottomVS.z;
+
+	// Create a bounding sphere for the light, based on the position 
+    // and range
+    Vector4f centerWS = Vector4f( lightPos, 1.0f );
+	float radius = lightRange;
+
+    // Transform the sphere center to view space
+    Vector4f centerVS = ViewMatrix * centerWS;    
+
+    // Figure out the four points at the top, bottom, left, and 
+    // right of the sphere
+    Vector4f topVS = centerVS + Vector4f( 0.0f, radius, 0.0f, 0.0f );
+    Vector4f bottomVS = centerVS - Vector4f( 0.0f, radius, 0.0f, 0.0f );
+    Vector4f leftVS = centerVS - Vector4f( radius, 0.0f, 0.0f, 0.0f );
+    Vector4f rightVS = centerVS + Vector4f( radius, 0.0f, 0.0f, 0.0f );
+
+    // Figure out whether we want to use the top and right from quad
+    // tangent to the front of the sphere, or the back of the sphere
+    leftVS.z = leftVS.x < 0.0f ? leftVS.z - radius : leftVS.z + radius;
+    rightVS.z = rightVS.x < 0.0f ? rightVS.z + radius : rightVS.z - radius;
+    topVS.z = topVS.y < 0.0f ? topVS.z + radius : topVS.z - radius;
+    bottomVS.z = bottomVS.y < 0.0f ? bottomVS.z - radius 
+                                   : bottomVS.z + radius;
+
+    // Clamp the z coordinate to the clip planes
+    leftVS.z = Clamp( leftVS.z, m_fNearClip, m_fFarClip );
+    rightVS.z = Clamp( rightVS.z, m_fNearClip, m_fFarClip );
+    topVS.z = Clamp( topVS.z, m_fNearClip, m_fFarClip );
+    bottomVS.z = Clamp( bottomVS.z, m_fNearClip, m_fFarClip );
+
+    // Figure out the rectangle in clip-space by applying the 
+    // perspective transform. We assume that the perspective 
+    // transform is symmetrical with respect to X and Y.
+	float rectLeftCS = leftVS.x * ProjMatrix(0, 0) / leftVS.z;
+	float rectRightCS = rightVS.x * ProjMatrix(0, 0) / rightVS.z;
+	float rectTopCS = topVS.y * ProjMatrix(1, 1) / topVS.z;
+	float rectBottomCS = bottomVS.y * ProjMatrix(1, 1) / bottomVS.z;
+
+	// Clamp the rectangle to the screen extents
+	rectTopCS = Clamp(rectTopCS, -1.0f, 1.0f);
+	rectBottomCS = Clamp(rectBottomCS, -1.0f, 1.0f);
+	rectLeftCS = Clamp(rectLeftCS, -1.0f, 1.0f);
+	rectRightCS = Clamp(rectRightCS, -1.0f, 1.0f);
+
+	// Now we convert to screen coordinates by applying the 
+	// viewport transform
+	float rectTopSS = rectTopCS * 0.5f + 0.5f;
+	float rectBottomSS = rectBottomCS * 0.5f + 0.5f;
+	float rectLeftSS = rectLeftCS * 0.5f + 0.5f;
+	float rectRightSS = rectRightCS * 0.5f + 0.5f;
+
+	rectTopSS = 1.0f - rectTopSS;
+	rectBottomSS = 1.0f - rectBottomSS;
+	rectTopSS *= m_uVPHeight;
+	rectBottomSS *= m_uVPHeight;
+	rectLeftSS *= m_uVPWidth;
+	rectRightSS *= m_uVPWidth;
+
+	// Final step is to convert to integers and ll out the 
+	// D3D11_RECT structure
+	D3D11_RECT rect;
+	rect.left = static_cast<LONG>(rectLeftSS);
+	rect.right = static_cast<LONG>(rectRightSS);
+	rect.top = static_cast<LONG>(rectTopSS);
+	rect.bottom = static_cast<LONG>(rectBottomSS);
+	// Clamp to the viewport size
+	rect.left = max(rect.left, 0);
+	rect.top = max(rect.top, 0);
+	rect.right = min(rect.right, static_cast<LONG>(m_uVPWidth));
+	rect.bottom = min(rect.bottom, static_cast<LONG>(m_uVPHeight));
+	return rect;
 }
