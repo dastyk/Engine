@@ -20,8 +20,8 @@ using namespace DirectX;
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
-#define COMPUTE_X 58
-#define COMPUTE_Y 28
+#define COMPUTE_X 25//58
+#define COMPUTE_Y 20//28
 
 
 class D3DApp

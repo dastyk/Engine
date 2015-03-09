@@ -251,14 +251,6 @@ bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBu
 bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, DeferredBufferClass* pBuffer, PointLightClass** ppLights, UINT NrOfLights)
 {
 	bool result;
-	unsigned int bufferNumber;
-
-	unsigned int stride = sizeof(DeferredVertexStruct);
-	unsigned int offset = 0;
-
-	/*pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
-	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-*/
 
 	result = SetLightVertexBuffer(pDeviceContext, pCamera, ppLights, NrOfLights);
 	if (!result)
@@ -284,11 +276,11 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	pDeviceContext->GSSetShader(mLightGS, nullptr, 0);
 	pDeviceContext->PSSetShader(mLightPS, nullptr, 0);
 
-	/*result = SetCamConstantBufferParameters(pDeviceContext, pCamera);
+	result = SetCamConstantBufferParameters(pDeviceContext, pCamera);
 	if (!result)
 	{
 		return false;
-	}*/
+	}
 
 	result = SetVPConstantBufferParameters(pDeviceContext, pCamera);
 	if (!result)
@@ -871,7 +863,7 @@ bool DeferredShaderClass::SetLightVertexBuffer(ID3D11DeviceContext* pDeviceConte
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 
-	NrOfLights = index + 1;
+	NrOfLights = index;
 	UINT stride = sizeof(LightVertexStruct);
 	UINT offset = 0;
 

@@ -356,17 +356,18 @@ bool InitDirect3DApp::Init()
 	//	mPointLight[i] = new PointLightClass(XMFLOAT3(l, l, l), XMFLOAT3(rand() % 50 - 25, rand() % 100, rand() % 50 - 25), rand() % 100 + 20);
 	//}
 
-	mLightCount = 2;
+	mLightCount = 3;
 	mPointLight = new PointLightClass*[mLightCount]; 
 	if (!mPointLight)
 		return false;
-
+	mLightCount = 1;
 	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
 	mPointLight[0] = new PointLightClass(XMFLOAT3(0.025, 0.025, 0.025), XMFLOAT3(128, 275, 315), 10000);
 	mPointLight[0]->SetLightDir(XMFLOAT3(0, -1, -1));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
+	mPointLight[2] = new PointLightClass(XMFLOAT3(1, 0, 0), XMFLOAT3(128, 24, 128), 50);
 
-	for (UINT i = 2; i < mLightCount; i++)
+	for (UINT i = 3; i < mLightCount; i++)
 	{
 		float l = 1;rand() % 10 / 10.0f;
 		XMFLOAT3 lp = XMFLOAT3(rand() % 256, 0, rand() % 256);
@@ -597,7 +598,7 @@ void InitDirect3DApp::DrawScene()
 
 	mDeferredBuffer->SetLightRT(mDeviceContext);
 	//mDeferredShader->SetLP(mDeviceContext, mCamera, mDeferredBuffer);
-	result = mDeferredShader->RenderLights(mDeviceContext, mCamera, mDeferredBuffer, mPointLight, mLightCount);
+	result = mDeferredShader->RenderLights(mDeviceContext, mCamera, mDeferredBuffer, &mPointLight[2], mLightCount);
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);

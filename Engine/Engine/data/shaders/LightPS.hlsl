@@ -9,6 +9,7 @@ SamplerState SampleType;
 struct PS_IN
 {
 	float4 Pos : SV_POSITION;
+	float2 Tex : TEXCOORD;
 	float3 Color : COLOR;
 	float4 vPos : POSITION;
 };
@@ -16,20 +17,15 @@ struct PS_IN
 float4 PSMain(PS_IN input) : SV_TARGET
 {
 	
-	//input.Pos.xy /= input.Pos.w;
-	////float2 smTex = float2(0.5*input.LPos.x + 0.5f, -0.5f*input.LPos.y + 0.5f);
+	float4 Pos = shaderTexture[2].Sample(SampleType, input.Tex);
+	
 
-	////float4 Color = shaderTexture[1].Sample(SampleType, input.Tex);
-	//float2 smTex = float2(0.5*input.Pos.x + 0.5f, -0.5f*input.Pos.y + 0.5f);
-	//float4 Pos = shaderTexture[2].Sample(SampleType, smTex);
-	//
+	float3 L = input.vPos.xyz - Pos.xyz;
+	float dist = length(L);
+	float range = saturate((input.vPos.w - dist) / input.vPos.w);
 
-	//float3 L = input.vPos.xyz - Pos.xyz;
-	//float dist = length(L);
-	//float range = saturate((input.vPos.w - dist) / input.vPos.w);
-
-	//	float4 Normal_Depth = shaderTexture[0].Sample(SampleType, smTex);
-	//		float4 Spec_SpecPow = shaderTexture[3].Sample(SampleType, smTex);
+	//float4 Normal_Depth = shaderTexture[0].Sample(SampleType, input.Tex);
+	//	float4 Spec_SpecPow = shaderTexture[3].Sample(SampleType, input.Tex);
 	//		// Diffuse
 
 	//		float3 ambient = input.Color*0.05;
@@ -47,6 +43,6 @@ float4 PSMain(PS_IN input) : SV_TARGET
 
 
 
-	//		return  float4(ambient + diffuse + specular, 1)*range;
-	return (1, 1, 1, 1);
+			//return  float4(ambient + diffuse + specular, 1)*range;
+			return float4(1, 1, 1, 1)*range;
 }
