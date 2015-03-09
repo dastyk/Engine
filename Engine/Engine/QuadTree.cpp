@@ -215,7 +215,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 	}
 	else if (result == 2 && (!mChildren[0]))
 	{
-		tDL = 4;// GetTerrainDetail(&pCamera->GetPosition());
+		tDL = GetTerrainDetail(&pCamera->GetPosition());
 		// Render the whole thing
 		pObject->SetAsObjectToBeDrawn(pDeviceContext, tDL);
 		result = pShader->RenderShadowsDeferred(
@@ -250,7 +250,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 	else if ((!mChildren[0]))
 	{
 
-		tDL = 4;// GetTerrainDetail(&pCamera->GetPosition());
+		tDL = GetTerrainDetail(&pCamera->GetPosition());
 		// Render the whole thing and cull the objects
 		pObject->SetAsObjectToBeDrawn(pDeviceContext, tDL);
 		result = pShader->RenderShadowsDeferred(

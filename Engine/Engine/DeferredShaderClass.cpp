@@ -252,12 +252,6 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 {
 	bool result;
 
-	result = SetLightVertexBuffer(pDeviceContext, pCamera, ppLights, NrOfLights);
-	if (!result)
-	{
-		return false;
-	}
-
 	ID3D11ShaderResourceView** tex = pBuffer->GetShaderResourceView();
 
 	// Set shader texture resource in the pixel shader.
@@ -282,7 +276,7 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 		return false;
 	}
 
-	result = SetVPConstantBufferParameters(pDeviceContext, pCamera);
+	result = SetVPConstantBufferParameters(pDeviceContext, pCamera, ppLights, NrOfLights);
 	if (!result)
 	{
 		return false;
@@ -782,7 +776,7 @@ bool DeferredShaderClass::SetCamConstantBufferParameters(ID3D11DeviceContext* pD
 	return true;
 }
 
-bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera)
+bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, PointLightClass** ppLights, UINT& NrOfLights)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -801,12 +795,15 @@ bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDe
 
 	XMMATRIX view = XMLoadFloat4x4(&pCamera->GetViewMatrix());
 	XMMATRIX proj = XMLoadFloat4x4(&pCamera->GetProjMatrix());
+	XMMATRIX viewProj = view*proj;
 
 	view = XMMatrixTranspose(view);
 	proj = XMMatrixTranspose(proj);
+	viewProj = XMMatrixTranspose(viewProj);
 
 	XMStoreFloat4x4(&dataPtr->view, view);
 	XMStoreFloat4x4(&dataPtr->proj, proj);
+	XMStoreFloat4x4(&dataPtr->viewProj, viewProj);
 
 	// Unlock the constant buffer.
 	pDeviceContext->Unmap(mVPBuffer, 0);
@@ -817,16 +814,7 @@ bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDe
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mVPBuffer);
 
-
-	return true;
-}
-
-bool DeferredShaderClass::SetLightVertexBuffer(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, PointLightClass** ppLights, UINT& NrOfLights)
-{
-	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	LightVertexStruct* dataPtr;
-	unsigned int bufferNumber;
+	LightVertexStruct* dataPtr2;
 
 	// Lock the constant buffer so it can be written to.
 	result = pDeviceContext->Map(mLightVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -836,7 +824,7 @@ bool DeferredShaderClass::SetLightVertexBuffer(ID3D11DeviceContext* pDeviceConte
 	}
 
 	// Get a pointer to the data in the constant buffer.
-	dataPtr = (LightVertexStruct*)mappedResource.pData;
+	dataPtr2 = (LightVertexStruct*)mappedResource.pData;
 
 	BoundingFrustum f = pCamera->GetBoundingFrustum();
 	UINT index = 0;
@@ -851,9 +839,10 @@ bool DeferredShaderClass::SetLightVertexBuffer(ID3D11DeviceContext* pDeviceConte
 			fin.y = pos.y;
 			fin.z = pos.z;
 			fin.w = ppLights[i]->GetRadius();
-			dataPtr[index].Pos = fin;
-			dataPtr[index].Color = ppLights[i]->GetLightColor();
+			dataPtr2[index].Pos = fin;
+			dataPtr2[index].Color = ppLights[i]->GetLightColor();
 			index++;
+
 		}
 	}
 

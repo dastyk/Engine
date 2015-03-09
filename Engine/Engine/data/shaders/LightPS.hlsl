@@ -17,12 +17,12 @@ struct PS_IN
 float4 PSMain(PS_IN input) : SV_TARGET
 {
 	
-	float4 Pos = shaderTexture[2].Sample(SampleType, input.Tex);
-	
+	//float4 Pos = shaderTexture[2].Sample(SampleType, input.Tex);
+	//
 
-	float3 L = input.vPos.xyz - Pos.xyz;
-	float dist = length(L);
-	float range = saturate((input.vPos.w - dist) / input.vPos.w);
+	//float3 L = input.vPos.xyz - Pos.xyz;
+	//float dist = length(L);
+	//float range = saturate((input.vPos.w - dist) / input.vPos.w);
 
 	//float4 Normal_Depth = shaderTexture[0].Sample(SampleType, input.Tex);
 	//	float4 Spec_SpecPow = shaderTexture[3].Sample(SampleType, input.Tex);
@@ -43,6 +43,6 @@ float4 PSMain(PS_IN input) : SV_TARGET
 
 
 
-			//return  float4(ambient + diffuse + specular, 1)*range;
-			return float4(1, 1, 1, 1)*range;
+	//		return  float4(ambient + diffuse + specular, 1)*range;
+			return float4(1, 1, 1, 1);
 }

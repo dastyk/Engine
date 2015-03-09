@@ -360,7 +360,7 @@ bool InitDirect3DApp::Init()
 	mPointLight = new PointLightClass*[mLightCount]; 
 	if (!mPointLight)
 		return false;
-	mLightCount = 1;
+
 	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
 	mPointLight[0] = new PointLightClass(XMFLOAT3(0.025, 0.025, 0.025), XMFLOAT3(128, 275, 315), 10000);
 	mPointLight[0]->SetLightDir(XMFLOAT3(0, -1, -1));
@@ -372,10 +372,10 @@ bool InitDirect3DApp::Init()
 		float l = 1;rand() % 10 / 10.0f;
 		XMFLOAT3 lp = XMFLOAT3(rand() % 256, 0, rand() % 256);
 		lp.y = mTerrainModel->getHeightAtPoint(lp) + 5;
-		mPointLight[i] = new PointLightClass(XMFLOAT3(rand() % 10 / 10.0f, rand() % 10 / 10.0f, rand() % 10 / 10.0f), lp, 10);
+		mPointLight[i] = new PointLightClass(XMFLOAT3(rand() % 10 / 10.0f, rand() % 10 / 10.0f, rand() % 10 / 10.0f), lp, rand() % 100);
 	}
 
-
+	mLightCount = 1;
 	mQuadModel = new ModelClass();
 	if (!mQuadModel)
 		return false;
@@ -618,8 +618,8 @@ void InitDirect3DApp::DrawScene()
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 
 	mGPUTimer[3].TimeStart(mDeviceContext);
-	mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
-	//mDCShader->Compute(mDeviceContext, mDeferredBuffer, COMPUTE_X, COMPUTE_Y);
+	//mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
+	mDCShader->Compute(mDeviceContext, mDeferredBuffer, COMPUTE_X, COMPUTE_Y);
 	mGPUTimer[3].TimeEnd(mDeviceContext);
 
 
@@ -628,7 +628,7 @@ void InitDirect3DApp::DrawScene()
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	
-	mQuadTree->RenderSnow(mDeviceContext, mParticleShader, mCamera);
+	//mQuadTree->RenderSnow(mDeviceContext, mParticleShader, mCamera);
 	
 
 

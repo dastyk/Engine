@@ -25,6 +25,7 @@ struct CamBuffer
 
 struct VPBuffer
 {
+	XMFLOAT4X4 viewProj;
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 proj;
 };
@@ -59,7 +60,7 @@ private:
 	bool SetMaterialConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, MatrialDesc* pMaterial);
 	bool SetLightConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, PointLightClass* pPointLight);
 	bool SetCamConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
-	bool SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
+	bool SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, PointLightClass** ppLights, UINT& NrOfLights);
 	bool SetLightVertexBuffer(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, PointLightClass** ppLights, UINT& NrOfLights);
 
 private:
@@ -92,6 +93,31 @@ private:
 	ID3D11BlendState* pBS;
 	UINT sampleMask = 0xffffffff;
 	ID3D11DepthStencilState* prevDSS;
+
+
 };
 
 #endif
+
+inline XMFLOAT4 operator+(XMFLOAT4 f1, XMFLOAT4 f2)
+{
+	XMFLOAT4 out;
+	out.x = f1.x + f2.x;
+	out.y = f1.y + f2.y;
+	out.z = f1.z + f2.z;
+	out.w = f1.w + f2.w;
+
+	return out;
+}
+
+
+inline XMFLOAT4 operator-(XMFLOAT4 f1, XMFLOAT4 f2)
+{
+	XMFLOAT4 out;
+	out.x = f1.x - f2.x;
+	out.y = f1.y - f2.y;
+	out.z = f1.z - f2.z;
+	out.w = f1.w - f2.w;
+
+	return out;
+}
