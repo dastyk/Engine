@@ -19,7 +19,7 @@ cbuffer MatrixBuffer
 };
 
 [instance(1)]
-[maxvertexcount(6)]
+[maxvertexcount(3)]
 void GSMain(
 	point GS_IN input[1],
 	uint instanceID : SV_GSInstanceID,
@@ -104,13 +104,13 @@ void GSMain(
 
 			//uPos4.Pos = float4(fmax.x, fmin.y, 0, 0);
 
-			uPos1.Pos = float4(-1, 1, 0, 0);
+			uPos1.Pos = float4(-1, 1, 0, 0)*1;
 
-			uPos2.Pos = float4(1, 1, 0, 0);
+			uPos2.Pos = float4(1, 1, 0, 0)*1;
 
-			uPos3.Pos = float4(-1, -1, 0, 0);
+			uPos3.Pos = float4(-1, -1, 0, 0)*1;
 
-			uPos4.Pos = float4(1, -1, 0, 0);
+			uPos4.Pos = float4(1, -1, 0, 0)*1;
 
 	/*	uPos1.Pos = mul(pos1, proj);
 	uPos1.Color = input[0].Color;
@@ -146,10 +146,10 @@ void GSMain(
 		uPos4.vPos = input[0].Pos;
 
 
-	OutputStream.Append(uPos1);
-	OutputStream.Append(uPos2);
-	OutputStream.Append(uPos3);
-	OutputStream.RestartStrip();
+	//OutputStream.Append(uPos1);
+	//OutputStream.Append(uPos2);
+	//OutputStream.Append(uPos3);
+	//OutputStream.RestartStrip();
 	OutputStream.Append(uPos3);
 	OutputStream.Append(uPos2);
 	OutputStream.Append(uPos4);
