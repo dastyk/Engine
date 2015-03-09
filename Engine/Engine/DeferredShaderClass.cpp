@@ -22,6 +22,8 @@ DeferredShaderClass::DeferredShaderClass() : ShaderClass()
 	mLightGS = 0;
 	mVPBuffer = 0;
 	mLightVS = 0;
+	mLightVertexBuffer = 0;
+	mLightLayout = 0;
 }
 
 
@@ -102,6 +104,16 @@ DeferredShaderClass::~DeferredShaderClass()
 	{
 		mLightVS->Release();
 		mLightVS = 0;
+	}
+	if (mLightVertexBuffer)
+	{
+		mLightVertexBuffer->Release();
+		mLightVertexBuffer = 0;
+	}
+	if (mLightLayout)
+	{
+		mLightLayout->Release();
+		mLightLayout = 0;
 	}
 	
 }
@@ -244,11 +256,15 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	unsigned int stride = sizeof(DeferredVertexStruct);
 	unsigned int offset = 0;
 
-	pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
+	/*pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+*/
 
-	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 0;
+	result = SetLightVertexBuffer(pDeviceContext, pCamera, ppLights, NrOfLights);
+	if (!result)
+	{
+		return false;
+	}
 
 	ID3D11ShaderResourceView** tex = pBuffer->GetShaderResourceView();
 
@@ -259,28 +275,26 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 
 
 	// Set the vertex input layout.
-	pDeviceContext->IASetInputLayout(mLayout2);
+	pDeviceContext->IASetInputLayout(mLightLayout);
 
 	// Set the vertex and pixel shaders that will be used to render this triangle.
-	pDeviceContext->VSSetShader(mVertexShaderRenderTarget, nullptr, 0);
+	pDeviceContext->VSSetShader(mLightVS, nullptr, 0);
 	pDeviceContext->HSSetShader(nullptr, nullptr, 0);
 	pDeviceContext->DSSetShader(nullptr, nullptr, 0);
-	pDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	pDeviceContext->GSSetShader(mLightGS, nullptr, 0);
 	pDeviceContext->PSSetShader(mLightPS, nullptr, 0);
 
-	//pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-	result = SetCamConstantBufferParameters(pDeviceContext, pCamera);
-	if (!result)
-	{
-		return false;
-	}
-
-	/*result = SetVPConstantBufferParameters(pDeviceContext, pCamera);
+	/*result = SetCamConstantBufferParameters(pDeviceContext, pCamera);
 	if (!result)
 	{
 		return false;
 	}*/
+
+	result = SetVPConstantBufferParameters(pDeviceContext, pCamera);
+	if (!result)
+	{
+		return false;
+	}
 
 	float color[4] = { 0.0f };
 	float pcolor[4] = { 0.0f };
@@ -296,24 +310,8 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	pDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
 
 
+	pDeviceContext->Draw(NrOfLights, 0);
 
-	BoundingFrustum f = pCamera->GetBoundingFrustum();
-	BoundingSphere s;
-	for (UINT i = 0; i < NrOfLights; i++)
-	{
-		s = ppLights[i]->GetBoundingSphere();
-		if (f.Intersects(s))
-		{
-			result = SetLightConstantBufferParameters(pDeviceContext, ppLights[i]);
-			if (!result)
-			{
-				return false;
-			}
-
-			pDeviceContext->Draw(6, 0);
-		}
-	}
-	
 	pDeviceContext->OMSetDepthStencilState(prevDSS, ref);
 
 	pDeviceContext->OMSetBlendState(pBS, pcolor, sampleMask);
@@ -542,12 +540,20 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 		return false;
 	}
 
-	result = createVertexShader(pDevice, L"data/shaders/LightVS.hlsl", "VSMain", &mLightVS);
+	D3D11_INPUT_ELEMENT_DESC vertexDesc3[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	// Get a count of the elements in the layout.
+	numElements = sizeof(vertexDesc3) / sizeof(vertexDesc3[0]);
+
+	result = createVertexShaderAndInputLayout(pDevice, L"data/shaders/LightVS.hlsl", "VSMain", vertexDesc3, numElements, &mLightVS, &mLightLayout); 
 	if (!result)
 	{
 		return false;
 	}
-
 
 	result = createConstantBuffer(pDevice, sizeof(VPBuffer), &mVPBuffer, D3D11_BIND_CONSTANT_BUFFER);
 	if (!result)
@@ -611,7 +617,21 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 		return false;
 	}
 
-	
+	memset(&vbd, 0, sizeof(vbd));
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.ByteWidth = sizeof(LightVertexStruct) * 1000;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vbd.MiscFlags = 0;
+	vbd.StructureByteStride = 0;
+
+	hr = pDevice->CreateBuffer(&vbd, NULL, &mLightVertexBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Failed to create Vertex Buffer.", 0, 0);
+		return false;
+	}
+
 	return true;
 
 }
@@ -762,7 +782,7 @@ bool DeferredShaderClass::SetCamConstantBufferParameters(ID3D11DeviceContext* pD
 	pDeviceContext->Unmap(mCamBuffer, 0);
 
 	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 1;
+	bufferNumber = 0;
 
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mCamBuffer);
@@ -805,5 +825,57 @@ bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDe
 	// Set the constant buffer in the shader with the updated values.
 	pDeviceContext->GSSetConstantBuffers(bufferNumber, 1, &mVPBuffer);
 
+
+	return true;
+}
+
+bool DeferredShaderClass::SetLightVertexBuffer(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, PointLightClass** ppLights, UINT& NrOfLights)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	LightVertexStruct* dataPtr;
+	unsigned int bufferNumber;
+
+	// Lock the constant buffer so it can be written to.
+	result = pDeviceContext->Map(mLightVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (LightVertexStruct*)mappedResource.pData;
+
+	BoundingFrustum f = pCamera->GetBoundingFrustum();
+	UINT index = 0;
+	for (UINT i = 0; i < NrOfLights; i++)
+	{
+		BoundingSphere s = ppLights[i]->GetBoundingSphere();
+		if (f.Intersects(s))
+		{
+			XMFLOAT3 pos = ppLights[i]->GetLightPos();
+			XMFLOAT4 fin;
+			fin.x = pos.x;
+			fin.y = pos.y;
+			fin.z = pos.z;
+			fin.w = ppLights[i]->GetRadius();
+			dataPtr[index].Pos = fin;
+			dataPtr[index].Color = ppLights[i]->GetLightColor();
+			index++;
+		}
+	}
+
+	// Unlock the constant buffer.
+	pDeviceContext->Unmap(mLightVertexBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	NrOfLights = index + 1;
+	UINT stride = sizeof(LightVertexStruct);
+	UINT offset = 0;
+
+	pDeviceContext->IASetVertexBuffers(0, 1, &mLightVertexBuffer, &stride, &offset);
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	return true;
 }

@@ -10,7 +10,7 @@ cbuffer ConstantB : register(c0)
 
 struct GS_IN
 {
-	float4 Pos : SV_POSITION;
+	float3 Pos : POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
 	float2 Tex2 : TEXCOORD1;
@@ -50,13 +50,13 @@ void GSMain(
 		for (uint i = 0; i < 3; i++)
 		{
 			GS_OUT output;
-			output.Pos = mul(input[i].Pos, mWorldViewProj);
+			output.Pos = mul(float4(input[i].Pos,1), mWorldViewProj);
 			output.Tex = input[i].Tex;
 			output.Tex2 = input[i].Tex2;
 			output.Normal = normalize(mul(float4(input[i].Normal, 0), mWorld).xyz);
-			float4 temp = mul(input[i].Pos, mWorld);
+			float4 temp = mul(float4(input[i].Pos, 1), mWorld);
 				output.PosH = temp.xyz;
-			output.LPos = mul(input[i].Pos, LightViewProj);
+			output.LPos = mul(float4(input[i].Pos, 1), LightViewProj);
 			output.Tangent = normalize(mul(float4(input[i].Tangent, 0), mWorld).xyz);
 			output.Binormal = normalize(mul(float4(input[i].Binormal, 0), mWorld).xyz);
 

@@ -6,7 +6,7 @@ cbuffer MatrixBuffer
 
 struct GS_IN
 {
-	float4 Pos : SV_POSITION;
+	float3 Pos : POSITION;
 	float3 Color : COLOR;
 };
 
@@ -41,7 +41,7 @@ void GSMain(
 	float4 pos5 = float4(1, 1, 0, 1);
 	float4 pos6 = float4(1, -1, 0, 1);*/
 
-	float4 posH = mul(input[0].Pos, view);
+	float4 posH = mul(float4(input[0].Pos,1), view);
 	//posH = posH / posH.w;
 
 	float4 pos1 = posH + float4(-0.1, 0.1, 0, 0);

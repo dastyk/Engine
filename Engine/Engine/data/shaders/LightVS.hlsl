@@ -1,5 +1,12 @@
 
-float4 VSMain() : SV_POSITION
+struct VS_IN
 {
-	return float4(128, 24, 128, 1);
+	float4 Pos : POSITION;
+	float3 Color : COLOR;
+};
+
+
+VS_IN VSMain(VS_IN input)
+{
+	return input;
 }

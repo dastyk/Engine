@@ -11,6 +11,12 @@ struct DeferredVertexStruct
 	XMFLOAT2 Tex;
 };
 
+struct LightVertexStruct
+{
+	XMFLOAT4 Pos;
+	XMFLOAT3 Color;
+};
+
 struct CamBuffer
 {
 	XMFLOAT3 CamPos;
@@ -54,6 +60,7 @@ private:
 	bool SetLightConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, PointLightClass* pPointLight);
 	bool SetCamConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
 	bool SetVPConstantBufferParameters(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera);
+	bool SetLightVertexBuffer(ID3D11DeviceContext* pDeviceContext, CameraClass* pCamera, PointLightClass** ppLights, UINT& NrOfLights);
 
 private:
 	ID3D11SamplerState* mSampleState;
@@ -72,6 +79,8 @@ private:
 	ID3D11GeometryShader* mLightGS;
 	ID3D11VertexShader* mLightVS;
 	ID3D11Buffer* mVPBuffer;
+	ID3D11Buffer* mLightVertexBuffer;
+	ID3D11InputLayout* mLightLayout;
 
 	ID3D11ShaderResourceView* unbindSrv[BUFFER_COUNT];
 
