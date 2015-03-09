@@ -795,15 +795,12 @@ bool DeferredShaderClass::SetVPConstantBufferParameters(ID3D11DeviceContext* pDe
 
 	XMMATRIX view = XMLoadFloat4x4(&pCamera->GetViewMatrix());
 	XMMATRIX proj = XMLoadFloat4x4(&pCamera->GetProjMatrix());
-	XMMATRIX viewProj = view*proj;
 
 	view = XMMatrixTranspose(view);
 	proj = XMMatrixTranspose(proj);
-	viewProj = XMMatrixTranspose(viewProj);
 
 	XMStoreFloat4x4(&dataPtr->view, view);
 	XMStoreFloat4x4(&dataPtr->proj, proj);
-	XMStoreFloat4x4(&dataPtr->viewProj, viewProj);
 
 	// Unlock the constant buffer.
 	pDeviceContext->Unmap(mVPBuffer, 0);

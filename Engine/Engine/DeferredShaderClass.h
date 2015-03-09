@@ -25,7 +25,6 @@ struct CamBuffer
 
 struct VPBuffer
 {
-	XMFLOAT4X4 viewProj;
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 proj;
 };
