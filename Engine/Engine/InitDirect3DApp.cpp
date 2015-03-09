@@ -219,7 +219,7 @@ bool InitDirect3DApp::Init()
 	if (!mCamera)
 		return false;
 
-	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
+	mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane, mClientWidth, mClientHeight);
 	XMFLOAT3  pos(128, 0, 128);// pos(0.0f, 0.0f, 0.0f);
 	mCamera->SetPosition(pos);
 	mCamera->SetMoveSpeed(50);
@@ -456,7 +456,7 @@ void InitDirect3DApp::OnResize()
 	D3DApp::OnResize();
 
 	if (mCamera)
-		mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
+		mCamera->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane, mClientWidth, mClientHeight);
 }
 
 void InitDirect3DApp::UpdateScene(float dt)

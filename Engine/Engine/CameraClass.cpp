@@ -48,12 +48,14 @@ void CameraClass::CalcViewMatrix()
 }
 
 
-void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP)
+void CameraClass::SetProjMatrix(float FoV, float AspectRatio, float nearP, float farP, unsigned int width, unsigned int height)
 {
 	mFoV = FoV;
 	mAspectRatio = AspectRatio;
 	mNearPlane = nearP;
 	mFarPlane = farP;
+	mWidth = width;
+	mHeight = height;
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(FoV, AspectRatio, nearP, farP);
 	XMStoreFloat4x4(&mProjMatrix, proj);
@@ -103,7 +105,7 @@ BoundingFrustum CameraClass::GetBoundingFrustum()const
 	{
 		invView = XMLoadFloat4x4(&mInvViewMatrix);
 	}
-	
+
 	mFrustum.Transform(f, invView);
 	return f;
 }
@@ -143,4 +145,22 @@ BoundingFrustum CameraClass::GetLowQBoundingFrustum()const
 
 	mLowQFrustum.Transform(f, invView);
 	return f;
+}
+
+unsigned int CameraClass::GetWidth()const
+{
+	return mWidth;
+}
+unsigned int CameraClass::GetHeight()const
+{
+	return mHeight;
+}
+
+float CameraClass::GetNear()const
+{
+	return mNearPlane;
+}
+float CameraClass::GetFar()const
+{
+	return mFarPlane;
 }

@@ -24,6 +24,9 @@ public:
 
 	unsigned int GetWidth()const;
 	unsigned int GetHeight()const;
+	float GetNear()const;
+	float GetFar()const;
+
 
 	void ToggleDC();
 	void SetDC(bool);
