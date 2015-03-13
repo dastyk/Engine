@@ -9,11 +9,6 @@ cbuffer MatrixBuffer : register(c0)
 struct VS_IN
 {
 	float3 Pos : POSITION;
-	float2 Tex : TEXCOORD;
-	float3 Normal : NORMAL;
-	float4 BlendWeights : BLENDWEIGHT;
-	uint4 BlendIndices : BLENDINDICES0;
-	uint Id : BLENDINDICES1;
 };
 struct VS_OUT
 {

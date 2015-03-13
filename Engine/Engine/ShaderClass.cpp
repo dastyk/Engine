@@ -338,12 +338,17 @@ bool ShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR* pFi
 			return false;
 		}
 	}
-	// Initialie Pixel shader
-	result = createPixelShader(pDevice, pFileName, "PSMain");
-	if (!result)
+
+	if (pFileName)
 	{
-		return false;
+		// Initialie Pixel shader
+		result = createPixelShader(pDevice, pFileName, "PSMain");
+		if (!result)
+		{
+			return false;
+		}
 	}
+	
 	
 
 	result = createConstantBuffer(pDevice, sizeof(MatrixBufferType), &mMatrixBuffer, D3D11_BIND_CONSTANT_BUFFER);

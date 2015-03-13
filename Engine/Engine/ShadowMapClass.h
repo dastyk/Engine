@@ -31,6 +31,7 @@ private:
 	ID3D11DepthStencilView* mDSV;
 	ID3D11Texture2D* mDSB;
 	ID3D11Texture2D* mTex;
+	ID3D11DepthStencilState* mDepthStencilState;
 
 	D3D11_VIEWPORT mViewport;
 	D3D11_RECT mRect;
@@ -39,7 +40,9 @@ private:
 
 	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
 	ID3D11DepthStencilView* prevDSV = nullptr;
+	ID3D11DepthStencilState* prevDSS = nullptr;
 	D3D11_VIEWPORT prevVP;
+
 };
 
 #endif
