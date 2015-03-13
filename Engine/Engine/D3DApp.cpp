@@ -341,7 +341,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_SIZE: // If enter/exit fullscreen
-		if (wParam == SIZE_MAXIMIZED)
+		//if (wParam == SIZE_MAXIMIZED)
 			//OnResize();
 		return 0;
 	case WM_KEYDOWN:
@@ -495,7 +495,7 @@ bool D3DApp::createDepthStencilBufferView()
 	// Set up the description of the stencil state.
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;// D3D11_COMPARISON_GREATER_EQUAL;// ;
 	
 	depthStencilDesc.StencilEnable = true;
 	depthStencilDesc.StencilReadMask = 0xFF;
