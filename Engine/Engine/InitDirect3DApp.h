@@ -96,7 +96,7 @@ private:
 	DeferredBufferClass* mDeferredBuffer;
 	DeferredShaderClass* mDeferredShader;
 
-	PointLightClass** mPointLight;
+	vector< PointLightClass*> mPointLight;
 	UINT mLightCount;
 
 	ShadowMapClass* mShadowmapShader;
@@ -106,8 +106,9 @@ private:
 
 	DeferredComputeShaderClass* mDCShader;
 
-
-	GPUTimerClass mGPUTimer[GPU_TIMER_COUNT];
+#if TIME
+		GPUTimerClass mGPUTimer[GPU_TIMER_COUNT];
+#endif
 };
 
 #endif

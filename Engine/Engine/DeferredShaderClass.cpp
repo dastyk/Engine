@@ -18,7 +18,6 @@ DeferredShaderClass::DeferredShaderClass() : ShaderClass()
 	mLightPS = 0;
 	mCamBuffer = 0;
 	mBlendState = 0;
-	mDepthStencilState = 0;
 	mLightGS = 0;
 	mVPBuffer = 0;
 	mLightVS = 0;
@@ -81,11 +80,6 @@ DeferredShaderClass::~DeferredShaderClass()
 	{
 		mBlendState->Release();
 		mBlendState = 0;
-	}
-	if (mDepthStencilState)
-	{
-		mDepthStencilState->Release();
-		mDepthStencilState = 0;
 	}
 
 	if (mLightGS)
@@ -190,7 +184,6 @@ bool DeferredShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Ob
 
 bool DeferredShaderClass::Render(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBuffer)
 {
-	bool result;
 	unsigned int bufferNumber;
 
 	unsigned int stride = sizeof(DeferredVertexStruct);
@@ -244,6 +237,7 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	unsigned int stride = sizeof(DeferredVertexStruct);
 	unsigned int offset = 0;
 
+
 	pDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &stride, &offset);
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -268,19 +262,12 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	pDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	pDeviceContext->PSSetShader(mLightPS, nullptr, 0);
 
-	//pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
 	result = SetCamConstantBufferParameters(pDeviceContext, pCamera);
 	if (!result)
 	{
 		return false;
 	}
 
-	/*result = SetVPConstantBufferParameters(pDeviceContext, pCamera);
-	if (!result)
-	{
-		return false;
-	}*/
 
 	float color[4] = { 0.0f };
 	float pcolor[4] = { 0.0f };
@@ -289,11 +276,6 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 	UINT ref = 1;
 	pDeviceContext->OMGetBlendState(&pBS, pcolor, &sampleMask);
 	pDeviceContext->OMSetBlendState(mBlendState, color, 0xffffffff);
-
-	pDeviceContext->OMGetDepthStencilState(&prevDSS, &ref);
-
-	// Set the depth stencil state.
-	pDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
 
 
 
@@ -304,6 +286,13 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 		s = ppLights[i]->GetBoundingSphere();
 		if (f.Intersects(s))
 		{
+			D3D11_RECT rect = CalcScissorRect(ppLights[i]->GetLightPos(), ppLights[i]->GetRadius(), pCamera);
+
+
+			pDeviceContext->RSSetScissorRects(1, &rect);
+
+			
+
 			result = SetLightConstantBufferParameters(pDeviceContext, ppLights[i]);
 			if (!result)
 			{
@@ -312,13 +301,24 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 
 			pDeviceContext->Draw(6, 0);
 		}
+
+
 	}
 	
-	pDeviceContext->OMSetDepthStencilState(prevDSS, ref);
+
+	//pDeviceContext->OMSetDepthStencilState(prevDSS, ref);
 
 	pDeviceContext->OMSetBlendState(pBS, pcolor, sampleMask);
 
 	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, unbindSrv);
+
+	D3D11_RECT rect;
+	rect.top = 0;
+	rect.left = 0;
+	rect.right = pCamera->GetWidth();
+	rect.bottom = pCamera->GetHeight();;
+
+	pDeviceContext->RSSetScissorRects(1, &rect);
 
 	return true;
 }
@@ -576,41 +576,6 @@ bool DeferredShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* dVertex, WCHA
 		return false;
 	}
 
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-
-
-	// Initialize the description of the stencil state.
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-	// Set up the description of the stencil state.
-	depthStencilDesc.DepthEnable = false;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	depthStencilDesc.StencilEnable = true;
-	depthStencilDesc.StencilReadMask = 0xFF;
-	depthStencilDesc.StencilWriteMask = 0xFF;
-
-	// Stencil operations if pixel is front-facing.
-	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if pixel is back-facing.
-	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Create the depth stencil state.
-	hr = pDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilState);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"Could not create mDepthStencilState.", 0, 0);
-		return false;
-	}
-
 	
 	return true;
 
@@ -816,7 +781,6 @@ D3D11_RECT DeferredShaderClass::CalcScissorRect(const XMFLOAT3& lightPos, float 
 	XMMATRIX view = XMLoadFloat4x4(&pCamera->GetViewMatrix());
 	XMFLOAT4X4 fProj = pCamera->GetProjMatrix();
 
-	XMMATRIX proj = XMLoadFloat4x4(&pCamera->GetProjMatrix());
 	float m_fNearClip = pCamera->GetNear();
 	float m_fFarClip = pCamera->GetFar();
 	UINT width = pCamera->GetWidth();

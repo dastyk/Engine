@@ -37,7 +37,7 @@ float4 PSMain(PS_IN input) : SV_TARGET
 			float4 Spec_SpecPow = shaderTexture[3].Sample(SampleType, input.Tex);
 			// Diffuse
 
-			float3 ambient = Color_LightRange.xyz*0.05; 
+			float3 ambient = Color_LightRange.xyz*0.01; 
 
 
 			L /= dist;
@@ -52,7 +52,7 @@ float4 PSMain(PS_IN input) : SV_TARGET
 
 
 
-			return float4(ambient + diffuse + specular, 1)*range;
+			return float4(ambient + diffuse + specular, 0.5)*range;
 	}
 	return float4(0, 0, 0, 0);
 }

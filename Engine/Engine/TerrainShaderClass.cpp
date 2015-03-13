@@ -204,7 +204,7 @@ bool TerrainShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCH
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 1000;
+	samplerDesc.BorderColor[0] = 0;
 	samplerDesc.BorderColor[1] = 0;
 	samplerDesc.BorderColor[2] = 0;
 	samplerDesc.BorderColor[3] = 0;
@@ -293,7 +293,7 @@ bool TerrainShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDevic
 	// Copy the matrices into the constant buffer.
 	dataPtr->ambientColor = pSunLightObject->GetAmbientLight()->GetLightColor();
 	
-	dataPtr->ambientReflection = XMFLOAT3(0.1, 0.1, 0.1);
+	dataPtr->ambientReflection = XMFLOAT3(0.1f, 0.1f, 0.1f);
 
 
 	LightClass* temp = pSunLightObject->GetDiffuseLight();

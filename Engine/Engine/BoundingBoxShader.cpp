@@ -55,7 +55,6 @@ bool BoundingBoxShader::Render(ID3D11DeviceContext* pDeviceContext, ObjectClass*
 bool BoundingBoxShader::InitShader(ID3D11Device* pDevice, WCHAR* vertex, WCHAR* pixel)
 {
 	bool result;
-	HRESULT hr;
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
@@ -71,6 +70,7 @@ bool BoundingBoxShader::InitShader(ID3D11Device* pDevice, WCHAR* vertex, WCHAR* 
 		return false;
 	}
 
+	return true;
 }
 
 

@@ -24,7 +24,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mClientHeight = 32*COMPUTE_Y;
 
 	mNearPlane = 0.1f;
-	mFarPlane = 300;
+	mFarPlane = 5000;
 	mFoV = XMConvertToRadians(90);
 
 	mMainWndCaption = L"Engine";
@@ -34,6 +34,22 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mEnable4xMsaa = false;
 
 	mBlendingState = 0;
+
+
+
+	mDxgiDevice = 0;
+	mDxgiAdapter = 0;
+	mDxgiFactory = 0;
+
+	mSwapChain = 0;
+	mDevice = 0;
+	mDeviceContext = 0;
+	mDepthStencilBuffer = 0;
+	mRenderTargetView = 0;
+	mDepthStencilView = 0;
+	mDepthStencilState = 0;
+	mRasterState = 0;
+
 }
 
 bool D3DApp::Init()
@@ -136,7 +152,23 @@ D3DApp::~D3DApp()
 		mBlendingState->Release();
 		mBlendingState = 0;
 	}
-	
+	if (mDepthStencilState)
+	{
+		mDepthStencilState->Release();
+		mDepthStencilState = 0;
+	}
+	if (mRasterState)
+	{
+		mRasterState->Release();
+		mRasterState = 0;
+	}
+#if defined(DEBUG) || defined(_DEBUG)
+	if (mDebugger)
+	{
+		mDebugger->Release();
+		mDebugger = 0;
+	}
+#endif
 }
 
 
@@ -285,7 +317,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		mAppPaused = false;
 		mResizing = false;
 		mTimer.Start();
-		OnResize();
+		//OnResize();
 		return 0;
 	case WM_MENUCHAR:
 		return MAKELRESULT(0, MNC_CLOSE);
@@ -310,7 +342,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_SIZE: // If enter/exit fullscreen
 		if (wParam == SIZE_MAXIMIZED)
-			OnResize();
+			//OnResize();
 		return 0;
 	case WM_KEYDOWN:
 		mInput->keyDown((unsigned int)wParam);
@@ -427,6 +459,12 @@ bool D3DApp::createDepthStencilBufferView()
 	depthBufferDesc.MiscFlags = 0;
 
 
+	if (mDepthStencilBuffer)
+	{
+		mDepthStencilBuffer->Release();
+		mDepthStencilBuffer = 0;
+	}
+
 	hr = mDevice->CreateTexture2D(&depthBufferDesc, 0, &mDepthStencilBuffer);
 	if (FAILED(hr))
 	{
@@ -435,7 +473,11 @@ bool D3DApp::createDepthStencilBufferView()
 	}
 
 
-
+	if (mDepthStencilView)
+	{
+		mDepthStencilView->Release();
+		mDepthStencilView = 0;
+	}
 	hr = mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView);
 	if (FAILED(hr))
 	{
@@ -471,6 +513,11 @@ bool D3DApp::createDepthStencilBufferView()
 	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
+	if (mDepthStencilState)
+	{
+		mDepthStencilState->Release();
+		mDepthStencilState = 0;
+	}
 	// Create the depth stencil state.
 	hr = mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilState);
 	if (FAILED(hr))
@@ -497,6 +544,11 @@ bool D3DApp::createDepthStencilBufferView()
 	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
+	if (mBlendingState)
+	{
+		mBlendingState->Release();
+		mBlendingState = 0;
+	}
 	// Create the blend state using the description.
 	hr = mDevice->CreateBlendState(&blendStateDescription, &mBlendingState);
 	if (FAILED(hr))
@@ -505,79 +557,6 @@ bool D3DApp::createDepthStencilBufferView()
 	}
 	float color[4] = { 0.0f };
 	mDeviceContext->OMSetBlendState(mBlendingState, color, 0xffffffff);
-
-	/*
-	// Create depth/stencil buffer and view
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-
-	// Initialize the description of the depth buffer.
-	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
-
-	depthBufferDesc.Width = mClientWidth;
-	depthBufferDesc.Height = mClientHeight;
-	depthBufferDesc.MipLevels = 1;
-	depthBufferDesc.ArraySize = 1;
-	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	if (mEnable4xMsaa)
-	{
-		depthBufferDesc.SampleDesc.Count = 4;
-		depthBufferDesc.SampleDesc.Quality = m4xMsaaQuality - 1;
-
-	}
-	else
-	{
-		depthBufferDesc.SampleDesc.Count = 1;
-		depthBufferDesc.SampleDesc.Quality = 0;
-	}
-	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthBufferDesc.CPUAccessFlags = 0;
-	depthBufferDesc.MiscFlags = 0;
-
-	hr = mDevice->CreateTexture2D(&depthBufferDesc, 0, &mDepthStencilBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"Could not create DepthStencilBuffer.", 0, 0);
-		return false;
-	}
-
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	
-
-	// Initialize the description of the stencil state.
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-	// Set up the description of the stencil state.
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	depthStencilDesc.StencilEnable = true;
-	depthStencilDesc.StencilReadMask = 0xFF;
-	depthStencilDesc.StencilWriteMask = 0xFF;
-
-	// Stencil operations if pixel is front-facing.
-	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if pixel is back-facing.
-	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Create the depth stencil state.
-	hr = mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilState);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"Could not create mDepthStencilState.", 0, 0);
-		return false;
-	}
-
-	// Set the depth stencil state.
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
 
 	
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
@@ -590,6 +569,11 @@ bool D3DApp::createDepthStencilBufferView()
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
+	if (mDepthStencilView)
+	{
+		mDepthStencilView->Release();
+		mDepthStencilView = 0;
+	}
 	hr = mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView);
 	if (FAILED(hr))
 	{
@@ -597,22 +581,25 @@ bool D3DApp::createDepthStencilBufferView()
 		return false;
 	}
 	
-	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-	*/
+
 	D3D11_RASTERIZER_DESC rasterDesc;
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
 	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = false;
+	rasterDesc.DepthClipEnable = true;
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
+	rasterDesc.ScissorEnable = true;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
+	if (mRasterState)
+	{
+		mRasterState->Release();
+		mRasterState = 0;
+	}
 	// Create the rasterizer state from the description we just filled out.
 	hr = mDevice->CreateRasterizerState(&rasterDesc, &mRasterState);
 	if (FAILED(hr))
@@ -622,7 +609,14 @@ bool D3DApp::createDepthStencilBufferView()
 
 	// Now set the rasterizer state.
 	mDeviceContext->RSSetState(mRasterState);
-	
+
+	D3D11_RECT rect;
+	rect.top = 0;
+	rect.left = 0;
+	rect.right = mClientWidth;
+	rect.bottom = mClientHeight;
+
+	mDeviceContext->RSSetScissorRects(1, &rect);
 
 	return true;
 }
@@ -657,8 +651,6 @@ void D3DApp::OnResize()
 		return;
 	}
 
-	mDepthStencilBuffer->Release();
-	mDepthStencilView->Release();
 
 	createDepthStencilBufferView();
 
@@ -763,6 +755,23 @@ bool D3DApp::createDeviceAndDeviceContext( D3D_DRIVER_TYPE pDriverType, UINT fla
 	HRESULT hr;
 	D3D_FEATURE_LEVEL featureLevel;
 
+	if (mDxgiAdapter)
+	{
+		mDxgiAdapter->Release();
+		mDxgiAdapter = 0;
+	}
+
+	if (mDevice)
+	{
+		mDevice->Release();
+		mDevice = 0;
+	}
+
+	if (mDeviceContext)
+	{
+		mDeviceContext->Release();
+		mDeviceContext = 0;
+	}
 	// Create Device and Context
 	hr = D3D11CreateDevice(
 		mDxgiAdapter,
@@ -826,6 +835,27 @@ bool D3DApp::createDeviceAndDeviceContextAndSwapChain(D3D_DRIVER_TYPE pDriverTyp
 	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
+	if (mDxgiAdapter)
+	{
+		mDxgiAdapter->Release();
+		mDxgiAdapter = 0;
+	}
+	if (mSwapChain)
+	{
+		mSwapChain->Release();
+		mSwapChain = 0;
+	}
+	if (mDevice)
+	{
+		mDevice->Release();
+		mDevice = 0;
+	}
+	if (mDeviceContext)
+	{
+		mDeviceContext->Release();
+		mDeviceContext = 0;
+	}
+
 	// Create Device and Context and SwapChain
 	hr = D3D11CreateDeviceAndSwapChain(
 		mDxgiAdapter,
@@ -850,7 +880,6 @@ bool D3DApp::createDeviceAndDeviceContextAndSwapChain(D3D_DRIVER_TYPE pDriverTyp
 		MessageBox(0, L"Direct3D Feature Level 11 unsupported.", 0, 0);
 		return false;
 	}
-
 	return true;
 }
 
@@ -927,6 +956,7 @@ bool D3DApp::createRenderTargetView(D3D11_RENDER_TARGET_VIEW_DESC* pRTVDesc)
 
 	// Create render target view
 	ID3D11Texture2D* backBuffer;
+
 	hr = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
 	if (FAILED(hr))
 	{
@@ -970,5 +1000,7 @@ void D3DApp::setViewPort(float width, float height)
 	mScreenViewport.TopLeftY = 0;
 
 	mDeviceContext->RSSetViewports(1, &mScreenViewport);
+
+	
 }
 

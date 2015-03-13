@@ -1,6 +1,6 @@
 
 #define SHADOW_EPSILON 0.001
-#define BUMP_DEPTH 1.25
+#define BUMP_DEPTH 2
 #define DETAIL_IT 4
 
 Texture2D shadowMap : register(t0);
@@ -73,13 +73,14 @@ PS_OUT PSMain(PS_IN input)
 		float4 detail0 = shaderTexture0.Sample(SampleType, input.Tex2*DETAIL_IT);
 			float4 detail1 = shaderTexture1.Sample(SampleType, input.Tex2*DETAIL_IT);
 
-			textureColor0 = textureColor0*0.1 + detail0*0.9;
-		textureColor1 = textureColor1*0.1 + detail1*0.9;
+			textureColor0 = textureColor0*(1 - depthValue) + detail0*depthValue*2.0f;
+		textureColor1 = textureColor1*(1 - depthValue) + detail1*depthValue*2.0f;
 
 
 		float3 bumpMap = NormalMap.Sample(SampleType, input.Tex2);
 
-		bumpMap = (bumpMap*BUMP_DEPTH) - (BUMP_DEPTH/2.0f);
+			bumpMap = (bumpMap*((depthValue + 0.4f)*BUMP_DEPTH)) - (((depthValue + 0.4f) *BUMP_DEPTH) / 2.0f);
+		//bumpMap *= depthValue*2.0f;
 		N = input.Normal + bumpMap.x*input.Tangent + bumpMap.y * input.Binormal;
 		N = normalize(N);
 	}

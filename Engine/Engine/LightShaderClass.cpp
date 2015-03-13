@@ -52,7 +52,6 @@ bool LightShaderClass::Init(ID3D11Device* pDevice)
 bool LightShaderClass::InitShader(ID3D11Device* pDevice, WCHAR* vFileName, WCHAR* pFileName, WCHAR* gFileName)
 {
 	bool result;
-	HRESULT hr;
 
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
@@ -168,20 +167,20 @@ bool LightShaderClass::SetConstantBufferParameters(ID3D11DeviceContext* pDeviceC
 
 	ModelClass* pModel = pObject->GetModel();
 	MatrialDesc *pMaterials = pModel->GetMaterials();
-	int oCount = pModel->GetObjectCount();
+	UINT oCount = pModel->GetObjectCount();
 
-	dataPtr->LightCount_FogRange_ObjectCount_Unused = XMFLOAT4(NrOfLights, pDrawDistFog->GetRange(), oCount, 0);
+	dataPtr->LightCount_FogRange_ObjectCount_Unused = XMFLOAT4((float)NrOfLights, pDrawDistFog->GetRange(), (float)oCount, 0);
 	dataPtr->fogColor = pDrawDistFog->GetColor();
 	dataPtr->CamPos = pCamera->GetPosition();
 
-	for (int i = 0; i < NrOfLights; i++)
+	for (UINT i = 0; i < NrOfLights; i++)
 	{
 		dataPtr->lights[i].Pos = ppLights[i]->GetLightPos();
 		XMFLOAT3 color = ppLights[i]->GetLightColor();
 		dataPtr->lights[i].Color_LightRange = XMFLOAT4(color.x, color.y, color.z, ppLights[i]->GetRadius());
 	}
 	
-	for (int i = 0; i < oCount; i++)
+	for (UINT i = 0; i < oCount; i++)
 	{
 		dataPtr->materials[i].Ambient = pMaterials[i].Ambient;
 		dataPtr->materials[i].Diffuse = pMaterials[i].Diffuse;

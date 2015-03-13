@@ -20,6 +20,7 @@ ComputeShaderClass::~ComputeShaderClass()
 		mPointSample->Release();
 		mPointSample = 0;
 	}
+
 }
 
 void ComputeShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, WCHAR* shaderFilename)

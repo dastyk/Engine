@@ -58,10 +58,10 @@ InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance)
 	m4xMsaaQuality = 1;
 
 
-	mPointLight = 0;
+	
 	mLightCount = 0;
 
-	srand(time(NULL));
+	srand((UINT)time(NULL));
 
 	mShadowmapShader = 0;
 	mBoundingBoxShader = 0;
@@ -162,7 +162,7 @@ InitDirect3DApp::~InitDirect3DApp()
 		delete mDeferredShader;
 		mDeferredShader = 0;
 	}
-	if (mPointLight)
+	if (mPointLight.size() > 0)
 	{
 		for (UINT i = 0; i < mLightCount; i++)
 		{
@@ -173,8 +173,6 @@ InitDirect3DApp::~InitDirect3DApp()
 			}
 		}
 
-		delete[]mPointLight;
-		mPointLight = 0;
 
 	}
 
@@ -232,21 +230,21 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mColorShader = new ColorShaderClass();
-	if (!mColorShader)
-		return false;
+	//mColorShader = new ColorShaderClass();
+	//if (!mColorShader)
+	//	return false;
 
-	result = mColorShader->Init(mDevice);
-	if (!result)
-		return false;
-	
-	mLightShader = new LightShaderClass();
-	if (!mLightShader)
-		return false;
+	//result = mColorShader->Init(mDevice);
+	//if (!result)
+	//	return false;
+	//
+	//mLightShader = new LightShaderClass();
+	//if (!mLightShader)
+	//	return false;
 
-	result = mLightShader->Init(mDevice);
-	if (!result)
-		return false;
+	//result = mLightShader->Init(mDevice);
+	//if (!result)
+	//	return false;
 
 	mModel = new ModelClass();
 	if (!mModel)
@@ -256,7 +254,7 @@ bool InitDirect3DApp::Init()
 	if (!result)
 		return false;
 
-	mNRofObjects = 1;
+	mNRofObjects = 100;
 	mObject = new ObjectClass*[mNRofObjects];
 	if (!mObject)
 		return false;
@@ -265,21 +263,21 @@ bool InitDirect3DApp::Init()
 	{
 		mObject[i] = new ObjectClass(mModel);
 		TransformationClass* t = mObject[i]->GetTransformation();
-		t->SetPosition(XMFLOAT3(rand() % 256, 0, rand() % 256));
-		t->SetScale(XMFLOAT3(0.1, 0.1, 0.1));
+		t->SetPosition(XMFLOAT3(rand() % 256*2.0f, 0.0f, rand() % 256*2.0f));
+		t->SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
 	}
 	
 
-	mDrawDistFog = new FogClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.4f, 0.4f, 0.9f), 10);
-	if (!mDrawDistFog)
-		return false;
+	//mDrawDistFog = new FogClass(XMFLOAT3(0, 0, 0), XMFLOAT3(0.4f, 0.4f, 0.9f), 10);
+	//if (!mDrawDistFog)
+	//	return false;
 
-	mSun = new LightObjectClass();
-	if (!mSun)
-		return false;
+	//mSun = new LightObjectClass();
+	//if (!mSun)
+	//	return false;
 
-	XMFLOAT3 dir = XMFLOAT3(-1, 0, 0);
-	mSun->GetDiffuseLight()->SetLightDir(dir);
+	//XMFLOAT3 dir = XMFLOAT3(-1, 0, 0);
+	//mSun->GetDiffuseLight()->SetLightDir(dir);
 
 	mTerrainModel = new TerrainClass();
 	if (!mTerrainModel)
@@ -344,35 +342,30 @@ bool InitDirect3DApp::Init()
 		return false;
 	}
 
-	//mLightCount = 10;
-	//mPointLight = new PointLightClass*[mLightCount];
+
+	mLightCount = 200;
+	//mPointLight = new PointLightClass*[mLightCount]; 
 	//if (!mPointLight)
 	//	return false;
 
-	//for (int i = 0; i < mLightCount; i++)
-	//{
-	//	float l = 1; rand() % 10 / 10.0f;
 
-	//	mPointLight[i] = new PointLightClass(XMFLOAT3(l, l, l), XMFLOAT3(rand() % 50 - 25, rand() % 100, rand() % 50 - 25), rand() % 100 + 20);
-	//}
-
-	mLightCount = 20;
-	mPointLight = new PointLightClass*[mLightCount]; 
-	if (!mPointLight)
-		return false;
-
-
-	mPointLight[1] = new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50);
-	mPointLight[0] = new PointLightClass(XMFLOAT3(0.025, 0.025, 0.025), XMFLOAT3(128, 275, 315), 10);
-	mPointLight[0]->SetLightDir(XMFLOAT3(0, -1, -1));
+	
+	mPointLight.push_back(new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(-128, 256, 256), 10000));
+	mPointLight[0]->SetLightDir(XMFLOAT3(1, -1, 0));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 
+	mPointLight.push_back(new PointLightClass(XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0, 0, 0), 50));
 	for (UINT i = 2; i < mLightCount; i++)
 	{
-		float l = 1;rand() % 10 / 10.0f;
-		XMFLOAT3 lp = XMFLOAT3(rand() % 256, 0, rand() % 256);
+		float l = rand() % 10 / 10.0f;
+		XMFLOAT3 lp = XMFLOAT3(rand() % 256 * 2.0f, 0, rand() % 256 * 2.0f);
 		lp.y = mTerrainModel->getHeightAtPoint(lp) + 5;
-		mPointLight[i] = new PointLightClass(XMFLOAT3(rand() % 10 / 10.0f, rand() % 10 / 10.0f, rand() % 10 / 10.0f), lp, 10);
+		mPointLight.push_back(new PointLightClass(XMFLOAT3(rand() % 10 / 10.0f, rand() % 10 / 10.0f, rand() % 10 / 10.0f), lp, (float)(rand() % 25)));
+		XMVECTOR dir = XMVectorSet(rand() % 10 - 5.0f, 0, rand() % 10 - 5.0f, 0.0f);
+		dir = XMVector3Normalize(dir);
+		XMFLOAT3 fdir;
+		XMStoreFloat3(&fdir, dir);
+		mPointLight[i]->SetLightDir(fdir);
 	}
 
 
@@ -389,20 +382,20 @@ bool InitDirect3DApp::Init()
 	{
 		mRTQ[i] = new ObjectClass(mQuadModel);
 		TransformationClass* t = mRTQ[i]->GetTransformation();	
-		t->SetPosition(XMFLOAT3(-0.666666 + 0.666666*i, -0.666666f, 0));
+		t->SetPosition(XMFLOAT3(-0.666666f + 0.666666f*i, -0.666666f, 0.0f));
 	}
 
 	mShadowmapShader = new ShadowMapClass();
 	if (!mDeferredShader)
 		return false;
 
-	result = mShadowmapShader->Init(mDevice, mClientWidth, mClientHeight);
+	result = mShadowmapShader->Init(mDevice, (float)mClientWidth, (float)mClientHeight);
 	if (!result)
 	{
 		MessageBox(0, L"Failed init shadowmap shader", 0, 0);
 		return false;
 	}
-	
+	/*
 	mBoundingBoxShader = new BoundingBoxShader();
 	if (!mBoundingBoxShader)
 		return false;
@@ -413,7 +406,7 @@ bool InitDirect3DApp::Init()
 		MessageBox(0, L"Failed init boundingbox shader", 0, 0);
 		return false;
 	}
-	
+	*/
 
 	
 	TransformationClass* temp;
@@ -421,12 +414,12 @@ bool InitDirect3DApp::Init()
 	{
 		temp = mObject[i]->GetTransformation();
 		pos = temp->GetPosition();
-		pos.y = mTerrainModel->getHeightAtPoint(pos) + 0.5;
+		pos.y = mTerrainModel->getHeightAtPoint(pos) + 0.5f;
 		temp->SetPosition(pos);
 	}
 
 	mQuadTree->AddModels(mObject, mNRofObjects);
-	mQuadTree->AddLights(mPointLight, mLightCount);
+	mQuadTree->AddLights(&mPointLight[0], mLightCount);
 	mQuadTree->AddSnow(mDevice);
 
 	mDCShader = new DeferredComputeShaderClass;
@@ -441,11 +434,13 @@ bool InitDirect3DApp::Init()
 	pos.y = mTerrainModel->getHeightAtPoint(pos) + 4.0f;
 	mCamera->SetPosition(pos);
 
+
+#if TIME
 	for (UINT i = 0; i < GPU_TIMER_COUNT; i++)
 	{
 		mGPUTimer[i].Init(mDevice);
 	}
-
+#endif
 
 	return true;
 
@@ -473,7 +468,7 @@ void InitDirect3DApp::UpdateScene(float dt)
 		rot = temp->GetRotation();
 		pos = temp->GetPosition();
 		rot.y += dt*100;
-		pos.y = mTerrainModel->getHeightAtPoint(pos)+ 0.15;
+		pos.y = mTerrainModel->getHeightAtPoint(pos)+ 0.15f;
 
 
 		temp->SetRotation(rot);
@@ -482,18 +477,43 @@ void InitDirect3DApp::UpdateScene(float dt)
 		mObject[i]->Update();
 	}
 
-	//pos.y = 2;
-	//rot.y -= dt * 25;
-	//rot.x = 90;
-	//rot.z += dt * 25;
 
+	for (UINT i = 2; i < mLightCount; i++)
+	{
+
+		pos = mPointLight[i]->GetLightPos();
+
+		XMVECTOR dir = XMLoadFloat3(& mPointLight[i]->GetLightDir());
+		XMVECTOR vPos = XMLoadFloat3(&pos);
+		vPos += dir*dt * 50;
+
+		float temp = (XMVectorGetX(vPos) > 256.0f*2) ? -XMVectorGetX(dir) : XMVectorGetX(dir);
+		dir = XMVectorSetX(dir, temp);
+
+		temp = (XMVectorGetX(vPos) < 0.0f) ? -XMVectorGetX(dir) : XMVectorGetX(dir);
+		dir = XMVectorSetX(dir, temp);
+
+		temp = (XMVectorGetZ(vPos) > 256.0f*2) ? -XMVectorGetZ(dir) : XMVectorGetZ(dir);
+		dir = XMVectorSetZ(dir, temp);
+
+		temp = (XMVectorGetZ(vPos) < 0.0f) ? -XMVectorGetZ(dir) : XMVectorGetZ(dir);
+		dir = XMVectorSetZ(dir, temp);
+
+		pos.y = mTerrainModel->getHeightAtPoint(pos) + 5.0f;
+
+		XMStoreFloat3(&pos, vPos);
+		XMFLOAT3 fdir;
+		XMStoreFloat3(&fdir, dir);
+
+		
+
+		mPointLight[i]->SetLightPos(pos);
+		mPointLight[i]->SetLightDir(fdir);
+	}
 	
 	pos = mCamera->GetPosition();
 
 	mPointLight[1]->SetLightPos(pos);
-	rot = mPointLight[0]->GetLightDir();
-	//rot.y += dt/10;
-	mPointLight[0]->SetLightDir(rot);
 	mPointLight[0]->CalcViewMatrix();
 
 
@@ -533,6 +553,22 @@ void InitDirect3DApp::handleInput()
 		PostQuitMessage(0);
 	}
 	mCamera->SetDC(mInput->isKeyDown(VK_C));
+
+
+	if (mInput->isKeyDown(VK_L))
+	{
+
+		float l = rand() % 10 / 10.0f;
+		XMFLOAT3 lp = XMFLOAT3(rand() % 256*2.0f, 0, rand() % 256*2.0f);
+		lp.y = mTerrainModel->getHeightAtPoint(lp) + 5.0f;
+		mPointLight.push_back(new PointLightClass(XMFLOAT3(rand() % 10 / 10.0f, rand() % 10 / 10.0f, rand() % 10 / 10.0f), lp, (float)(rand() % 25)));
+		XMVECTOR dir = XMVectorSet(rand() % 10 - 5.0f, 0.0f, rand() % 10 - 5.0f, 0.0f);
+		dir = XMVector3Normalize(dir);
+		XMFLOAT3 fdir;
+		XMStoreFloat3(&fdir, dir);
+		mPointLight[mLightCount]->SetLightDir(fdir);
+		mLightCount++;
+	}
 }
 
 void InitDirect3DApp::DrawScene()
@@ -546,9 +582,9 @@ void InitDirect3DApp::DrawScene()
 	BoundingFrustum f = mCamera->GetBoundingFrustum();
 	BoundingFrustum f2 = mPointLight[0]->GetBoundingFrustum();
 	UINT count = 0;
-
+#if TIME
 	mGPUTimer[0].TimeStart(mDeviceContext);
-
+#endif
 	mShadowmapShader->SetRTV(mDeviceContext);
 	mShadowmapShader->ClearRTV(mDeviceContext);
 
@@ -566,11 +602,11 @@ void InitDirect3DApp::DrawScene()
 
 	mShadowmapShader->UnbindRTV(mDeviceContext);
 
+#if TIME
 	mGPUTimer[0].TimeEnd(mDeviceContext);
 
-
 	mGPUTimer[1].TimeStart(mDeviceContext);
-
+#endif
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -584,22 +620,22 @@ void InitDirect3DApp::DrawScene()
 		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
 
-	
 
 
-	
+
+
 
 
 
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
-
+#if TIME
 	mGPUTimer[1].TimeEnd(mDeviceContext);
-	
-	mGPUTimer[2].TimeStart(mDeviceContext);
 
+	mGPUTimer[2].TimeStart(mDeviceContext);
+#endif
 	mDeferredBuffer->SetLightRT(mDeviceContext);
 	//mDeferredShader->SetLP(mDeviceContext, mCamera, mDeferredBuffer);
-	result = mDeferredShader->RenderLights(mDeviceContext, mCamera, mDeferredBuffer, mPointLight, mLightCount);
+	result = mDeferredShader->RenderLights(mDeviceContext, mCamera, mDeferredBuffer, &mPointLight[0], mLightCount);
 	if (!result)
 	{
 		MessageBox(0, L"Failed to Render Shaders", 0, 0);
@@ -609,20 +645,22 @@ void InitDirect3DApp::DrawScene()
 
 	//mDeferredShader->UnSetLP(mDeviceContext);
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
-
+#if TIME
 	mGPUTimer[2].TimeEnd(mDeviceContext);
-
+#endif
 
 
 	//// Clear back buffer blue.
 	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
-
+#if TIME
 	mGPUTimer[3].TimeStart(mDeviceContext);
-	mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
-	//mDCShader->Compute(mDeviceContext, mDeferredBuffer, COMPUTE_X, COMPUTE_Y);
+#endif
+	//mDeferredShader->Render(mDeviceContext, mDeferredBuffer);
+	mDCShader->Compute(mDeviceContext, mDeferredBuffer, COMPUTE_X, COMPUTE_Y);
+#if TIME
 	mGPUTimer[3].TimeEnd(mDeviceContext);
-
+#endif
 
 
 	//// Clear depth buffer to 1.0f and stencil buffer to 0.
@@ -640,6 +678,7 @@ void InitDirect3DApp::DrawScene()
 		mTexShader->Render(mDeviceContext, mRTQ[i]->GetIndexCount(0), mRTQ[i]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetShaderResourceView(i));
 	}
 	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
+	
 	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(0), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
 
 	
@@ -667,17 +706,17 @@ void InitDirect3DApp::DrawScene()
 
 		std::wostringstream outs;
 		outs.precision(6);
-		outs << mMainWndCaption << L"Fps: " << fps << L" Total Time: " << mspf << L" ms" << "Terrain: " << counter;
+		outs << mMainWndCaption << L"Fps: " << fps << L" Total Time: " << mspf << L" ms" << " Lights: " << mLightCount << " Terrain: " << counter;
 
-		
+#if TIME
 		for (UINT i = 0; i < GPU_TIMER_COUNT; i++)
 		{
 			double t = mGPUTimer[i].GetTime(mDeviceContext);
 			outs << " GPU Time" << i << ": " << t;
 		}
+		
+#endif
 		SetWindowText(mhMainWnd, outs.str().c_str());
-
-
 		frameCnt = 0;
 		timeElapsed += 1.0f;
 	}

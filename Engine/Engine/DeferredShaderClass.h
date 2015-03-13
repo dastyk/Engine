@@ -87,7 +87,6 @@ private:
 
 
 	ID3D11BlendState* mBlendState;
-	ID3D11DepthStencilState* mDepthStencilState;
 
 	float pcolor[4];
 	ID3D11BlendState* pBS;

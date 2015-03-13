@@ -14,6 +14,17 @@ DeferredComputeShaderClass::~DeferredComputeShaderClass()
 		mBackBuffer->Release();
 		mBackBuffer = 0;
 	}
+	if (prevRTV)
+	{
+		for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		{
+			prevRTV[i] = 0;
+		}
+	}
+	if (prevDSV)
+	{
+		prevDSV = 0;
+	}
 }
 
 
@@ -21,7 +32,7 @@ bool DeferredComputeShaderClass::Init(ID3D11Device* pDevice, IDXGISwapChain* pSw
 {
 	bool result;
 	HRESULT hr;
-	result = InitShaders(pDevice, L"data/shaders/DeferredComputeShader.hlsl");
+	result = ComputeShaderClass::InitShaders(pDevice, L"data/shaders/DeferredComputeShader.hlsl");
 	if (!result)
 		return false;
 	
@@ -38,6 +49,7 @@ bool DeferredComputeShaderClass::Init(ID3D11Device* pDevice, IDXGISwapChain* pSw
 	{
 		return false;
 	}
+	backBuffer->Release();
 
 	return true;
 }

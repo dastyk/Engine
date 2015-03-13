@@ -38,7 +38,7 @@ bool TerrainClass::Init(ID3D11Device* pDevice, QuadTree** ppQuadTree)
 
 	bool result;
 
-	result = loadRAW(257, 257, "data/resources/world10raw.raw", 0.5f, 0);
+	result = loadRAW(513, 513, "data/resources/world11.raw", 0.5f, -128.0f);
 	if (!result)
 	{
 		return false;
@@ -94,7 +94,7 @@ bool TerrainClass::loadRAW(int width, int height, const char* filename, float he
 		{
 			int index = j*mWidth + i;
 			float height = vertexHeights[index];
-			mHeightMap[i][j] = (float)(((vertexHeights[index])) * mHeightScale + mHeightOffset);
+			mHeightMap[i][j] = (float)(((vertexHeights[index]) + mHeightOffset) * mHeightScale);
 		}
 	}
 
@@ -293,8 +293,8 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 	while (!done)
 	{
 		float w = (float)mWidth - 1;
-		float pow1 = powf(2, mNrOfDetailLevels);
-		float pow2 = powf(pow1, 2);
+		float pow1 = powf(2.0f, (float)mNrOfDetailLevels);
+		float pow2 = powf(pow1, 2.0f);
 		float t = w / pow2;
 		if (t < mNrOfDetailLevels + 1)
 		{
@@ -434,7 +434,7 @@ bool TerrainClass::fillVertexAndIndexData(ID3D11Device* pDevice, WCHAR* texFileN
 
 void TerrainClass::CalcNormalTangentBinormal(TerrainVertex* vertices, unsigned long* indices, UINT i)
 {
-	int index = 0;
+	UINT index = 0;
 
 
 	while (index < mIndexCount[i])
@@ -582,7 +582,6 @@ bool TerrainClass::GetVectorAtPoint(const XMFLOAT3& forward, const XMFLOAT3& pos
 	XMFLOAT3 fTriY2 = (mHeightMapNormal[x][z + 1]);
 	XMFLOAT3 fTriY3 = (mHeightMapNormal[x + 1][z + 1]);
 
-	float fHeight;
 	float fSqX = pos.x - truncf(pos.x);
 	float fSqZ = pos.z - truncf(pos.z);
 	if ((fSqX + fSqZ) < 1)

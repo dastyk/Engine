@@ -399,7 +399,7 @@ bool LoadSmfModel(char* filename, UINT& vertexCount, Vertex** ppVertexArray, UIN
 	fread((*ppIndexArray), sizeof(unsigned long), head.IndexCount, filePtr);
 	fread(textureSize, sizeof(UINT), head.MaterialCount, filePtr);
 
-	for (int i = 0; i < materialCount; i++)
+	for (UINT i = 0; i < materialCount; i++)
 	{
 		textureArray[i] = new char[textureSize[i]];
 		fread(textureArray[i], textureSize[i], 1, filePtr);

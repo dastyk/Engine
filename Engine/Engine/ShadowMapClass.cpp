@@ -6,6 +6,8 @@ ShadowMapClass::ShadowMapClass()
 	mRTV = 0;
 	mSRV = 0;
 	mDSV = 0;
+	mDSB = 0;
+	mTex = 0;
 }
 
 
@@ -27,7 +29,32 @@ ShadowMapClass::~ShadowMapClass()
 		mDSV->Release();
 		mDSV = 0;
 	}
-	
+	if (prevRTV)
+	{
+		for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+		{
+			if (prevRTV[i])
+			{
+				prevRTV[i]->Release();
+				prevRTV[i] = 0;
+			}
+		}
+
+	}
+	if (prevDSV)
+	{
+		prevDSV = 0;
+	}
+	if (mDSB)
+	{
+		mDSB->Release();
+		mDSB = 0;
+	}
+	if (mTex)
+	{
+		mTex->Release();
+		mTex = 0;
+	}
 }
 
 bool ShadowMapClass::Init(ID3D11Device* pDevice, float w, float h)
@@ -69,6 +96,7 @@ void  ShadowMapClass::SetRTV(ID3D11DeviceContext* pDeviceContext)
 	pDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
 	pDeviceContext->OMSetRenderTargets(1, &mRTV, mDSV);
 	pDeviceContext->RSSetViewports(1, &mViewport);
+	pDeviceContext->RSSetScissorRects(1, &mRect);
 
 }
 void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
@@ -82,13 +110,27 @@ void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
 void  ShadowMapClass::UnbindRTV(ID3D11DeviceContext* pDeviceContext)
 {
 	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, prevDSV);
+
 	pDeviceContext->RSSetViewports(1, &prevVP);
+	pDeviceContext->RSSetScissorRects(1, &mPR);
 }
 
 bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFile, WCHAR* gFile, float w, float h)
 {
 	bool result;
 	HRESULT hr;
+	mPR.bottom = (LONG)h;
+	mPR.right = (LONG)w;
+	mPR.left = 0;
+	mPR.top = 0;
+
+	w = 1024;
+	h = 1024;
+	mRect.bottom = (LONG)h*SHADOW_DETAIL;
+	mRect.right = (LONG)w*SHADOW_DETAIL;
+	mRect.left = 0;
+	mRect.top = 0;
+
 
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
@@ -114,8 +156,8 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
 
 	// Setup the render target texture description.
-	textureDesc.Width = w*SHADOW_DETAIL;
-	textureDesc.Height = h*SHADOW_DETAIL;
+	textureDesc.Width = (UINT)w*SHADOW_DETAIL;
+	textureDesc.Height = (UINT)h*SHADOW_DETAIL;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R32_TYPELESS; //DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -125,7 +167,7 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
 
-	ID3D11Texture2D* mTex;
+
 
 	// Create the render target texture
 	hr = pDevice->CreateTexture2D(&textureDesc, NULL, &mTex);
@@ -171,8 +213,8 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 
 	// Set up the description of the depth buffer.
-	depthBufferDesc.Width = w*SHADOW_DETAIL;
-	depthBufferDesc.Height = h*SHADOW_DETAIL;
+	depthBufferDesc.Width = (UINT)w*SHADOW_DETAIL;
+	depthBufferDesc.Height = (UINT)h*SHADOW_DETAIL;
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -182,7 +224,7 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthBufferDesc.CPUAccessFlags = 0;
 	depthBufferDesc.MiscFlags = 0;
-	ID3D11Texture2D* mDSB;
+
 	// Create the texture for the depth buffer using the filled out description.
 	hr = pDevice->CreateTexture2D(&depthBufferDesc, NULL, &mDSB);
 	if (FAILED(hr))
@@ -206,7 +248,6 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	{
 		return false;
 	}
-
 
 	// Setup the viewport for rendering.
 	mViewport.Width = (float)w*SHADOW_DETAIL;

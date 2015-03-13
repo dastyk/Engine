@@ -193,12 +193,12 @@ UINT QuadTree::GetTerrainDetail(XMFLOAT3* p)
 	
 	for (UINT i = 0; i < mNrOfDetailLevels; i++)
 	{
-		if (dist < (d2+ (d2*0.8)*(i+1)))
+		if (dist < (d2+ (d2*4)*(i+1)))
 		{
 			return i;
 		}
 	}
-	return mNrOfDetailLevels - 1;
+	return 0;
 }
 
 int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainShaderClass* pShader, DeferredShaderClass* pOShader, ObjectClass* pObject, CameraClass* pCamera, PointLightClass* pLights, ID3D11ShaderResourceView* pShadowmap)
@@ -229,8 +229,6 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		if (!result)
 			return -1;
 
-		count++;
-		
 
 		for (UINT i = 0; i < mObjectCount; i++)
 		{
@@ -244,7 +242,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 
 
 
-		return count;
+		return mIndexCount[tDL];
 		
 	}
 	else if ((!mChildren[0]))
@@ -264,8 +262,6 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		if (!result)
 			return -1;
 
-		count++;
-
 
 		for (UINT i = 0; i < mObjectCount; i++)
 		{
@@ -280,7 +276,7 @@ int QuadTree::RenderAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, TerrainS
 		}
 
 
-		return count;
+		return mIndexCount[tDL];
 	}
 	else
 	{
@@ -353,6 +349,8 @@ int QuadTree::RenderLightsAgainsQuadTree(ID3D11DeviceContext* pDeviceContext, De
 		}
 		return count;
 	}
+
+	return 0;
 }
 
 void QuadTree::AddModels(ObjectClass** ppObject, UINT nrOfObjects)
@@ -396,6 +394,8 @@ bool QuadTree::AddModelHelper(ObjectClass* pObject)
 	{
 		return false;
 	}
+
+	return true;
 }
 
 void QuadTree::CopyFromVectorToArray()
@@ -458,6 +458,8 @@ bool QuadTree::AddLightHelper(PointLightClass* pPointLights)
 	{
 		return false;
 	}
+
+	return true;
 }
 
 bool QuadTree::AddSnow(ID3D11Device* pDevice)
@@ -480,6 +482,8 @@ bool QuadTree::AddSnow(ID3D11Device* pDevice)
 		if (!result)
 			return false;
 	}
+
+	return true;
 }
 
 void QuadTree::Update(float dt, CameraClass* pCamera)

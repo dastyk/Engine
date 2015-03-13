@@ -3,11 +3,17 @@
 
 ParticleShaderClass::ParticleShaderClass()
 {
+	mSampleState = 0;
 }
 
 
 ParticleShaderClass::~ParticleShaderClass()
 {
+	if (mSampleState)
+	{
+		mSampleState->Release();
+		mSampleState = 0;
+	}
 }
 
 bool ParticleShaderClass::Init(ID3D11Device* pDevice)
