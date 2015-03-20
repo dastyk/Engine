@@ -2,6 +2,7 @@
 #define SHADOW_EPSILON 0.001
 #define BUMP_DEPTH 2
 #define DETAIL_IT 4
+#define SMAP_SIZE (1024*16)
 
 Texture2D shadowMap : register(t0);
 Texture2D DetailMap : register(t1);
@@ -39,12 +40,26 @@ PS_OUT PSMain(PS_IN input)
 		
 		float sCont = 1;
 
-		float lDepth = shadowMap.Sample(PointSample, smTex).r;
+	//	float lDepth = shadowMap.Sample(PointSample, smTex).r;
 		
 		float depth = input.LPos.z / input.LPos.w;
-			if (lDepth + SHADOW_EPSILON > depth)
+			/*if (lDepth + SHADOW_EPSILON > depth)
 				sCont = 0.3;
+*/
+			float dx = 1.0f / SMAP_SIZE; // size of one texture sample in the shadow map (width==height)
+			float s0 = (shadowMap.Sample(PointSample, smTex).r + SHADOW_EPSILON > depth) ? 0.0f : 1.0f;
+			float s1 = (shadowMap.Sample(PointSample, smTex + float2(dx, 0.0f)).r + SHADOW_EPSILON > depth) ? 0.0f : 1.0f;
+			float s2 = (shadowMap.Sample(PointSample, smTex + float2(0.0f, dx)).r + SHADOW_EPSILON > depth) ? 0.0f : 1.0f;
+			float s3 = (shadowMap.Sample(PointSample, smTex + float2(dx, dx)).r + SHADOW_EPSILON > depth) ? 0.0f : 1.0f;
 
+			// Transform shadow map UV coord to texel space
+			float2 texelPos = smTex * SMAP_SIZE;
+
+
+				// Determine the lerp amount, if  ! = (340.3, 200.1) then ! = (0.3,0.1)
+				float2 lerps = frac(texelPos);
+				sCont = lerp(lerp(s0, s1, lerps.x), lerp(s2, s3, lerps.x), lerps.y);
+
 
 
 	float4 textureColor0, textureColor1;

@@ -337,7 +337,7 @@ bool TerrainShaderClass::RenderDeferred(ID3D11DeviceContext* pDeviceContext, Obj
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix(), pCamera->GetForward());
+	result = ShaderClass::SetConstantBufferParameters(pDeviceContext, pObject->GetWorldMatrix(), pCamera->GetViewMatrix(), pCamera->GetProjMatrix(), pCamera->GetPosition());
 	if (!result)
 	{
 		return false;

@@ -3,7 +3,7 @@
 
 ShadowMapClass::ShadowMapClass()
 {
-	mRTV = 0;
+
 	mSRV = 0;
 	mDSV = 0;
 	mDSB = 0;
@@ -14,11 +14,7 @@ ShadowMapClass::ShadowMapClass()
 
 ShadowMapClass::~ShadowMapClass()
 {
-	if (mRTV)
-	{
-		mRTV->Release();
-		mRTV = 0;
-	}
+
 
 	if (mSRV)
 	{
@@ -115,10 +111,6 @@ void  ShadowMapClass::SetRTV(ID3D11DeviceContext* pDeviceContext)
 }
 void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
 {
-
-	float color[] = { 0, 0, 0, 0 };
-
-//	pDeviceContext->ClearRenderTargetView(mRTV, color);
 	pDeviceContext->ClearDepthStencilView(mDSV, D3D11_CLEAR_DEPTH, 0.0f, 0);
 }
 void  ShadowMapClass::UnbindRTV(ID3D11DeviceContext* pDeviceContext)
@@ -149,12 +141,8 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		//{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//{ "BLENDINDICES", 1, DXGI_FORMAT_R32_UINT, 0, 64, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
+
 	// Get a count of the elements in the layout.
 	int numElements = sizeof(vertexDesc) / sizeof(vertexDesc[0]);
 
@@ -164,63 +152,6 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 		return false;
 	}
 
-	//D3D11_TEXTURE2D_DESC textureDesc;
-
-	//// Initialize the render target texture description.
-	//ZeroMemory(&textureDesc, sizeof(textureDesc));
-
-	//// Setup the render target texture description.
-	//textureDesc.Width = (UINT)w*SHADOW_DETAIL;
-	//textureDesc.Height = (UINT)h*SHADOW_DETAIL;
-	//textureDesc.MipLevels = 1;
-	//textureDesc.ArraySize = 1;
-	//textureDesc.Format = DXGI_FORMAT_R32_TYPELESS; //DXGI_FORMAT_R8G8B8A8_UNORM;
-	//textureDesc.SampleDesc.Count = 1;
-	//textureDesc.Usage = D3D11_USAGE_DEFAULT;
-	//textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	//textureDesc.CPUAccessFlags = 0;
-	//textureDesc.MiscFlags = 0;
-
-
-
-	//// Create the render target texture
-	//hr = pDevice->CreateTexture2D(&textureDesc, NULL, &mTex);
-	//if (FAILED(hr))
-	//{
-	//	return false;
-	//}
-	//
-	//D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-
-	//// Setup the description of the render target view.
-	//renderTargetViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	//renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	//renderTargetViewDesc.Texture2D.MipSlice = 0;
-
-
-	//// Create the render target view.
-	//hr = pDevice->CreateRenderTargetView(mTex, &renderTargetViewDesc, &mRTV);
-	//if (FAILED(hr))
-	//{
-	//	return false;
-	//}
-	
-	//D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-
-	//// Setup the description of the shader resource view.
-	//shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	//shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	//shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	//shaderResourceViewDesc.Texture2D.MipLevels = 1;
-
-	//// Create the shader resource view.
-
-	//hr = pDevice->CreateShaderResourceView(mTex, &shaderResourceViewDesc, &mSRV);
-	//if (FAILED(hr))
-	//{
-	//	return false;
-	//}
-	//
 
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 	// Initialize the description of the depth buffer.

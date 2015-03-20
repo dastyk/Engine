@@ -3,7 +3,7 @@
 
 #pragma once
 
-#define SHADOW_DETAIL 8
+#define SHADOW_DETAIL 16
 
 #include "ShaderClass.h"
 class ShadowMapClass :
@@ -26,7 +26,6 @@ private:
 
 	void RenderShader(ID3D11DeviceContext*, int);
 private: 
-	ID3D11RenderTargetView* mRTV;
 	ID3D11ShaderResourceView* mSRV;
 	ID3D11DepthStencilView* mDSV;
 	ID3D11Texture2D* mDSB;

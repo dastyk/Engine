@@ -350,7 +350,7 @@ bool InitDirect3DApp::Init()
 
 
 	
-	mPointLight.push_back(new PointLightClass(XMFLOAT3(0.8, 0.8, 0.8), XMFLOAT3(-128, 256, 256), 10000));
+	mPointLight.push_back(new PointLightClass(XMFLOAT3(0.3, 0.3, 0.3), XMFLOAT3(-128, 256, 256), 10000));
 	mPointLight[0]->SetLightDir(XMFLOAT3(1, -1, 0));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 
@@ -679,7 +679,7 @@ void InitDirect3DApp::DrawScene()
 	}
 	mRTQ[2]->SetAsObjectToBeDrawn(mDeviceContext, 0);
 	
-	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(0), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mShadowmapShader->GetShaderResourceView());
+	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(0), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
 
 	
 	// Present the back buffer to the screen
