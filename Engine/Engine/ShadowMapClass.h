@@ -36,10 +36,6 @@ private:
 	D3D11_RECT mRect;
 
 	D3D11_RECT mPR;
-
-	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-	ID3D11DepthStencilView* prevDSV = nullptr;
-	ID3D11DepthStencilState* prevDSS = nullptr;
 	D3D11_VIEWPORT prevVP;
 
 };

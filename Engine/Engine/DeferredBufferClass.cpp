@@ -215,32 +215,21 @@ bool DeferredBufferClass::Init(ID3D11Device* device, int textureWidth, int textu
 	return true;
 }
 
-void DeferredBufferClass::SetRenderTargets(ID3D11DeviceContext* deviceContext)
+void DeferredBufferClass::SetRenderTargets(ID3D11DeviceContext* pDeviceContext)
 {
-	for (int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-	{
-		prevRTV[i] = nullptr;
-	}
-
-	deviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
-
 	// Bind the render target view array and depth stencil buffer to the output render pipeline.
-	deviceContext->OMSetRenderTargets(BUFFER_COUNT, mRenderTargetViewArray, mDepthStencilView);
-
-	UINT p = 1;
-	//deviceContext->RSGetViewports(&p, prevVP);
-
-	// Set the viewport.
-	//deviceContext->RSSetViewports(1, &mViewport);
+	pDeviceContext->OMSetRenderTargets(BUFFER_COUNT, mRenderTargetViewArray, mDepthStencilView);
 }
 
-void DeferredBufferClass::UnsetRenderTargets(ID3D11DeviceContext* deviceContext)
+void DeferredBufferClass::UnsetRenderTargets(ID3D11DeviceContext* pDeviceContext)
 {
-	deviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, prevDSV);
-	//deviceContext->RSSetViewports(1, prevVP);
+	ID3D11RenderTargetView* nullRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
+	ID3D11DepthStencilView* nullDSV = nullptr;
+	// Bind the render target view array and depth stencil buffer to the output render pipeline.
+	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTV, nullDSV);
 }
 
-void DeferredBufferClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext, float red, float green, float blue, float alpha)
+void DeferredBufferClass::ClearRenderTargets(ID3D11DeviceContext* pDeviceContext, float red, float green, float blue, float alpha)
 {
 	float color[4];
 	int i;
@@ -255,18 +244,18 @@ void DeferredBufferClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext,
 	// Clear the render target buffers.
 	for (i = 0; i<BUFFER_COUNT; i++)
 	{
-		deviceContext->ClearRenderTargetView(mRenderTargetViewArray[i], color);
+		pDeviceContext->ClearRenderTargetView(mRenderTargetViewArray[i], color);
 	}
 
-	deviceContext->ClearRenderTargetView(mLightRTV, color);
+	pDeviceContext->ClearRenderTargetView(mLightRTV, color);
 
-	ClearDepthBuffer(deviceContext);
+	ClearDepthBuffer(pDeviceContext);
 }
 
-void DeferredBufferClass::ClearDepthBuffer(ID3D11DeviceContext* deviceContext)
+void DeferredBufferClass::ClearDepthBuffer(ID3D11DeviceContext* pDeviceContext)
 {
 	// Clear the depth buffer.
-	deviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	pDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 ID3D11ShaderResourceView* DeferredBufferClass::GetShaderResourceView(int view)
@@ -279,17 +268,10 @@ ID3D11ShaderResourceView** DeferredBufferClass::GetShaderResourceView()
 	return mShaderResourceViewArray;
 }
 
-void DeferredBufferClass::SetLightRT(ID3D11DeviceContext* deviceContext)
+void DeferredBufferClass::SetLightRT(ID3D11DeviceContext* pDeviceContext)
 {
-	for (int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-	{
-		prevRTV[i] = nullptr;
-	}
-
-	deviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
-
 	// Bind the render target view array and depth stencil buffer to the output render pipeline.
-	deviceContext->OMSetRenderTargets(1, &mLightRTV, mDepthStencilView);
+	pDeviceContext->OMSetRenderTargets(1, &mLightRTV, mDepthStencilView);
 
 }
 

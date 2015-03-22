@@ -343,7 +343,7 @@ bool InitDirect3DApp::Init()
 	}
 
 
-	mLightCount = 200;
+	mLightCount = 150;
 	//mPointLight = new PointLightClass*[mLightCount]; 
 	//if (!mPointLight)
 	//	return false;
@@ -601,12 +601,17 @@ void InitDirect3DApp::DrawScene()
 	}
 
 	mShadowmapShader->UnbindRTV(mDeviceContext);
-
 #if TIME
 	mGPUTimer[0].TimeEnd(mDeviceContext);
 
 	mGPUTimer[1].TimeStart(mDeviceContext);
 #endif
+
+
+	// Set the depth stencil state.
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
+
+
 	mDeferredBuffer->SetRenderTargets(mDeviceContext);
 	mDeferredBuffer->ClearRenderTargets(mDeviceContext, 0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -620,14 +625,10 @@ void InitDirect3DApp::DrawScene()
 		mPointLight[0],
 		mShadowmapShader->GetShaderResourceView());
 
-
-
-
-
-
-
-
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
+
+	
+
 #if TIME
 	mGPUTimer[1].TimeEnd(mDeviceContext);
 
@@ -645,14 +646,17 @@ void InitDirect3DApp::DrawScene()
 
 	//mDeferredShader->UnSetLP(mDeviceContext);
 	mDeferredBuffer->UnsetRenderTargets(mDeviceContext);
+
+	float color[4] = { 0.0f };
+	mDeviceContext->OMSetBlendState(mBlendingState, color, 0xffffffff);
+
+
+
 #if TIME
 	mGPUTimer[2].TimeEnd(mDeviceContext);
 #endif
 
-
-	//// Clear back buffer blue.
-	float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
+	
 #if TIME
 	mGPUTimer[3].TimeStart(mDeviceContext);
 #endif
@@ -663,15 +667,20 @@ void InitDirect3DApp::DrawScene()
 #endif
 
 
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	////// Clear back buffer blue.
+	//float clearColor[] = { 0.4f, 0.4f, 0.9f, 1.0f };
+	//mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
+	
 	//// Clear depth buffer to 1.0f and stencil buffer to 0.
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	
+//	
 	mQuadTree->RenderSnow(mDeviceContext, mParticleShader, mCamera);
-	
-
-
-	
+//	
+//
+//
+//	
 	for (int i = 0; i < BUFFER_COUNT-2; i++)
 	{
 		mRTQ[i]->SetAsObjectToBeDrawn(mDeviceContext, 0);
@@ -681,7 +690,7 @@ void InitDirect3DApp::DrawScene()
 	
 	mTexShader->Render(mDeviceContext, mRTQ[2]->GetIndexCount(0), mRTQ[2]->GetWorldMatrix(), mCamera->GetViewMatrix(), mCamera->GetProjMatrix(), mCamera->GetForward(), mDeferredBuffer->GetLightSRV());
 
-	
+//	
 	// Present the back buffer to the screen
 
 

@@ -37,10 +37,6 @@ private:
 	ID3D11Texture2D* mLightTexture;
 	ID3D11RenderTargetView* mLightRTV;
 	ID3D11ShaderResourceView* mLightSRV;
-
-	ID3D11DepthStencilView* prevDSV = nullptr;
-	ID3D11RenderTargetView* prevRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-	D3D11_VIEWPORT* prevVP = nullptr;
 };
 
 #endif

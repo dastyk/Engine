@@ -72,12 +72,16 @@ void DeferredComputeShaderClass::UnsetParameters(ID3D11DeviceContext* pDeviceCon
 	pDeviceContext->CSSetUnorderedAccessViews(0, 1, uav, NULL);
 	pDeviceContext->CSSetShaderResources(0, 1, &srv2);
 	pDeviceContext->CSSetShaderResources(1, BUFFER_COUNT, srv);
-	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, prevDSV);
+
+	ID3D11RenderTargetView* nullRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
+	ID3D11DepthStencilView* nullDSV = nullptr;
+	// Bind the render target view array and depth stencil buffer to the output render pipeline.
+	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTV, nullDSV);
 }
 
 bool DeferredComputeShaderClass::SetShaderParameters(ID3D11DeviceContext* pDeviceContext, DeferredBufferClass* pBufferClass)
 {
-	pDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
+	//pDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
 	pDeviceContext->CSSetUnorderedAccessViews(0, 1, &mBackBuffer, NULL);
 
 	ID3D11ShaderResourceView* tex = pBufferClass->GetLightSRV();

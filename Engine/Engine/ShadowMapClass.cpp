@@ -26,22 +26,6 @@ ShadowMapClass::~ShadowMapClass()
 		mDSV->Release();
 		mDSV = 0;
 	}
-	if (prevRTV)
-	{
-		for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
-		{
-			if (prevRTV[i])
-			{
-				prevRTV[i]->Release();
-				prevRTV[i] = 0;
-			}
-		}
-
-	}
-	if (prevDSV)
-	{
-		prevDSV = 0;
-	}
 	if (mDSB)
 	{
 		mDSB->Release();
@@ -94,20 +78,14 @@ bool ShadowMapClass::CreateShadowMap(ID3D11DeviceContext* pDeviceContext, Object
 
 void  ShadowMapClass::SetRTV(ID3D11DeviceContext* pDeviceContext)
 {
-	UINT i = 1;
-	pDeviceContext->RSGetViewports(&i, &prevVP);
-	pDeviceContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, &prevDSV);
-	pDeviceContext->OMGetDepthStencilState(&prevDSS, &i);
-	ID3D11RenderTargetView* nRTV = nullptr;
-	pDeviceContext->OMSetRenderTargets(1, &nRTV, mDSV);
+	pDeviceContext->OMSetRenderTargets(0, NULL, mDSV);
 
 	// Set the depth stencil state.
 	pDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
 
-
 	pDeviceContext->RSSetViewports(1, &mViewport);
 	pDeviceContext->RSSetScissorRects(1, &mRect);
-
+	
 }
 void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
 {
@@ -115,10 +93,17 @@ void  ShadowMapClass::ClearRTV(ID3D11DeviceContext* pDeviceContext)
 }
 void  ShadowMapClass::UnbindRTV(ID3D11DeviceContext* pDeviceContext)
 {
-	pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, prevRTV, prevDSV);
-	pDeviceContext->OMSetDepthStencilState(prevDSS, 1);
+	//ID3D11RenderTargetView* nullRTV[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
+	//ID3D11DepthStencilView* nullDSV = nullptr;
+	//ID3D11DepthStencilState* nullDSS = nullptr;
+
+	//// Bind the render target view array and depth stencil buffer to the output render pipeline.
+	//pDeviceContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTV, nullDSV);
+	//pDeviceContext->OMSetDepthStencilState(nullDSS, 1);
+
 	pDeviceContext->RSSetViewports(1, &prevVP);
 	pDeviceContext->RSSetScissorRects(1, &mPR);
+
 }
 
 bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFile, WCHAR* gFile, float w, float h)
@@ -129,6 +114,12 @@ bool ShadowMapClass::InitShader(ID3D11Device* pDevice, WCHAR* vFile, WCHAR* pFil
 	mPR.right = (LONG)w;
 	mPR.left = 0;
 	mPR.top = 0;
+	prevVP.Height = h;
+	prevVP.Width = w;
+	prevVP.TopLeftX = 0;
+	prevVP.TopLeftY = 0;
+	prevVP.MaxDepth = 1.0f;
+	prevVP.MinDepth = 0.0f;
 
 	w = 1024;
 	h = 1024;
