@@ -350,7 +350,7 @@ bool InitDirect3DApp::Init()
 
 
 	
-	mPointLight.push_back(new PointLightClass(XMFLOAT3(0.3, 0.3, 0.3), XMFLOAT3(-128, 256, 256), 10000));
+	mPointLight.push_back(new PointLightClass(XMFLOAT3(0.3f, 0.3f, 0.3f), XMFLOAT3(-128.0f, 256.0f, 256.0f), 10000.0f));
 	mPointLight[0]->SetLightDir(XMFLOAT3(1, -1, 0));
 	mPointLight[0]->SetProjMatrix(mFoV, AspectRatio(), mNearPlane, mFarPlane);
 

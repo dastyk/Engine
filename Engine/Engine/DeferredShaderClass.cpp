@@ -271,10 +271,9 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 
 	float color[4] = { 0.0f };
 	float pcolor[4] = { 0.0f };
-	ID3D11BlendState* pBS;
 	UINT sampleMask = 0xffffffff;
 	UINT ref = 1;
-	//pDeviceContext->OMGetBlendState(&pBS, pcolor, &sampleMask);
+
 	pDeviceContext->OMSetBlendState(mBlendState, color, 0xffffffff);
 
 
@@ -305,11 +304,6 @@ bool DeferredShaderClass::RenderLights(ID3D11DeviceContext* pDeviceContext, Came
 
 	}
 	
-
-	//pDeviceContext->OMSetDepthStencilState(prevDSS, ref);
-
-	//pDeviceContext->OMSetBlendState(pBS, pcolor, sampleMask);
-
 	pDeviceContext->PSSetShaderResources(0, BUFFER_COUNT, unbindSrv);
 
 	D3D11_RECT rect;
